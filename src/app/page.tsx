@@ -1,7 +1,15 @@
+import SaleBanner from "@/components/Homepage/Banner";
+import BrandDescription from "@/components/Homepage/BrandDescription";
+import InstagramFeed from "@/components/Homepage/InstagramPosts";
+import NewArrivals from "@/components/Homepage/NewArrivals";
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h1>Ada Studios</h1>
+    <main className="flex flex-col items-center justify-between">
+      <SaleBanner />
+      <NewArrivals />
+      <BrandDescription />
+      <InstagramFeed />
     </main>
   );
 }
