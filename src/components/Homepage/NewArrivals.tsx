@@ -12,7 +12,7 @@ export default function NewArrivals() {
   return (
     <section className="my-8">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">NEW ARRIVALS</h2>
+        <h2 className="text-2xl font-bold font-main-font">NEW ARRIVALS</h2>
         <a href="/new-arrivals" className="text-sm">VIEW ALL</a>
       </div>
       <div className="grid grid-cols-4 gap-4">

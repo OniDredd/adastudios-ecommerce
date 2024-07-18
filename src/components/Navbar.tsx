@@ -1,15 +1,17 @@
 "use client";
 
-// components/Navbar.js
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from 'next/navigation';
 import { FaSearch, FaUser, FaShoppingCart } from "react-icons/fa";
 import LogoLight from "/public/adastudioslogo-creme.svg";
 import LogoDark from "/public/adastudioslogo-green.svg";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,35 +22,37 @@ export default function Navbar() {
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    if (isHomePage) {
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    } else {
+      setIsScrolled(true);
+    }
+  }, [isHomePage]);
 
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+  const navbarStyle = isHomePage && !isScrolled
+    ? "bg-transparent text-main-creme py-7 border-b-[1px] border-main-creme"
+    : "bg-main-creme text-secondary-green py-3 border-b-[1px] border-secondary-green";
 
   return (
     <header
-      className={`fixed w-full z-50 transition-all duration-300 ease-in-out
-      ${
-        isScrolled
-          ? "bg-main-creme text-secondary-green py-3 border-b-[1px] border-secondary-green"
-          : "bg-transparent text-main-creme py-7 border-b-[1px] border-main-creme"
-      }`}
+      className={`fixed w-full z-50 transition-all duration-300 ease-in-out ${navbarStyle}`}
     >
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center">
+          <Link href="/">
           <Image
-            src={isScrolled ? LogoDark : LogoLight}
+            src={isHomePage && !isScrolled ? LogoLight : LogoDark}
             alt="Ada Studios Logo"
             width={150}
             height={150}
-          />
+            />
+          </Link>
           <nav>
             <ul className="flex flex-row justify-between space-x-6">
               <li>
                 <Link
-                  href="/shop"
+                  href="/shopall"
                   className="hover:text-secondary-brown duration-200"
                 >
                   SHOP
@@ -64,10 +68,10 @@ export default function Navbar() {
               </li>
               <li>
                 <Link
-                  href="/new-arrivals"
+                  href="/accessories"
                   className="hover:text-secondary-brown duration-200"
                 >
-                  NEW ARRIVALS
+                  ACCESSORIES
                 </Link>
               </li>
             </ul>

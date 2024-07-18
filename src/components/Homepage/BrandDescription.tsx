@@ -2,7 +2,7 @@
 export default function BrandDescription() {
     return (
       <section className="p-32 text-center">
-        <p className="mb-10">
+        <p className="mb-10 font-main-font text-2xl">
           RUBY is an eminent fashion label from Aotearoa. Best known and loved for
           our mutually nourishing relationship with our community and the way our
           designs embody those who wear them.

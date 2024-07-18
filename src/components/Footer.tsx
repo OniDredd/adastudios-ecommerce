@@ -16,7 +16,7 @@ export default function Footer() {
           <div>
             <h3 className="font-bold text-lg mb-4 font-main-font">SHOP</h3>
             <ul className="space-y-2">
-              <li><Link href="/new-arrivals" className='hover:text-secondary-brown duration-200'>New Arrivals</Link></li>
+              <li><Link href="/accessories" className='hover:text-secondary-brown duration-200'>Accessories</Link></li>
               <li><Link href="/sale" className='hover:text-secondary-brown duration-200'>Sale</Link></li>
             </ul>
           </div>
@@ -27,7 +27,6 @@ export default function Footer() {
             <h3 className="font-bold text-lg mb-4 font-main-font">ADA STUDIO</h3>
             <ul className="space-y-2">
               <li><Link href="/about" className='hover:text-secondary-brown duration-200'>About</Link></li>
-              <li><Link href="/careers" className='hover:text-secondary-brown duration-200'>Careers</Link></li>
             </ul>
           </div>
 
@@ -35,12 +34,10 @@ export default function Footer() {
           <div>
             <h3 className="font-bold text-lg mb-4 font-main-font">HELP</h3>
             <ul className="space-y-2">
-              <li><Link href="/contact-us" className='hover:text-secondary-brown duration-200'>Contact Us</Link></li>
-              <li><Link href="/size-guide" className='hover:text-secondary-brown duration-200'>Size Guide</Link></li>
+              <li><Link href="/contact" className='hover:text-secondary-brown duration-200'>Contact Us</Link></li>
               <li><Link href="/help-centre" className='hover:text-secondary-brown duration-200'>Help Centre</Link></li>
               <li><Link href="/shipping" className='hover:text-secondary-brown duration-200'>Shipping</Link></li>
-              <li><Link href="/returns" className='hover:text-secondary-brown duration-200'>Returns</Link></li>
-              <li><Link href="/my-account" className='hover:text-secondary-brown duration-200'>My Account</Link></li>
+              <li><Link href="/faq" className='hover:text-secondary-brown duration-200'>FAQ</Link></li>
             </ul>
           </div>
         </div>
