@@ -18,7 +18,7 @@ export default function NewArrivals() {
       <div className="grid grid-cols-4 gap-4">
         {products.map((product, index) => (
           <div key={index} className="text-center">
-            <Image src={product.image} alt={product.name} width={300} height={400} className="mb-2 bg-zinc-600" />
+            <Image src={product.image} alt={product.name} width={300} height={400} className="mb-2 bg-zinc-600 rounded-xl" />
             <h3>{product.name}</h3>
             <p>{product.price}</p>
           </div>
