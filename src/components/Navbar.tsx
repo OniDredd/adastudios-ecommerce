@@ -4,14 +4,16 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from 'next/navigation';
-import { FaSearch, FaUser, FaShoppingCart } from "react-icons/fa";
+import { FaUser, FaShoppingCart } from "react-icons/fa";
 import LogoLight from "/public/adastudioslogo-creme.svg";
 import LogoDark from "/public/adastudioslogo-green.svg";
+import { useCart } from './CartProvider';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const isHomePage = pathname === '/';
+  const { openCart } = useCart();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,7 +38,7 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed w-full z-50 transition-all duration-300 ease-in-out ${navbarStyle}`}
+      className={`fixed w-full z-10 transition-all duration-300 ease-in-out ${navbarStyle}`}
     >
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center">
@@ -78,9 +80,8 @@ export default function Navbar() {
           </nav>
           <div className="flex items-center space-x-4">
             <span>NZD</span>
-            <FaSearch className="cursor-pointer" />
             <FaUser className="cursor-pointer" />
-            <FaShoppingCart className="cursor-pointer" />
+            <FaShoppingCart className="cursor-pointer" onClick={openCart} />
           </div>
         </div>
       </div>
