@@ -1,6 +1,5 @@
-import Swell from '@swell/js'
+import swell from 'swell-js'
+// Initialize client with your store ID and a public key
+swell.init('process.env.NEXT_PUBLIC_SWELL_STORE_ID', 'process.env.NEXT_PUBLIC_SWELL_PUBLIC_KEY')
 
-const swell = new Swell({
-  storeId: process.env.NEXT_PUBLIC_SWELL_STORE_ID,
-  publicKey: process.env.NEXT_PUBLIC_SWELL_PUBLIC_KEY,
-})
+export default swell;

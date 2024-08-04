@@ -1,101 +1,64 @@
+'use server'
+
 import Image from "next/image";
+import swell from '@/lib/swell';
 
-const products = [
-  {
-    name: "EDDIE SHIRT",
-    price: 249,
-    colors: ["blue", "pink"],
-    image: "/eddie-shirt.jpg",
-  },
-  {
-    name: "JOSIE SWEATER",
-    price: 329,
-    colors: ["red", "beige"],
-    image: "/josie-sweater.jpg",
-  },
-  {
-    name: "KENDALL SATIN DRESS",
-    price: 329,
-    colors: ["red", "black", "blue"],
-    image: "/kendall-dress.jpg",
-  },
-  {
-    name: "CLOVER JEAN",
-    price: 269,
-    colors: ["blue"],
-    image: "/clover-jean.jpg",
-  },
-  {
-    name: "SONNY QUILT JACKET",
-    price: 349,
-    colors: ["beige", "blue"],
-    image: "/sonny-jacket.jpg",
-  },
-  {
-    name: "FIREBIRD COWL GOWN",
-    price: 389,
-    colors: ["red", "green", "blue"],
-    image: "/firebird-gown.jpg",
-  },
-  {
-    name: "MARGIE TIE-BACK BLOUSE",
-    price: 239,
-    colors: ["white", "black"],
-    image: "/margie-blouse.jpg",
-  },
-  {
-    name: "EMMA CARDIGAN",
-    price: 199,
-    colors: ["red", "black"],
-    image: "/emma-cardigan.jpg",
-  },
-  {
-    name: "MERCI DENIM JEAN",
-    price: 269,
-    colors: ["red", "blue"],
-    image: "/merci-jean.jpg",
-  },
-  {
-    name: "MILLA MERINO LONG SLEEVE",
-    price: 209,
-    colors: ["white", "green"],
-    image: "/milla-sleeve.jpg",
-  },
-  // Add more products as needed
-];
+// Define types for your product and variant
+interface Variant {
+  name: string;
+  // Add other variant properties as needed
+}
 
-export default function AllClothing() {
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  images: Array<{file: {url: string}}>;
+  variants?: Variant[];
+  // Add other product properties as needed
+}
+
+async function getProducts(): Promise<Product[]> {
+  const results = await swell.products.list({
+    limit: 100, // Adjust as needed
+    expand: ['variants', 'images']
+  });
+  return results.results;
+}
+
+export default async function AllClothing() {
+  const products = await getProducts();
+
   return (
     <main>
       <section className="p-32 bg-main-green text-main-creme">
         <h1 className="text-4xl font-bold mb-4 font-main-font">ALL GLASSES</h1>
-
         <div className="flex justify-between items-start mb-8">
           <p className="max-w-md">
-            From dresses, tops, and skirts to our signature staple trousers,
-            build your dream Rubette wardrobe now...
+            Explore our collection of modern drinking glasses...
           </p>
         </div>
       </section>
 
       <section className="container mx-auto px-4 py-10 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.map((product, index) => (
-            <div key={index}>
+          {products.map((product: Product) => (
+            <div key={product.id}>
               <Image
-                src={product.image}
+                src={product.images[0]?.file?.url || '/placeholder.jpg'}
                 alt={product.name}
                 width={300}
                 height={400}
                 className="w-full h-auto mb-2 bg-zinc-700"
               />
               <h3 className="font-bold">{product.name}</h3>
-              <p>${product.price}</p>
+              <p>${product.price.toFixed(2)}</p>
               <div className="flex space-x-1 mt-1">
-                {product.colors.map((color, colorIndex) => (
+                {product.variants?.map((variant: Variant, index: number) => (
                   <div
-                    key={colorIndex}
-                    className={`w-4 h-4 rounded-full bg-${color}-500`}
+                    key={index}
+                    className={`w-4 h-4 rounded-full bg-gray-500`}
+                    title={variant.name}
                   ></div>
                 ))}
               </div>
