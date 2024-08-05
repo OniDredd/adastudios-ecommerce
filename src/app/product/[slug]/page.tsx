@@ -1,41 +1,31 @@
 import { notFound } from 'next/navigation';
 import ProductPageContent from '@/components/ProductPageContent';
+import swell from '@/lib/swell';
 
-interface Product {
+interface SwellProduct {
   id: string;
   name: string;
-  brand: string;
+  brand?: string;
   price: number;
   description: string;
-  mainColor: string;
-  colors: { name: string; hex: string }[];
-  sizes?: string[];
+  images: { file: { url: string } }[];
+  variants: any; // Changed from any[] to any
+  attributes: {
+    main_color?: string;
+    colors?: string[];
+    sizes?: string[];
+  };
 }
 
-async function getProduct(slug: string): Promise<Product | null> {
-  // This is a mock function that returns placeholder data
-  // Replace this with your actual API call when it's ready
-  const mockProduct: Product = {
-    id: '1',
-    name: 'Modern Glass',
-    brand: 'GlassCo',
-    price: 29.99,
-    description: 'A sleek, modern drinking glass perfect for any occasion.',
-    mainColor: '#f0f0f0', // Light gray color for main display
-    colors: [
-      { name: 'Clear', hex: '#ffffff' },
-      { name: 'Blue Tint', hex: '#e6f2ff' },
-      { name: 'Green Tint', hex: '#e6ffe6' },
-      { name: 'Rose Tint', hex: '#ffe6e6' },
-    ],
-    sizes: ['Small', 'Medium', 'Large'],
-  };
-
-  // Simulate a delay to mimic API call
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  // Return the mock product if the slug matches, otherwise return null
-  return slug === '1' ? mockProduct : null;
+async function getProduct(id: string): Promise<SwellProduct | null> {
+  try {
+    const product = await swell.products.get(id);
+    console.log('Fetched product:', product); // Add this line for debugging
+    return product;
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    return null;
+  }
 }
 
 export default async function ProductPage({ params }: { params: { slug: string } }) {
@@ -45,5 +35,30 @@ export default async function ProductPage({ params }: { params: { slug: string }
     notFound();
   }
 
-  return <ProductPageContent product={product} />;
+  // Transform the Swell product data to match your component's expected format
+  const transformedProduct = {
+    id: product.id,
+    name: product.name,
+    brand: product.brand || 'Ada Studio',
+    price: product.price,
+    description: product.description,
+    mainColor: product.attributes?.main_color || '#f0f0f0',
+    colors: product.attributes?.colors?.map((color: string) => ({
+      name: color,
+      hex: color,
+    })) || [],
+    sizes: product.attributes?.sizes || [],
+    images: product.images,
+    variants: Array.isArray(product.variants)
+      ? product.variants.map((variant: any) => ({
+          id: variant.id,
+          name: variant.name,
+        }))
+      : [],
+    attributes: product.attributes,
+  };
+
+  console.log('Transformed product:', transformedProduct); // Add this line for debugging
+
+  return <ProductPageContent product={transformedProduct} />;
 }

@@ -1,6 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from 'next/image';
+import parse from 'html-react-parser';
+import { useCart } from '@/components/CartProvider';
+
+interface Variant {
+  id: string;
+  name: string;
+  // Add other variant properties as needed
+}
 
 interface Product {
   id: string;
@@ -10,109 +19,98 @@ interface Product {
   description: string;
   mainColor: string;
   colors: { name: string; hex: string }[];
-  sizes?: string[];
+  sizes: string[];
+  images: { file: { url: string } }[];
+  variants: { id: string; name: string }[];
 }
 
 export default function ProductPageContent({ product }: { product: Product }) {
-  const [selectedColor, setSelectedColor] = useState<string>(
-    product.colors[0].name
-  );
-  const [selectedSize, setSelectedSize] = useState<string | undefined>(
-    product.sizes && product.sizes.length > 0 ? product.sizes[0] : undefined
-  );
+  const [selectedVariant, setSelectedVariant] = useState<string>(product.variants[0]?.id || '');
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [quantity, setQuantity] = useState(1);
+  const { addToCart, openCart } = useCart();
+
+  const handleAddToCart = () => {
+    const variant = product.variants.find(v => v.id === selectedVariant);
+    addToCart({
+      id: product.id,
+      variantId: selectedVariant,
+      name: product.name,
+      variantName: variant?.name || '',
+      price: product.price,
+      quantity: quantity,
+      image: product.images[0]?.file.url || '/placeholder.jpg',
+    });
+    openCart();
+  };
 
   return (
-    <div className="flex flex-col md:flex-row container mx-auto px-4">
-      {/* Left column */}
-      <div className="w-full md:w-1/2 pr-0 md:pr-8 mb-8 md:mb-0">
-        <div className="relative">
-          <div
-            style={{ backgroundColor: product.mainColor }}
-            className="w-full aspect-square"
-          ></div>
-          <div className="absolute left-0 top-0 space-y-2">
-            {product.colors.map((color) => (
-              <div
-                key={color.name}
-                style={{ backgroundColor: color.hex }}
-                className="w-16 h-16 cursor-pointer"
-                onClick={() => setSelectedColor(color.name)}
-              ></div>
-            ))}
-          </div>
+    <div className="flex flex-col lg:flex-row container mx-auto px-4 pb-8 pt-20 space-y-8 lg:space-y-0 lg:space-x-12">
+      {/* Left column - Image gallery */}
+      <div className="w-full lg:w-1/2">
+        <div className="relative aspect-square">
+          <Image
+            src={product.images[currentImageIndex].file.url}
+            alt={product.name}
+            layout="fill"
+            objectFit="cover"
+            className="rounded-lg"
+          />
         </div>
-        <div className="flex justify-center space-x-2 mt-4">
-          {["ALL", "SIZE 8", "SIZE 16", "VIDEO"].map((option) => (
-            <button
-              key={option}
-              className={`px-4 py-2 rounded-full ${
-                option === "ALL" ? "bg-pink-200" : "bg-gray-200"
-              }`}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
+        {/* Add thumbnail navigation if needed */}
       </div>
 
-      {/* Right column */}
-      <div className="w-full md:w-1/2">
-        <span className="text-sm font-semibold">NEW</span>
-        <h1 className="text-3xl font-bold mt-2">{product.name}</h1>
+      {/* Right column - Product details */}
+      <div className="w-full lg:w-1/2 space-y-6">
+        <h1 className="text-3xl font-bold">{product.name}</h1>
         <p className="text-xl">{product.brand}</p>
-        <p className="text-2xl font-bold mt-4">${product.price}</p>
-        <p className="mt-4">{product.description}</p>
+        <p className="text-2xl font-bold">${product.price.toFixed(2)}</p>
 
-        <div className="mt-6">
-          <h3 className="font-semibold mb-2">Color: {selectedColor}</h3>
-          <div className="flex space-x-2">
-            {product.colors.map((color) => (
-              <button
-                key={color.name}
-                className={`w-8 h-8 rounded-full ${
-                  selectedColor === color.name ? "ring-2 ring-black" : ""
-                }`}
-                style={{ backgroundColor: color.hex }}
-                onClick={() => setSelectedColor(color.name)}
-              />
-            ))}
-          </div>
-        </div>
-
-        {product.sizes && product.sizes.length > 0 && (
-          <div className="mt-6">
-            <h3 className="font-semibold mb-2">Size</h3>
-            <div className="flex space-x-2">
-              {product.sizes.map((size) => (
-                <button
-                  key={size}
-                  className={`px-4 py-2 rounded-full ${
-                    selectedSize === size
-                      ? "bg-black text-white"
-                      : "bg-gray-200"
-                  }`}
-                  onClick={() => setSelectedSize(size)}
-                >
-                  {size}
-                </button>
+        {/* Variant selection */}
+        {product.variants.length > 0 && (
+          <div>
+            <h3 className="font-semibold mb-2">Variant:</h3>
+            <select 
+              value={selectedVariant} 
+              onChange={(e) => setSelectedVariant(e.target.value)}
+              className="w-full p-2 border rounded"
+            >
+              {product.variants.map((variant) => (
+                <option key={variant.id} value={variant.id}>
+                  {variant.name}
+                </option>
               ))}
-            </div>
+            </select>
           </div>
         )}
 
-        <a href="#" className="block mt-4 underline">
-          SIZE GUIDE
-        </a>
+        {/* Quantity selector */}
+        <div>
+          <h3 className="font-semibold mb-2">Quantity</h3>
+          <div className="flex items-center space-x-2">
+            <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-2 py-1 border rounded">-</button>
+            <span>{quantity}</span>
+            <button onClick={() => setQuantity(q => q + 1)} className="px-2 py-1 border rounded">+</button>
+          </div>
+        </div>
 
-        <button className="w-full bg-black text-white py-3 mt-6">
+        {/* Add to Cart button */}
+        <button 
+          onClick={handleAddToCart}
+          className="w-full bg-green-700 text-white py-3 rounded-lg hover:bg-green-800 transition"
+        >
           ADD TO BAG
         </button>
 
-        <a href="#" className="block mt-4">
-          FIND IN STORE
-        </a>
+        <p className="text-sm text-gray-600">4x ${(product.price / 4).toFixed(2)} NZD with Afterpay</p>
 
-        <p className="mt-4 text-sm">4x $62.25 NZD on afterpay</p>
+        {/* Product Description */}
+        <div>
+          <h3 className="font-semibold mb-2">Product Description</h3>
+          <div className="text-gray-700">
+            {parse(product.description)}
+          </div>
+        </div>
       </div>
     </div>
   );
