@@ -5,16 +5,16 @@ import { FaInstagram, FaFacebookF } from 'react-icons/fa';
 
 export default function Footer() {
   return (
-    <footer className="bg-main-green pb-5 text-main-creme">
+    <footer className="bg-main-maroon pb-5 text-secondary-peach">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 py-20">
           <div>
-            <Image src="/adastudioslogo-creme.svg" alt="Ada Studios Logo" width={230} height={230} />
+            <Image src="/adastudioslogo-peach.svg" alt="Ada Studios Logo" width={230} height={230} />
           </div>
 
           {/* Shop column */}
           <div>
-            <h3 className="font-bold text-lg mb-4 font-main-font">SHOP</h3>
+            <h3 className="font-bold text-lg mb-4">SHOP</h3>
             <ul className="space-y-2">
               <li><Link href="/accessories" className='hover:text-secondary-brown duration-200'>Accessories</Link></li>
               <li><Link href="/sale" className='hover:text-secondary-brown duration-200'>Sale</Link></li>
@@ -24,7 +24,7 @@ export default function Footer() {
 
           {/* Ada Studio column */}
           <div>
-            <h3 className="font-bold text-lg mb-4 font-main-font">ADA STUDIO</h3>
+            <h3 className="font-bold text-lg mb-4">ADA STUDIO</h3>
             <ul className="space-y-2">
               <li><Link href="/about" className='hover:text-secondary-brown duration-200'>About</Link></li>
             </ul>
@@ -32,7 +32,7 @@ export default function Footer() {
 
           {/* Rubette Care column */}
           <div>
-            <h3 className="font-bold text-lg mb-4 font-main-font">HELP</h3>
+            <h3 className="font-bold text-lg mb-4">HELP</h3>
             <ul className="space-y-2">
               <li><Link href="/contact" className='hover:text-secondary-brown duration-200'>Contact Us</Link></li>
               <li><Link href="/shipping" className='hover:text-secondary-brown duration-200'>Shipping</Link></li>

@@ -1,29 +1,91 @@
-// components/NewArrivals.js
-import Image from 'next/image';
+import Link from "next/link";
+import ProductComponent from "../ProductComponent";
+import { Suspense } from "react";
 
-export default function NewArrivals() {
-  const products = [
-    { name: 'EDNA SHIRT', price: '$249', image: '/edna-shirt.jpg' },
-    { name: 'BUZZ JEAN', price: '$269', image: '/buzz-jean.jpg' },
-    { name: 'EMMA KNIT LONG SLEEVE', price: '$169', image: '/emma-knit.jpg' },
-    { name: 'PEN PENCIL SKIRT', price: '$179', image: '/pen-pencil-skirt.jpg' },
-  ];
+interface Product {
+  id: string;
+  title: string;
+  handle: string;
+  variantId: string;
+  price: number;
+  brand: string;
+  images: Array<{
+    file: {
+      url: string;
+    };
+  }>;
+}
+
+interface NewArrivalsProps {
+  products: Array<Partial<Product>>;
+}
+
+export default function NewArrivals({ products }: NewArrivalsProps) {
+  // Limit to only 4 products
+  const limitedProducts = products.slice(0, 4);
 
   return (
-    <section className="my-8">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold font-main-font">NEW ARRIVALS</h2>
-        <a href="/new-arrivals" className="text-sm">VIEW ALL</a>
-      </div>
-      <div className="grid grid-cols-4 gap-4">
-        {products.map((product, index) => (
-          <div key={index} className="text-center">
-            <Image src={product.image} alt={product.name} width={300} height={400} className="mb-2 bg-zinc-600 rounded-xl" />
-            <h3>{product.name}</h3>
-            <p>{product.price}</p>
-          </div>
-        ))}
+    <section className="w-full py-20 bg-secondary-peach">
+      <div className="mx-auto">
+        <div className="flex justify-between items-center mb-4 px-5">
+          <h2 className="text-2xl font-bold text-main-maroon">
+            NEW ARRIVALS
+          </h2>
+          <Link
+            href="/shopall"
+            className="text-sm text-main-maroon hover:underline"
+          >
+            VIEW ALL
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <Suspense fallback={<LoadingGrid />}>
+            {limitedProducts.map((product) => {
+              const processedProduct: Product = {
+                id: product.id || "",
+                title: product.title || "",
+                handle: product.handle || "",
+                variantId: product.variantId || product.id || "",
+                price:
+                  typeof product.price === "number"
+                    ? product.price
+                    : parseFloat(product.price || "0"),
+                brand: product.brand || "Ada Studios",
+                images: product.images || [],
+              };
+
+              return (
+                <ProductComponent
+                  key={processedProduct.id}
+                  product={processedProduct}
+                />
+              );
+            })}
+          </Suspense>
+        </div>
       </div>
     </section>
+  );
+}
+
+function LoadingGrid() {
+  return (
+    <>
+      {[...Array(4)].map((_, index) => (
+        <ProductComponent
+          key={index}
+          product={{
+            id: "",
+            title: "",
+            handle: "",
+            variantId: "",
+            price: 0,
+            brand: "",
+            images: [],
+          }}
+          isLoading={true}
+        />
+      ))}
+    </>
   );
 }

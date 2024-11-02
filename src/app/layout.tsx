@@ -1,11 +1,10 @@
-// app/layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
-import CartProvider from '../components/CartProvider';
-import CartWrapper from '../components/CartWrapper';
+import Cart from "@/components/Cart";
+import { CartProvider } from '@/components/CartProvider';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,9 +23,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <CartProvider>
           <Navbar />
+          <Cart />
           <main>{children}</main>
           <Footer />
-          <CartWrapper />
         </CartProvider>
       </body>
     </html>
