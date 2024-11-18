@@ -54,93 +54,25 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Left side - Navigation Menu */}
           <nav className="flex-1">
-            <NavigationMenu className="border-main-maroon">
-              <NavigationMenuList className="text-main-maroon border-main-maroon">
+            <NavigationMenu>
+              <NavigationMenuList className="text-main-maroon">
                 <ShopAllMenu />
 
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className={`
-                    data-[state=open]:bg-main-maroon 
-                    bg-transparent 
-                    border-main-maroon
-                    hover:bg-main-maroon 
-                    hover:text-secondary-peach 
-                    data-[state=open]:text-secondary-peach
-                    ${!isScrolled && 'text-main-maroon'}
-                  `}>
-                    NEW
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent className="border-main-maroon">
-                    <div className="w-screen bg-secondary-peach p-6">
-                      <div className="container mx-auto grid grid-cols-3 gap-6">
-                        <div className="space-y-4">
-                          <h3 className="text-lg font-semibold text-main-maroon">New Arrivals</h3>
-                          <ul className="space-y-2">
-                            <li>
-                              <Link
-                                href="/new/this-week"
-                                className="block p-2 rounded-md text-main-maroon hover:bg-main-maroon hover:text-secondary-peach transition-colors"
-                              >
-                                <div className="text-sm font-medium">This Week</div>
-                                <p className="text-sm opacity-80">See what&apos;s new</p>
-                              </Link>
-                            </li>
-                            <li>
-                              <Link
-                                href="/new/coming-soon"
-                                className="block p-2 rounded-md text-main-maroon hover:bg-main-maroon hover:text-secondary-peach transition-colors"
-                              >
-                                <div className="text-sm font-medium">Coming Soon</div>
-                                <p className="text-sm opacity-80">Preview upcoming items</p>
-                              </Link>
-                            </li>
-                          </ul>
-                        </div>
-
-                        <div className="col-span-2">
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="aspect-square relative rounded-lg overflow-hidden">
-                              <Image
-                                src="/placeholder.jpg"
-                                alt="New Arrival 1"
-                                className="object-cover"
-                                fill
-                              />
-                              <div className="absolute bottom-0 left-0 right-0 bg-main-maroon/50 text-secondary-peach p-2">
-                                <p className="text-sm font-medium">Latest Collection</p>
-                              </div>
-                            </div>
-                            <div className="aspect-square relative rounded-lg overflow-hidden">
-                              <Image
-                                src="/placeholder.jpg"
-                                alt="New Arrival 2"
-                                className="object-cover bg-main-maroon"
-                                fill
-                              />
-                              <div className="absolute bottom-0 left-0 right-0 bg-main-maroon/50 text-secondary-peach p-2">
-                                <p className="text-sm font-medium">Coming Soon</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger className={`
-                    data-[state=open]:bg-main-maroon 
-                    bg-transparent 
-                    hover:bg-main-maroon 
-                    hover:text-secondary-peach 
-                    data-[state=open]:text-secondary-peach
-                    ${!isScrolled && 'text-main-maroon'}
-                  `}>
-                    SALE
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent className="border-main-maroon">
-                    <div className="w-screen bg-secondary-peach p-6">
+                  <Link href="/sale" className="inline-flex">
+                    <NavigationMenuTrigger className={`
+                      data-[state=open]:bg-main-maroon 
+                      bg-transparent 
+                      hover:bg-main-maroon 
+                      hover:text-secondary-peach 
+                      data-[state=open]:text-secondary-peach
+                      ${!isScrolled && 'text-main-maroon'}
+                    `}>
+                      SALE
+                    </NavigationMenuTrigger>
+                  </Link>
+                  <NavigationMenuContent>
+                    <div className="w-screen bg-secondary-peach p-6 border border-main-maroon rounded-lg">
                       <div className="container mx-auto grid grid-cols-3 gap-6">
                         <div className="space-y-4">
                           <h3 className="text-lg font-semibold text-main-maroon">Sale Categories</h3>
@@ -226,7 +158,7 @@ export default function Navbar() {
                 <FaChevronDown className={`transition-transform duration-200 ${isCurrencyOpen ? 'rotate-180' : ''}`} />
               </DropdownMenuTrigger>
               <DropdownMenuContent 
-                className="w-[200px] bg-secondary-peach border border-main-maroon"
+                className="w-[200px] bg-secondary-peach border border-main-maroon rounded-lg"
                 align="end"
                 alignOffset={-5}
               >

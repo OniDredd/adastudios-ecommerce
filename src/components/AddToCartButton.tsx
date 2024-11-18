@@ -23,11 +23,11 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
 
   const handleAddToCart = () => {
     addToCart({
-      id: product.variantId,
+      id: product.id, // Use product.id for cart item identification
+      variantId: product.variantId, // Store variantId separately for checkout
       title: product.title,
       price: product.price,
       image: product.image,
-      quantity: 1,
     });
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000); // Reset after 2 seconds
@@ -36,7 +36,7 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
   return (
     <button 
       onClick={handleAddToCart}
-      className="w-full px-1 py-1 bg-main-maroon text-secondary-peach border-[1px] border-main-maroon hover:border-secondary-peach rounded-full transition-colors duration-200 font-semibold flex items-center justify-center"
+      className="w-full px-1 py-2 bg-main-maroon text-secondary-peach border-[1px] border-main-maroon hover:border-secondary-peach rounded-full transition-colors duration-200 font-semibold flex items-center justify-center"
     >
       <AnimatePresence mode="wait">
         {isAdded ? (

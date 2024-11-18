@@ -8,28 +8,30 @@ import { shopifyFetch } from "@/lib/shopify";
 
 async function getNewArrivals() {
   const query = `
-    {
-      products(first: 8, sortKey: CREATED_AT, reverse: true) {
-        edges {
-          node {
-            id
-            title
-            handle
-            images(first: 1) {
-              edges {
-                node {
-                  url: originalSrc
-                  altText
+    query getNewArrivalsCollection {
+      collection(id: "gid://shopify/Collection/322367914176") {
+        products(first: 8) {
+          edges {
+            node {
+              id
+              title
+              handle
+              images(first: 1) {
+                edges {
+                  node {
+                    url: originalSrc
+                    altText
+                  }
                 }
               }
-            }
-            variants(first: 1) {
-              edges {
-                node {
-                  id
-                  price {
-                    amount
-                    currencyCode
+              variants(first: 1) {
+                edges {
+                  node {
+                    id
+                    price {
+                      amount
+                      currencyCode
+                    }
                   }
                 }
               }
@@ -42,10 +44,15 @@ async function getNewArrivals() {
 
   try {
     const response = await shopifyFetch<{
-      products: { edges: { node: any }[] };
+      collection: { products: { edges: { node: any }[] } };
     }>(query);
-    console.log("Shopify response:", JSON.stringify(response, null, 2));
-    return response.products.edges.map(({ node }: { node: any }) => {
+    
+    if (!response.collection) {
+      console.error("New Arrivals collection not found");
+      return [];
+    }
+
+    return response.collection.products.edges.map(({ node }: { node: any }) => {
       const product = {
         id: node.id,
         title: node.title,
@@ -66,15 +73,76 @@ async function getNewArrivals() {
   }
 }
 
+async function getMatchaProducts() {
+  const query = `
+    query getMatchaCollection {
+      collection(id: "gid://shopify/Collection/322366046400") {
+        products(first: 10) {
+          edges {
+            node {
+              id
+              title
+              handle
+              images(first: 1) {
+                edges {
+                  node {
+                    url: originalSrc
+                    altText
+                  }
+                }
+              }
+              variants(first: 1) {
+                edges {
+                  node {
+                    price {
+                      amount
+                      currencyCode
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const response = await shopifyFetch<{
+      collection: { products: { edges: { node: any }[] } };
+    }>(query);
+    
+    if (!response.collection) {
+      console.error("Matcha collection not found");
+      return [];
+    }
+
+    return response.collection.products.edges.map(({ node }: { node: any }) => ({
+      id: node.id,
+      name: node.title,
+      handle: node.handle,
+      price: parseFloat(node.variants.edges[0]?.node.price.amount),
+      imageUrl: node.images.edges[0]?.node.url || "/placeholder.jpg"
+    }));
+  } catch (error) {
+    console.error("Error fetching matcha products:", error);
+    return [];
+  }
+}
+
 export default async function Home() {
   const newArrivals = await getNewArrivals();
+  const matchaProducts = await getMatchaProducts();
+  
   console.log("New arrivals:", JSON.stringify(newArrivals, null, 2));
+  console.log("Matcha products:", JSON.stringify(matchaProducts, null, 2));
 
   return (
     <main className="flex flex-col items-center justify-between bg-secondary-peach">
       <SaleBanner />
       <NewArrivals products={newArrivals} />
-      <ExclusiveMatcha />
+      <ExclusiveMatcha products={matchaProducts} />
       <InstagramFeed />
       <BrandDescription />
       <HomeSlider />
