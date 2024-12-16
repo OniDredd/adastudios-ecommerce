@@ -4,6 +4,7 @@ export interface ShopifyProduct {
   title: string;
   handle: string;
   descriptionHtml: string;
+  availableForSale: boolean;
   images: {
     edges: Array<{
       node: {
@@ -28,14 +29,24 @@ export interface ShopifyProduct {
       node: {
         id: string;
         title: string;
+        availableForSale: boolean;
+        quantityAvailable: number;
         priceV2: {
           amount: string;
           currencyCode: string;
         };
+        compareAtPriceV2?: {
+          amount: string;
+          currencyCode: string;
+        } | null;
         selectedOptions: Array<{
           name: string;
           value: string;
         }>;
+        image?: {
+          originalSrc: string;
+          altText: string | null;
+        };
       };
     }>;
   };

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { cn } from '../lib/utils';
 
@@ -12,38 +12,54 @@ interface ProductGalleryProps {
     };
   }>;
   title: string;
+  selectedImageIndex?: number;
 }
 
-export function ProductGallery({ images, title }: ProductGalleryProps) {
-  const [selectedImage, setSelectedImage] = useState(0);
+export function ProductGallery({ images, title, selectedImageIndex }: ProductGalleryProps) {
+  const [currentImage, setCurrentImage] = useState(0);
+
+  // Update current image when selectedImageIndex changes
+  useEffect(() => {
+    if (selectedImageIndex !== undefined) {
+      setCurrentImage(selectedImageIndex);
+    }
+  }, [selectedImageIndex]);
 
   return (
-    <div className="w-1/2 h-screen sticky top-0">
-      <div className="relative h-full">
+    <div className="w-full h-screen sticky top-0">
+      {/* Main image background */}
+      <div className="absolute inset-0 w-full h-full">
         <Image
-          src={images[selectedImage].node.originalSrc}
-          alt={images[selectedImage].node.altText || title}
+          src={images[currentImage].node.originalSrc}
+          alt={images[currentImage].node.altText || title}
           fill
-          className="object-cover"
+          className="object-cover w-full h-full"
           priority
+          sizes="100vw"
         />
       </div>
-      <div className="absolute bottom-4 left-4 right-4">
-        <div className="grid grid-cols-6 gap-2 bg-white/80 p-2 rounded-lg backdrop-blur-sm">
-          {images.map((image, index) => (
+
+      {/* Left-aligned, vertically centered thumbnails */}
+      <div className="absolute left-6 top-1/2 -translate-y-1/2 w-16 z-10">
+        <div className="flex flex-col gap-2">
+          {images.slice(0, 4).map((image, index) => (
             <button
               key={index}
-              onClick={() => setSelectedImage(index)}
+              onClick={() => setCurrentImage(index)}
               className={cn(
-                "relative aspect-square rounded-md overflow-hidden",
-                selectedImage === index && "ring-2 ring-black"
+                "relative w-full aspect-square rounded-md overflow-hidden transition-all duration-200",
+                "hover:opacity-100 border border-secondary-peach",
+                currentImage === index 
+                  ? "ring-1 ring-secondary-peach ring-offset-1 ring-offset-black/20 opacity-100" 
+                  : "opacity-70 hover:opacity-90"
               )}
             >
               <Image
                 src={image.node.originalSrc}
                 alt={image.node.altText || `View ${index + 1}`}
                 fill
-                className="object-cover"
+                className="object-cover w-full h-full"
+                sizes="(max-width: 64px) 100vw"
               />
             </button>
           ))}

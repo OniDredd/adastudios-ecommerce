@@ -1,26 +1,12 @@
-// components/ProductDetails.tsx
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
+import { useState, useRef, useEffect } from 'react';
 import { ProductGallery } from './ProductGallery';
 import { OptionSelector } from './OptionSelector';
 import { ShopifyProduct } from '../types/shopify';
 import AddToCartButton from './AddToCartButton';
-import { Card, CardContent } from '@/components/ui/card';
-import { 
-  Glasses,
-  Wine, 
-  PartyPopper,
-  Sparkles,
-  Heart,
-  ImageIcon,
-  Share2,
-  ShieldCheck,
-  Leaf,
-  Package,
-  ThermometerSun
-} from 'lucide-react';
+import { useCurrency } from './CurrencyProvider';
+import { Heart, Share2 } from 'lucide-react';
 
 interface SelectedOptions {
   [key: string]: string;
@@ -35,236 +21,215 @@ interface ProductDetailsProps {
 
 export default function ProductDetails({ product, collection }: ProductDetailsProps) {
   const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>({});
-  const [activeTab, setActiveTab] = useState('features');
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
+  const detailsRef = useRef<HTMLDivElement>(null);
+  const { convertPrice } = useCurrency();
 
+  // Get the first variant's availability status and pricing
+  const firstVariant = product.variants.edges[0]?.node;
+  const isAvailable = firstVariant ? firstVariant.availableForSale : product.availableForSale;
   const price = parseFloat(product.priceRange.minVariantPrice.amount);
-  const formattedPrice = new Intl.NumberFormat('en-NZ', {
-    style: 'currency',
-    currency: product.priceRange.minVariantPrice.currencyCode
-  }).format(price);
+  const compareAtPrice = firstVariant?.compareAtPriceV2
+    ? parseFloat(firstVariant.compareAtPriceV2.amount)
+    : null;
+  const isDiscounted = compareAtPrice && compareAtPrice > price;
+  const discountPercentage = isDiscounted
+    ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
+    : 0;
+
+  // Create a map of variant options to their image indices
+  const variantImageMap = new Map<string, number>();
+  product.variants.edges.forEach((variant) => {
+    const variantImage = variant.node.image;
+    if (variantImage?.originalSrc) {
+      const imageIndex = product.images.edges.findIndex(
+        img => img.node.originalSrc === variantImage.originalSrc
+      );
+      if (imageIndex !== -1) {
+        // Create a key from the variant's color option if it exists
+        const colorOption = variant.node.selectedOptions.find(
+          opt => opt.name.toLowerCase().includes('color') || opt.name.toLowerCase().includes('colour')
+        );
+        if (colorOption) {
+          variantImageMap.set(colorOption.value, imageIndex);
+        }
+      }
+    }
+  });
+
+  // Update selected image when color option changes
+  useEffect(() => {
+    const colorOption = Object.entries(selectedOptions).find(
+      ([name]) => name.toLowerCase().includes('color') || name.toLowerCase().includes('colour')
+    );
+    
+    if (colorOption) {
+      const [_, value] = colorOption;
+      const imageIndex = variantImageMap.get(value);
+      if (imageIndex !== undefined) {
+        setSelectedImageIndex(imageIndex);
+      }
+    }
+  }, [selectedOptions]);
+
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      if (!detailsRef.current) return;
+
+      const details = detailsRef.current;
+      const { scrollTop, scrollHeight, clientHeight } = details;
+      const isScrolledToBottom = Math.abs(scrollHeight - scrollTop - clientHeight) < 1;
+      const isScrolledToTop = scrollTop === 0;
+
+      if (e.deltaY > 0) {
+        if (!isScrolledToBottom) {
+          e.preventDefault();
+          details.scrollTop += e.deltaY;
+        }
+      } else if (e.deltaY < 0) {
+        if (!isScrolledToTop) {
+          e.preventDefault();
+          details.scrollTop += e.deltaY;
+        }
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, []);
+
+  const formattedPrice = convertPrice(price);
+  const formattedCompareAtPrice = compareAtPrice ? convertPrice(compareAtPrice) : null;
 
   const validOptions = product.options?.filter(
-    option => option && option.values && option.values.length > 0 && option.values.some(value => value !== '')
+    option => {
+      // Skip if option is null or has no values
+      if (!option || !option.values || option.values.length === 0) return false;
+      
+      // Skip if option name is "Title" or if all values are empty or "Default Title"
+      if (
+        option.name === "Title" || 
+        option.values.every(value => !value || value === "Default Title")
+      ) {
+        return false;
+      }
+      
+      // Keep only if there are valid values
+      return option.values.some(value => value && value !== "");
+    }
   ) || [];
 
+  const hasVariants = validOptions.length > 0;
   const brand = product.vendor || 'Brand';
 
-  const features = [
-    {
-      icon: <Glasses className="w-6 h-6" />,
-      title: "Premium Quality",
-      description: "Made from high-grade, durable glass"
-    },
-    {
-      icon: <PartyPopper className="w-6 h-6" />,
-      title: "Perfect for Parties",
-      description: "Ideal for social gatherings and celebrations"
-    },
-    {
-      icon: <Sparkles className="w-6 h-6" />,
-      title: "Aesthetic Design",
-      description: "Beautiful, Instagram-worthy presentation"
-    }
-  ];
-
-  const styling = [
-    {
-      icon: <Wine className="w-6 h-6" />,
-      title: "Cocktail Ready",
-      description: "Perfect for signature drinks and cocktails"
-    },
-    {
-      icon: <ImageIcon className="w-6 h-6" />,
-      title: "Photo Perfect",
-      description: "Designed for social media moments"
-    },
-    {
-      icon: <Heart className="w-6 h-6" />,
-      title: "Lifestyle Match",
-      description: "Matches the 'Dat Girl' aesthetic"
-    }
-  ];
-
-  const care = [
-    {
-      icon: <ShieldCheck className="w-6 h-6" />,
-      title: "Dishwasher Safe",
-      description: "Easy to clean and maintain"
-    },
-    {
-      icon: <Package className="w-6 h-6" />,
-      title: "Secure Packaging",
-      description: "Carefully packed for safe delivery"
-    },
-    {
-      icon: <Leaf className="w-6 h-6" />,
-      title: "Eco-Conscious",
-      description: "Sustainable packaging materials"
-    }
-  ];
-
-  const glasswareInfo = [
-    {
-      icon: <Glasses className="w-6 h-6" />,
-      title: "Premium Glass Quality",
-      description: "Made from high-quality, crystal-clear glass for exceptional clarity and durability",
-      details: [
-        "Lead-free crystal glass",
-        "Scratch-resistant surface",
-        "Temperature-resistant design",
-        "Professional-grade thickness"
-      ]
-    },
-    {
-      icon: <Package className="w-6 h-6" />,
-      title: "Secure Packaging",
-      description: "Each glass is carefully packaged to ensure safe delivery",
-      details: [
-        "Individual foam compartments",
-        "Double-wall protection",
-        "Shock-absorbing design",
-        "Fragile handling labels"
-      ]
-    },
-    {
-      icon: <ShieldCheck className="w-6 h-6" />,
-      title: "Care Instructions",
-      description: "Proper care ensures long-lasting beauty and durability",
-      details: [
-        "Dishwasher safe on top rack",
-        "Hand washing recommended",
-        "Avoid extreme temperature changes",
-        "Store upright to prevent chips"
-      ]
-    }
-  ];
-
   return (
-    <div className="flex h-screen text-main-maroon">
-      <ProductGallery 
-        images={product.images.edges} 
-        title={product.title} 
-      />
-
-      <div className="w-1/2 h-screen overflow-y-auto px-32 py-32">
-        <div className="max-w-xl space-y-8">
-          {/* Header Section */}
-          <div className="flex justify-between items-start">
-            <div>
-              {collection && (
-                <span className="text-sm">{collection.title.toUpperCase()}</span>
-              )}
-              <h1 className="text-2xl font-bold">{product.title}</h1>
-              <p className="text-sm">{brand}</p>
-            </div>
-            <div className="flex gap-2">
-              <button className="p-2 hover:opacity-70">
-                <Heart className="w-5 h-5" />
-              </button>
-              <button className="p-2 hover:opacity-70">
-                <Share2 className="w-5 h-5" />
-              </button>
-            </div>
+    <div className="flex h-full">
+      <div className="w-1/2 relative">
+        <ProductGallery 
+          images={product.images.edges} 
+          title={product.title}
+          selectedImageIndex={selectedImageIndex}
+        />
+        {!isAvailable && (
+          <div className="absolute inset-0 bg-gradient-to-t from-main-maroon to-transparent z-10 flex items-center justify-center">
+            <span className="text-secondary-peach px-4 py-2 text-lg font-medium">
+              Out of Stock
+            </span>
           </div>
+        )}
+      </div>
 
-          <p className="text-2xl font-bold">{formattedPrice}</p>
-
-          <div
-            className="prose prose-sm"
-            dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
-          />
-
-          {validOptions.length > 0 && validOptions.map((option) => (
-            <OptionSelector
-              key={option.id}
-              option={option}
-              selectedValue={selectedOptions[option.name] || option.values[0]}
-              onSelect={(value) => 
-                setSelectedOptions(prev => ({
-                  ...prev,
-                  [option.name]: value
-                }))
-              }
-            />
-          ))}
-
-          <AddToCartButton
-            product={{
-              id: product.id,
-              variantId: product.variants.edges[0].node.id,
-              title: product.title,
-              price: parseFloat(product.priceRange.minVariantPrice.amount),
-              image: product.images.edges[0]?.node.originalSrc,
-            }}
-          />
-
-          {price >= 1 && price <= 2000 && (
-            <div className="text-sm text-gray-600 text-center">
-              4x {(price / 4).toFixed(2)} NZD on <span className="font-semibold">afterpay</span>
-            </div>
-          )}
-
-          {/* Product Information Section */}
-          <div className="mt-12 border-t pt-8">
-            <h2 className="text-xl font-bold mb-6">Product Information</h2>
-            
-            {glasswareInfo.map((info, index) => (
-              <div key={index} className="mb-8">
-                <Card className="hover:shadow-md transition-shadow border-main-maroon">
-                  <CardContent className="p-6">
-                    <div className="flex items-start gap-4">
-                      <div className="text-main-maroon mt-1">
-                        {info.icon}
-                      </div>
-                      <div className="space-y-3 flex-1">
-                        <div>
-                          <h3 className="font-semibold text-lg">{info.title}</h3>
-                          <p className="text-sm text-main-maroon">{info.description}</p>
-                        </div>
-                        
-                        <div className="bg-main-maroon rounded-lg p-4">
-                          <ul className="grid grid-cols-2 gap-3">
-                            {info.details.map((detail, idx) => (
-                              <li key={idx} className="flex items-center gap-2 text-sm text-secondary-peach">
-                                <div className="w-1.5 h-1.5 rounded-full bg-secondary-peach flex-shrink-0" />
-                                {detail}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+      <div 
+        ref={detailsRef}
+        className="w-1/2 h-screen bg-secondary-peach text-main-maroon scrollbar-thin scrollbar-thumb-main-maroon scrollbar-track-secondary-peach flex items-center"
+      >
+        <div className="w-full px-32">
+          <div className="max-w-xl mx-auto space-y-8">
+            {/* Header Section */}
+            <div className="flex justify-between items-start">
+              <div>
+                {collection && (
+                  <span className="text-sm">{collection.title.toUpperCase()}</span>
+                )}
+                <h1 className="text-2xl font-bold">{product.title}</h1>
+                <p className="text-sm">{brand}</p>
               </div>
-            ))}
-          </div>
-
-          {/* Quick Reference Icons */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="flex flex-col items-center text-center p-4">
-              <ThermometerSun className="w-6 h-6 mb-2" />
-              <span className="text-xs">Temperature<br />Resistant</span>
+              <div className="flex gap-2">
+                <button className="p-2 hover:opacity-70">
+                  <Heart className="w-5 h-5" />
+                </button>
+                <button className="p-2 hover:opacity-70">
+                  <Share2 className="w-5 h-5" />
+                </button>
+              </div>
             </div>
-            <div className="flex flex-col items-center text-center p-4">
-              <Sparkles className="w-6 h-6 mb-2" />
-              <span className="text-xs">Crystal<br />Clear</span>
-            </div>
-            <div className="flex flex-col items-center text-center p-4">
-              <ShieldCheck className="w-6 h-6 mb-2" />
-              <span className="text-xs">Quality<br />Guaranteed</span>
-            </div>
-          </div>
 
-          {/* Safety Notice */}
-          <div className="mt-8 bg-main-maroon rounded-lg p-4">
-            <p className="text-xs text-secondary-peach text-center">
-              Our glassware meets the highest quality and safety standards. 
-              Each piece is carefully inspected before shipping.
-            </p>
-          </div>
+            {/* Price Section */}
+            <div className="flex items-center gap-3">
+              <p className={`text-2xl font-bold ${!isAvailable ? "opacity-70" : ""}`}>
+                {formattedPrice}
+              </p>
+              {isDiscounted && (
+                <>
+                  <p className="text-lg line-through opacity-60">
+                    {formattedCompareAtPrice}
+                  </p>
+                  <span className="bg-main-maroon text-secondary-peach px-3 py-1 text-sm font-medium rounded-full">
+                    {discountPercentage}% Off
+                  </span>
+                </>
+              )}
+            </div>
 
-          <div className="h-8" />
+            {/* Only show variants section if there are valid options */}
+            {hasVariants && (
+              <div className="space-y-4">
+                {validOptions.map((option) => (
+                  <OptionSelector
+                    key={option.id}
+                    option={option}
+                    selectedValue={selectedOptions[option.name] || option.values[0]}
+                    onSelect={(value) => 
+                      setSelectedOptions(prev => ({
+                        ...prev,
+                        [option.name]: value
+                      }))
+                    }
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* About This Product */}
+            <div className="border-t border-main-maroon/20 pt-8">
+              <h2 className="text-lg font-semibold text-main-maroon mb-4">About This Product</h2>
+              <div
+                className="prose prose-xs max-w-none text-main-maroon [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-4 [&>ul]:mb-4 [&>h3]:font-medium [&>h3]:text-base [&>h3]:mb-2"
+                dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
+              />
+            </div>
+
+            {/* Add to Cart Button - Only show if in stock */}
+            {isAvailable && (
+              <div>
+                <AddToCartButton
+                  product={{
+                    id: product.id,
+                    variantId: firstVariant.id,
+                    title: product.title,
+                    price: parseFloat(firstVariant.priceV2.amount),
+                    image: product.images.edges[0]?.node.originalSrc,
+                  }}
+                />
+                
+                {price >= 1 && price <= 2000 && (
+                  <div className="text-sm text-main-maroon text-center mt-4">
+                    4x {convertPrice(price / 4)} on <span className="font-semibold">afterpay</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

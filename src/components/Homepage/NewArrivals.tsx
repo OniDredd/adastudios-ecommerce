@@ -8,7 +8,9 @@ interface Product {
   handle: string;
   variantId: string;
   price: number;
+  compareAtPrice?: number;
   brand: string;
+  availableForSale: boolean;
   images: Array<{
     file: {
       url: string;
@@ -50,7 +52,9 @@ export default function NewArrivals({ products }: NewArrivalsProps) {
                   typeof product.price === "number"
                     ? product.price
                     : parseFloat(product.price || "0"),
+                compareAtPrice: product.compareAtPrice,
                 brand: product.brand || "Ada Studios",
+                availableForSale: product.availableForSale ?? true,
                 images: product.images || [],
               };
 
@@ -81,6 +85,7 @@ function LoadingGrid() {
             variantId: "",
             price: 0,
             brand: "",
+            availableForSale: true,
             images: [],
           }}
           isLoading={true}

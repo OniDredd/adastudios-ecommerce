@@ -28,6 +28,9 @@ interface ShopifyProduct {
   handle: string;
   description: string;
   descriptionHtml: string;
+  vendor: string;
+  tags: string[];
+  availableForSale: boolean;
   priceRange: {
     minVariantPrice: {
       amount: string;
@@ -54,10 +57,16 @@ interface ShopifyProduct {
         image: ShopifyImage;
         title: string;
         id: string;
+        availableForSale: boolean;
+        quantityAvailable: number;
         priceV2: {
           amount: string;
           currencyCode: string;
         };
+        compareAtPriceV2: {
+          amount: string;
+          currencyCode: string;
+        } | null;
       };
     }>;
   };
@@ -70,6 +79,56 @@ interface ShopifyCollection {
   description: string;
 }
 
+// New Cart Types
+interface CartCreateResponse {
+  cartCreate: {
+    cart: Cart;
+    userErrors: UserError[];
+  };
+}
+
+interface CartLinesAddResponse {
+  cartLinesAdd: {
+    cart: Cart;
+    userErrors: UserError[];
+  };
+}
+
+interface Cart {
+  id: string;
+  checkoutUrl: string;
+  lines: {
+    edges: Array<{
+      node: CartLine;
+    }>;
+  };
+  cost: {
+    totalAmount: Money;
+    subtotalAmount: Money;
+    totalTaxAmount: Money | null;
+  };
+}
+
+interface CartLine {
+  id: string;
+  quantity: number;
+  merchandise: {
+    id: string;
+    title: string;
+    priceV2: Money;
+  };
+}
+
+interface Money {
+  amount: string;
+  currencyCode: string;
+}
+
+interface UserError {
+  field: string[];
+  message: string;
+}
+
 export async function shopifyFetch<T>(query: string, variables: Record<string, unknown> = {}): Promise<T> {
   try {
     const data = await graphQLClient.request<T>(query, variables);
@@ -78,6 +137,141 @@ export async function shopifyFetch<T>(query: string, variables: Record<string, u
     console.error('Error fetching from Shopify:', error);
     throw new Error('Failed to fetch data from Shopify');
   }
+}
+
+// New Cart API Functions
+export async function createCart(): Promise<Cart> {
+  const mutation = `
+    mutation cartCreate {
+      cartCreate {
+        cart {
+          id
+          checkoutUrl
+          lines(first: 10) {
+            edges {
+              node {
+                id
+                quantity
+                merchandise {
+                  ... on ProductVariant {
+                    id
+                    title
+                    priceV2 {
+                      amount
+                      currencyCode
+                    }
+                  }
+                }
+              }
+            }
+          }
+          cost {
+            totalAmount {
+              amount
+              currencyCode
+            }
+            subtotalAmount {
+              amount
+              currencyCode
+            }
+            totalTaxAmount {
+              amount
+              currencyCode
+            }
+          }
+          buyerIdentity {
+            email
+            phone
+            customer {
+              id
+            }
+            countryCode
+          }
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  const response = await shopifyFetch<CartCreateResponse>(mutation);
+  if (response.cartCreate.userErrors.length > 0) {
+    throw new Error(response.cartCreate.userErrors[0].message);
+  }
+  return response.cartCreate.cart;
+}
+
+export async function addToCart(cartId: string, lines: { merchandiseId: string; quantity: number }[]): Promise<Cart> {
+  const mutation = `
+    mutation cartLinesAdd($cartId: ID!, $lines: [CartLineInput!]!) {
+      cartLinesAdd(cartId: $cartId, lines: $lines) {
+        cart {
+          id
+          checkoutUrl
+          lines(first: 10) {
+            edges {
+              node {
+                id
+                quantity
+                merchandise {
+                  ... on ProductVariant {
+                    id
+                    title
+                    priceV2 {
+                      amount
+                      currencyCode
+                    }
+                  }
+                }
+              }
+            }
+          }
+          cost {
+            totalAmount {
+              amount
+              currencyCode
+            }
+            subtotalAmount {
+              amount
+              currencyCode
+            }
+            totalTaxAmount {
+              amount
+              currencyCode
+            }
+          }
+          buyerIdentity {
+            email
+            phone
+            customer {
+              id
+            }
+            countryCode
+          }
+        }
+        userErrors {
+          field
+          message
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    cartId,
+    lines: lines.map(line => ({
+      merchandiseId: line.merchandiseId,
+      quantity: line.quantity,
+    })),
+  };
+
+  const response = await shopifyFetch<CartLinesAddResponse>(mutation, variables);
+  if (response.cartLinesAdd.userErrors.length > 0) {
+    throw new Error(response.cartLinesAdd.userErrors[0].message);
+  }
+  return response.cartLinesAdd.cart;
 }
 
 export async function getCollections(): Promise<ShopifyCollection[]> {
@@ -119,6 +313,9 @@ export async function getProductsByCollection(collectionHandle: string): Promise
               title
               handle
               description
+              vendor
+              tags
+              availableForSale
               priceRange {
                 minVariantPrice {
                   amount
@@ -130,6 +327,22 @@ export async function getProductsByCollection(collectionHandle: string): Promise
                   node {
                     originalSrc
                     altText
+                  }
+                }
+              }
+              variants(first: 1) {
+                edges {
+                  node {
+                    availableForSale
+                    quantityAvailable
+                    priceV2 {
+                      amount
+                      currencyCode
+                    }
+                    compareAtPriceV2 {
+                      amount
+                      currencyCode
+                    }
                   }
                 }
               }
@@ -164,6 +377,9 @@ export async function searchProducts(searchTerm: string): Promise<ShopifyProduct
             title
             handle
             description
+            vendor
+            tags
+            availableForSale
             priceRange {
               minVariantPrice {
                 amount
@@ -175,6 +391,22 @@ export async function searchProducts(searchTerm: string): Promise<ShopifyProduct
                 node {
                   originalSrc
                   altText
+                }
+              }
+            }
+            variants(first: 1) {
+              edges {
+                node {
+                  availableForSale
+                  quantityAvailable
+                  priceV2 {
+                    amount
+                    currencyCode
+                  }
+                  compareAtPriceV2 {
+                    amount
+                    currencyCode
+                  }
                 }
               }
             }
@@ -204,6 +436,9 @@ export async function getProductByHandle(handle: string): Promise<ShopifyProduct
         handle
         description
         descriptionHtml
+        vendor
+        tags
+        availableForSale
         priceRange {
           minVariantPrice {
             amount
@@ -236,7 +471,13 @@ export async function getProductByHandle(handle: string): Promise<ShopifyProduct
               }
               title
               id
+              availableForSale
+              quantityAvailable
               priceV2 {
+                amount
+                currencyCode
+              }
+              compareAtPriceV2 {
                 amount
                 currencyCode
               }
@@ -271,6 +512,9 @@ export async function getProducts({ limit = 250 }: { limit?: number } = {}): Pro
             handle
             description
             descriptionHtml
+            vendor
+            tags
+            availableForSale
             priceRange {
               minVariantPrice {
                 amount
@@ -303,7 +547,13 @@ export async function getProducts({ limit = 250 }: { limit?: number } = {}): Pro
                   }
                   title
                   id
+                  availableForSale
+                  quantityAvailable
                   priceV2 {
+                    amount
+                    currencyCode
+                  }
+                  compareAtPriceV2 {
                     amount
                     currencyCode
                   }
@@ -335,4 +585,6 @@ export default {
   shopifyFetch,
   getProductByHandle,
   getProducts,
+  createCart,
+  addToCart,
 };
