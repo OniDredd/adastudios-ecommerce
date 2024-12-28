@@ -29,11 +29,10 @@ const LOW_STOCK_THRESHOLD = 5;
 
 const ProductSkeleton: React.FC = () => (
   <div className="animate-pulse flex flex-col h-full rounded-lg">
-    <div className="h-96 w-full bg-main-maroon/20 rounded-sm mb-4"></div>
-    <div className="mt-auto px-5">
-      <div className="h-4 bg-main-maroon/20 rounded w-3/4 mb-2"></div>
-      <div className="h-6 bg-main-maroon/20 rounded w-1/4 mb-4"></div>
-      <div className="h-12 bg-main-maroon/20 rounded w-full opacity-0"></div>
+    <div className="aspect-square w-full bg-main-maroon/20 rounded-sm mb-2 sm:mb-3"></div>
+    <div className="mt-auto px-2 sm:px-3">
+      <div className="h-3 sm:h-4 bg-main-maroon/20 rounded w-3/4 mb-1 sm:mb-2"></div>
+      <div className="h-4 sm:h-5 bg-main-maroon/20 rounded w-1/4 mb-2 sm:mb-3"></div>
     </div>
   </div>
 );
@@ -75,13 +74,13 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="h-96 w-full overflow-hidden mb-4 relative rounded-sm">
+      <div className="aspect-square w-full overflow-hidden mb-2 sm:mb-3 relative rounded-sm">
         {/* Out of Stock Overlay and Badge */}
         {!product.availableForSale && (
           <>
             <div className="absolute inset-0 bg-gradient-to-t from-secondary-peach/80 to-transparent z-10" />
-            <div className="absolute top-4 right-4 z-20">
-              <span className="bg-secondary-peach text-main-maroon px-4 py-1.5 text-xs font-medium rounded-full shadow-sm backdrop-blur-sm">
+            <div className="absolute top-2 right-2 z-20">
+              <span className="bg-secondary-peach text-main-maroon px-2 py-1 text-[10px] font-medium rounded-full shadow-sm backdrop-blur-sm">
                 Out of Stock
               </span>
             </div>
@@ -90,8 +89,8 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
 
         {/* Discount Badge */}
         {isDiscounted && (
-          <div className="absolute top-4 left-4 z-10">
-            <span className="bg-main-maroon text-secondary-peach px-4 py-1.5 text-xs font-medium rounded-full shadow-sm backdrop-blur-sm">
+          <div className="absolute top-2 left-2 z-10">
+            <span className="bg-main-maroon text-secondary-peach px-2 py-1 text-[10px] font-medium rounded-full shadow-sm backdrop-blur-sm">
               {discountPercentage}% Off
             </span>
           </div>
@@ -99,8 +98,8 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
 
         {/* Low Stock Badge */}
         {isLowStock && (
-          <div className="absolute top-4 right-4 z-10">
-            <span className="bg-main-maroon/90 text-secondary-peach px-4 py-1.5 text-xs font-medium rounded-full shadow-sm backdrop-blur-sm">
+          <div className="absolute top-2 right-2 z-10">
+            <span className="bg-main-maroon/90 text-secondary-peach px-2 py-1 text-[10px] font-medium rounded-full shadow-sm backdrop-blur-sm">
               Only {product.quantityAvailable} Left
             </span>
           </div>
@@ -116,7 +115,7 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
             src={primaryImage}
             alt={product.title}
             fill
-            sizes="100%"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             priority
             className="object-cover object-center"
           />
@@ -132,7 +131,7 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
             src={secondaryImage}
             alt={`${product.title} - alternate view`}
             fill
-            sizes="100%"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className="object-cover object-center"
           />
         </div>
@@ -140,7 +139,7 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
         {/* Hover Add to Cart Button - Only show if product is available */}
         {product.availableForSale && (
           <div
-            className={`absolute bottom-0 left-0 right-0 p-4 transition-all duration-300 ${
+            className={`absolute bottom-0 left-0 right-0 p-2 transition-all duration-300 ${
               isHovered ? "opacity-100" : "opacity-0"
             }`}
             onClick={(e) => e.preventDefault()}
@@ -157,14 +156,14 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
           </div>
         )}
       </div>
-      <div className="mt-auto px-5">
-        <h3 className={`text-sm text-${textColor} mb-2`}>{product.title}</h3>
-        <div className="flex items-center gap-2 mb-4">
-          <p className={`text-lg font-medium text-${textColor} ${!product.availableForSale ? "line-through opacity-70" : ""}`}>
+      <div className="mt-auto px-2 sm:px-3">
+        <h3 className={`text-xs sm:text-sm text-${textColor} mb-1 sm:mb-2 line-clamp-2`}>{product.title}</h3>
+        <div className="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
+          <p className={`text-sm sm:text-base font-medium text-${textColor} ${!product.availableForSale ? "line-through opacity-70" : ""}`}>
             {convertPrice(product.price)}
           </p>
           {isDiscounted && (
-            <p className={`text-sm line-through text-${textColor}/60`}>
+            <p className={`text-xs sm:text-sm line-through text-${textColor}/60`}>
               {convertPrice(product.compareAtPrice!)}
             </p>
           )}

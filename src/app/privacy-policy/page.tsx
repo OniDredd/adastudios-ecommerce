@@ -1,113 +1,116 @@
 import React from 'react';
 
-export default function PrivacyPolicy() {
+export default function PrivacyPolicyPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <h1 className="text-3xl font-semibold mb-8">Privacy Policy</h1>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
+      <h1 className="text-3xl sm:text-4xl text-[hsl(var(--main-maroon))] mb-6 sm:mb-8 uppercase font-bold text-center sm:text-left">
+        Privacy Policy
+      </h1>
       
-      <div className="space-y-6">
+      <div className="space-y-8 sm:space-y-12 text-[hsl(var(--main-maroon))]">
         <section>
-          <h2 className="text-xl font-semibold mb-4">Introduction</h2>
-          <p className="text-gray-600">
-            At Ada Studios, we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or make a purchase.
-          </p>
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+            Information We Collect
+          </h2>
+          <div className="space-y-4">
+            <p>
+              When you visit our website, we collect certain information about your device, your interaction with the website, and information necessary to process your purchases. We may also collect additional information if you contact us for customer support.
+            </p>
+            <p>
+              The personal information we collect includes names, addresses, email addresses, phone numbers, payment information, and any other information you choose to provide. We use this information to fulfill orders, communicate with you, and improve our services.
+            </p>
+          </div>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">Information We Collect</h2>
-          <p className="text-gray-600">
-            We collect information that you voluntarily provide to us when you:
-          </p>
-          <ul className="list-disc list-inside mt-2 text-gray-600">
-            <li>Create an account</li>
-            <li>Make a purchase</li>
-            <li>Sign up for our newsletter</li>
-            <li>Contact us for support</li>
-            <li>Participate in promotions or surveys</li>
-          </ul>
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+            How We Use Your Information
+          </h2>
+          <div className="space-y-4">
+            <p>
+              We use the information we collect to:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li>Process and fulfill your orders</li>
+              <li>Communicate with you about your orders and provide customer support</li>
+              <li>Send you marketing communications (if you opt in)</li>
+              <li>Improve our website and services</li>
+              <li>Comply with legal obligations</li>
+              <li>Detect and prevent fraud</li>
+            </ul>
+          </div>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">How We Use Your Information</h2>
-          <p className="text-gray-600">
-            We use the information we collect to:
-          </p>
-          <ul className="list-disc list-inside mt-2 text-gray-600">
-            <li>Process your orders and payments</li>
-            <li>Send order confirmations and updates</li>
-            <li>Respond to your inquiries</li>
-            <li>Send marketing communications (with your consent)</li>
-            <li>Improve our website and services</li>
-            <li>Prevent fraud and maintain security</li>
-          </ul>
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+            Information Sharing
+          </h2>
+          <div className="space-y-4">
+            <p>
+              We share your personal information with service providers to help us provide our services and fulfill our contracts with you. For example, we use payment processors to securely handle credit card transactions, shipping carriers to deliver orders, and marketing providers to manage our communications.
+            </p>
+            <p>
+              We may also share your personal information to comply with applicable laws and regulations, to respond to a subpoena, search warrant or other lawful request for information we receive, or to otherwise protect our rights.
+            </p>
+          </div>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">Information Sharing</h2>
-          <p className="text-gray-600">
-            We may share your information with:
-          </p>
-          <ul className="list-disc list-inside mt-2 text-gray-600">
-            <li>Payment processors to complete transactions</li>
-            <li>Shipping partners to deliver your orders</li>
-            <li>Service providers who assist with our operations</li>
-            <li>Law enforcement when required by law</li>
-          </ul>
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+            Your Rights
+          </h2>
+          <div className="space-y-4">
+            <p>
+              You have the right to access, correct, or delete your personal information. You can also object to or restrict our processing of your data. To exercise these rights, please contact us using the information provided below.
+            </p>
+            <p>
+              If you have previously agreed to us using your personal information for direct marketing purposes, you may change your mind at any time by contacting us.
+            </p>
+          </div>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">Cookies and Tracking</h2>
-          <p className="text-gray-600">
-            We use cookies and similar tracking technologies to:
-          </p>
-          <ul className="list-disc list-inside mt-2 text-gray-600">
-            <li>Remember your preferences</li>
-            <li>Maintain your shopping cart</li>
-            <li>Analyze website traffic</li>
-            <li>Personalize your experience</li>
-          </ul>
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+            Cookies
+          </h2>
+          <div className="space-y-4">
+            <p>
+              We use cookies and similar tracking technologies to track the activity on our website and hold certain information. Cookies are files with a small amount of data that may include an anonymous unique identifier.
+            </p>
+            <p>
+              You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent. However, if you do not accept cookies, you may not be able to use some portions of our website.
+            </p>
+          </div>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">Your Rights</h2>
-          <p className="text-gray-600">
-            You have the right to:
-          </p>
-          <ul className="list-disc list-inside mt-2 text-gray-600">
-            <li>Access your personal information</li>
-            <li>Correct inaccurate information</li>
-            <li>Request deletion of your information</li>
-            <li>Opt-out of marketing communications</li>
-            <li>Withdraw consent where applicable</li>
-          </ul>
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+            Changes to This Policy
+          </h2>
+          <div className="space-y-4">
+            <p>
+              We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the &ldquo;Last Updated&rdquo; date.
+            </p>
+            <p>
+              You are advised to review this Privacy Policy periodically for any changes. Changes to this Privacy Policy are effective when they are posted on this page.
+            </p>
+          </div>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">Data Security</h2>
-          <p className="text-gray-600">
-            We implement appropriate technical and organizational measures to protect your personal information. However, no method of transmission over the Internet or electronic storage is 100% secure.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="text-xl font-semibold mb-4">Children&apos;s Privacy</h2>
-          <p className="text-gray-600">
-            Our website is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="text-xl font-semibold mb-4">Changes to This Policy</h2>
-          <p className="text-gray-600">
-            We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the effective date.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="text-xl font-semibold mb-4">Contact Us</h2>
-          <p className="text-gray-600">
-            If you have any questions about this Privacy Policy or our practices, please contact us through our contact page.
-          </p>
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+            Contact Us
+          </h2>
+          <div className="space-y-4">
+            <p>
+              If you have any questions about our Privacy Policy, please contact us:
+            </p>
+            <div className="space-y-2">
+              <p>Email: privacy@adastudios.com</p>
+              <p>Phone: (555) 123-4567</p>
+              <p>Address: 123 Main Street, Suite 100, San Francisco, CA 94105</p>
+            </div>
+          </div>
         </section>
       </div>
     </div>

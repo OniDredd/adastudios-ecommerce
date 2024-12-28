@@ -51,7 +51,6 @@ async function getNewArrivals() {
     }>(query);
     
     if (!response.collection) {
-      console.error("New Arrivals collection not found");
       return [];
     }
 
@@ -69,11 +68,9 @@ async function getNewArrivals() {
           file: { url: edge.node.url },
         })),
       };
-      console.log("Mapped product:", JSON.stringify(product, null, 2));
       return product;
     });
   } catch (error) {
-    console.error("Error fetching new arrivals:", error);
     return [];
   }
 }
@@ -88,11 +85,8 @@ async function getMatchaProducts() {
     );
 
     if (!matchaCollection) {
-      console.error("Matcha collection not found");
       return [];
     }
-
-    console.log("Found matcha collection:", matchaCollection);
 
     // Use the found collection handle
     const products = await shopify.getProductsByCollection(matchaCollection.handle);
@@ -101,11 +95,6 @@ async function getMatchaProducts() {
       const variant = product.variants.edges[0]?.node;
       const isAvailable = variant ? variant.availableForSale : product.availableForSale;
       
-      console.log(`Product ${product.title} availability:`, {
-        variantAvailable: variant?.availableForSale,
-        productAvailable: product.availableForSale,
-        finalAvailable: isAvailable
-      });
       
       return {
         id: product.id,
@@ -117,7 +106,6 @@ async function getMatchaProducts() {
       };
     });
   } catch (error) {
-    console.error("Error fetching matcha products:", error);
     return [];
   }
 }
@@ -126,9 +114,6 @@ export default async function Home() {
   const newArrivals = await getNewArrivals();
   const matchaProducts = await getMatchaProducts();
   
-  console.log("New arrivals:", JSON.stringify(newArrivals, null, 2));
-  console.log("Matcha products:", JSON.stringify(matchaProducts, null, 2));
-
   return (
     <main className="flex flex-col items-center justify-between bg-secondary-peach">
       <SaleBanner />

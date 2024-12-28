@@ -7,6 +7,28 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCurrency } from '../CurrencyProvider';
 
+// Custom hook to detect mobile viewport
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // md breakpoint
+    };
+    
+    // Initial check
+    checkMobile();
+    
+    // Add resize listener
+    window.addEventListener('resize', checkMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
+};
+
 interface Product {
   id: string;
   name: string;
@@ -29,16 +51,16 @@ const ProductSlider = ({ products }: ExclusiveMatchaProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const { convertPrice } = useCurrency();
+  const isMobile = useIsMobile();
 
-  useEffect(() => {
-    // Debug log for products
-    products.forEach(product => {
-      console.log(`ExclusiveMatcha - Product ${product.name} availability:`, product.availableForSale);
-    });
-  }, [products]);
 
-  // Video intersection observer
+  // Video intersection observer - only run on non-mobile
   useEffect(() => {
+    if (isMobile) {
+      setIsVideoVisible(false);
+      return;
+    }
+
     const options = {
       root: null,
       rootMargin: '50px', // Start loading video slightly before it comes into view
@@ -51,7 +73,7 @@ const ProductSlider = ({ products }: ExclusiveMatchaProps) => {
           setIsVideoVisible(true);
           if (videoRef.current) {
             videoRef.current.play().catch((error) => {
-              console.error('Error playing video:', error);
+              // Silently handle video play error
             });
           }
         }
@@ -67,7 +89,7 @@ const ProductSlider = ({ products }: ExclusiveMatchaProps) => {
         observer.unobserve(videoContainerRef.current);
       }
     };
-  }, []);
+  }, [isMobile]);
 
   // Handle video load events
   const handleVideoLoad = () => {
@@ -75,7 +97,6 @@ const ProductSlider = ({ products }: ExclusiveMatchaProps) => {
   };
 
   const handleVideoError = (error: any) => {
-    console.error('Error loading video:', error);
     setIsVideoLoaded(false);
   };
 
@@ -99,7 +120,6 @@ const ProductSlider = ({ products }: ExclusiveMatchaProps) => {
         await Promise.all(imagePromises);
         setIsLoading(false);
       } catch (error) {
-        console.error('Error preloading images:', error);
         setIsLoading(false);
       }
     };
@@ -123,73 +143,68 @@ const ProductSlider = ({ products }: ExclusiveMatchaProps) => {
 
   const isImageLoaded = (imageUrl: string) => loadedImages.includes(imageUrl);
 
-  // Debug log for current product
-  const currentProduct = products[currentSlide];
-  console.log('ExclusiveMatcha - Current product:', {
-    name: currentProduct.name,
-    availableForSale: currentProduct.availableForSale
-  });
-
   return (
-    <section className="w-full h-[600px] flex flex-col md:flex-row border-y-[1px] border-main-maroon">
-      {/* Left Side - Video */}
-      <div ref={videoContainerRef} className="w-full md:w-1/2 h-[300px] md:h-full relative overflow-hidden bg-main-maroon">
-        {isVideoVisible && (
-          <video 
-            ref={videoRef}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${isVideoLoaded ? 'opacity-100' : 'opacity-0'}`}
-            autoPlay 
-            loop 
-            muted 
-            playsInline
-            preload="none"
-            poster={products[0]?.imageUrl}
-            onLoadedData={handleVideoLoad}
-            onError={handleVideoError}
-          >
-            <source src="/MatchaVideo.mp4" type="video/mp4" />
-            {/* Fallback for when video fails to load */}
+    <section className="w-full h-auto md:h-[600px] flex flex-col md:flex-row border-y-[1px] border-main-maroon">
+      {/* Left Side - Video (hidden on mobile) */}
+      {!isMobile && (
+        <div ref={videoContainerRef} className="hidden md:block md:w-1/2 relative overflow-hidden bg-main-maroon aspect-video md:aspect-auto md:h-full">
+          {isVideoVisible && (
+            <video 
+              ref={videoRef}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${isVideoLoaded ? 'opacity-100' : 'opacity-0'}`}
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              preload="none"
+              poster={products[0]?.imageUrl}
+              onLoadedData={handleVideoLoad}
+              onError={handleVideoError}
+            >
+              <source src="/MatchaVideo.webm" type="video/webm" />
+              <source src="/MatchaVideo.mp4" type="video/mp4" />
+              {/* Fallback for when video fails to load */}
+              <Image
+                src={products[0]?.imageUrl || "/placeholder.jpg"}
+                alt="Matcha Video Fallback"
+                fill
+                className="object-cover"
+                priority={false}
+              />
+            </video>
+          )}
+          {(!isVideoVisible || !isVideoLoaded) && (
             <Image
               src={products[0]?.imageUrl || "/placeholder.jpg"}
-              alt="Matcha Video Fallback"
+              alt="Matcha Preview"
               fill
               className="object-cover"
-              priority={false}
+              priority
             />
-          </video>
-        )}
-        {/* Show poster image while video is not visible or loaded */}
-        {(!isVideoVisible || !isVideoLoaded) && (
-          <Image
-            src={products[0]?.imageUrl || "/placeholder.jpg"}
-            alt="Matcha Preview"
-            fill
-            className="object-cover"
-            priority
-          />
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
-      {/* Right Side - Product Slider */}
-      <div className="w-full md:w-1/2 h-[300px] md:h-full bg-main-maroon p-3 md:p-6 flex flex-col">
-        <div className="text-xl font-bold mb-1 md:mb-2 text-center text-secondary-peach">EXCLUSIVE MATCHA</div>
-        <div className="text-sm mb-2 md:mb-4 text-center text-secondary-peach">
+      {/* Product Slider (full width on mobile, half on desktop) */}
+      <div className="w-full md:w-1/2 bg-main-maroon p-5 md:p-6 flex flex-col">
+        <div className="text-lg md:text-xl font-bold mb-1 md:mb-2 text-center text-secondary-peach">EXCLUSIVE MATCHA</div>
+        <div className="text-xs md:text-sm mb-2 md:mb-4 text-center text-secondary-peach">
           {currentSlide + 1} OF {products.length}
         </div>
         
-        <div className="flex-1 flex items-center">
+        <div className="py-4 md:py-6">
           <div className="w-full flex items-center justify-between gap-3">
             {/* Left Navigation Button */}
             <button 
               onClick={prevSlide}
-              className="bg-secondary-peach text-secondary-peach p-2 rounded-full hover:bg-[#FFB6A3] transition-colors z-10"
+              className="bg-secondary-peach text-secondary-peach p-2.5 md:p-2 rounded-full hover:bg-[#FFB6A3] transition-colors z-10"
               disabled={isLoading}
             >
               <ChevronLeft className="w-4 h-4 text-main-maroon" />
             </button>
 
             {/* Product Display */}
-            <div className="flex-1 max-w-[280px] mx-auto">
+            <div className="flex-1 max-w-[260px] md:max-w-[280px] mx-auto">
               <Link href={`/product/${products[currentSlide].handle}`}>
                 <div className="bg-white p-3 rounded-lg relative aspect-[3/4] overflow-hidden group cursor-pointer">
                   {/* Hidden preload container */}
@@ -253,7 +268,7 @@ const ProductSlider = ({ products }: ExclusiveMatchaProps) => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="mt-3 text-center group-hover:opacity-80 transition-opacity"
+                    className="mt-2 md:mt-3 text-center group-hover:opacity-80 transition-opacity"
                   >
                     <h2 className="text-base md:text-lg font-semibold text-secondary-peach">
                       {products[currentSlide].name}
@@ -269,7 +284,7 @@ const ProductSlider = ({ products }: ExclusiveMatchaProps) => {
             {/* Right Navigation Button */}
             <button 
               onClick={nextSlide}
-              className="bg-secondary-peach text-main-maroon p-2 rounded-full hover:bg-[#FFB6A3] transition-colors z-10"
+              className="bg-secondary-peach text-main-maroon p-2.5 md:p-2 rounded-full hover:bg-[#FFB6A3] transition-colors z-10"
               disabled={isLoading}
             >
               <ChevronRight className="w-4 h-4 text-[#800020]" />

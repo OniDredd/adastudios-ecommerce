@@ -26,28 +26,28 @@ export default function Footer() {
   return (
     <footer className="bg-main-maroon text-secondary-peach">
       {/* Main Footer Content */}
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-8 py-16">
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 sm:gap-12 py-12 md:py-16">
           {/* Logo and About Column */}
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 space-y-6">
             <Image 
               src="/adastudioslogo-peach.svg" 
               alt="Ada Studios Logo" 
-              width={180} 
-              height={180} 
-              className="mb-6"
+              width={140} 
+              height={140} 
+              className="sm:w-[180px] sm:h-[180px]"
             />
             <p className="text-secondary-peach/80 mb-6 max-w-sm">
               Elevating your lifestyle with luxury glassware designed for the modern woman who knows what she wants.
             </p>
-            <div className="flex space-x-4">
+            <div className="flex space-x-6">
               <Link 
                 href="https://instagram.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="opacity-100 hover:opacity-60 transition-opacity duration-200"
               >
-                <FaInstagram className="w-5 h-5" />
+                <FaInstagram className="w-6 h-6" />
               </Link>
               <Link 
                 href="https://facebook.com" 
@@ -70,7 +70,7 @@ export default function Footer() {
 
           {/* Shop Column */}
           <div>
-            <h3 className="font-bold text-lg mb-4">SHOP</h3>
+            <h3 className="font-bold text-base sm:text-lg mb-3 sm:mb-4">SHOP</h3>
             <ul className="space-y-3">
               <li>
                 <Link 
@@ -113,7 +113,7 @@ export default function Footer() {
 
           {/* Customer Care Column */}
           <div>
-            <h3 className="font-bold text-lg mb-4">CUSTOMER CARE</h3>
+            <h3 className="font-bold text-base sm:text-lg mb-3 sm:mb-4">CUSTOMER CARE</h3>
             <ul className="space-y-3">
               <li><Link href="/shipping-returns" className="opacity-100 hover:opacity-60 transition-opacity duration-200">Shipping & Returns</Link></li>
               <li><Link href="/care-instructions" className="opacity-100 hover:opacity-60 transition-opacity duration-200">Care Instructions</Link></li>
@@ -124,7 +124,7 @@ export default function Footer() {
 
           {/* Company Column */}
           <div>
-            <h3 className="font-bold text-lg mb-4">COMPANY</h3>
+            <h3 className="font-bold text-base sm:text-lg mb-3 sm:mb-4">COMPANY</h3>
             <ul className="space-y-3">
               <li><Link href="/about" className="opacity-100 hover:opacity-60 transition-opacity duration-200">About Us</Link></li>
               <li><Link href="/sustainability" className="opacity-100 hover:opacity-60 transition-opacity duration-200">Sustainability</Link></li>
@@ -136,19 +136,19 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-secondary-peach/20 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-sm text-secondary-peach/80 order-2 md:order-1">
+        <div className="border-t border-secondary-peach/20 py-6 sm:py-8">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
+            <div className="text-xs sm:text-sm text-secondary-peach/80 order-2 sm:order-1 text-center sm:text-left">
               © {new Date().getFullYear()} Ada Studios. All rights reserved.
             </div>
-            <div className="flex items-center gap-6 order-1 md:order-2">
-              <div className="flex items-center gap-3">
-                <FaCcVisa className="w-8 h-8 opacity-80" />
-                <FaCcMastercard className="w-8 h-8 opacity-80" />
-                <FaCcApplePay className="w-8 h-8 opacity-80" />
-                <SiAfterpay className="w-12 h-8 opacity-80" />
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 order-1 sm:order-2">
+              <div className="flex flex-wrap justify-center items-center gap-4">
+                <FaCcVisa className="w-7 h-7 sm:w-8 sm:h-8 opacity-80" />
+                <FaCcMastercard className="w-7 h-7 sm:w-8 sm:h-8 opacity-80" />
+                <FaCcApplePay className="w-7 h-7 sm:w-8 sm:h-8 opacity-80" />
+                <SiAfterpay className="w-10 h-7 sm:w-12 sm:h-8 opacity-80" />
               </div>
-              <span className="text-sm text-secondary-peach/60">
+              <span className="text-xs sm:text-sm text-secondary-peach/60">
                 Site by <a href="https://nanogram.io" target="_blank" rel="noopener noreferrer" className="opacity-100 hover:opacity-60 transition-opacity duration-200">Nanogram</a>
               </span>
             </div>

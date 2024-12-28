@@ -63,11 +63,11 @@ export default function Cart() {
         initial={{ x: '100%' }}
         animate={{ x: isCartOpen ? 0 : '100%' }}
         transition={{ type: "spring", damping: 20, stiffness: 100 }}
-        className="fixed right-0 top-0 h-full w-[35vw] min-w-[350px] bg-white shadow-2xl z-[999]"
+        className="fixed right-0 top-0 h-full w-full sm:w-[90vw] md:w-[70vw] lg:w-[35vw] max-w-[500px] bg-white shadow-2xl z-[999]"
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="px-6 py-4 border-b border-gray-200 bg-secondary-peach">
+          <div className="px-4 sm:px-6 py-4 border-b border-gray-200 bg-secondary-peach">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-bold text-main-maroon">Shopping Bag ({cart.length})</h2>
               <button 
@@ -81,7 +81,7 @@ export default function Cart() {
           </div>
 
           {/* Cart Items */}
-          <div className="flex-1 overflow-y-auto px-6 py-4">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
             {cart.length === 0 ? (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -105,10 +105,10 @@ export default function Cart() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: -100 }}
-                    className="mb-6 p-4 bg-white rounded-lg border border-gray-200 hover:border-main-maroon transition-colors duration-200 shadow-sm"
+                    className="mb-4 sm:mb-6 p-3 sm:p-4 bg-white rounded-lg border border-gray-200 hover:border-main-maroon transition-colors duration-200 shadow-sm"
                   >
                     <div className="flex gap-4">
-                      <div className="relative w-24 h-24 bg-secondary-peach rounded-md overflow-hidden">
+                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 bg-secondary-peach rounded-md overflow-hidden">
                         <Image 
                           src={item.image} 
                           alt={item.title} 
@@ -128,17 +128,17 @@ export default function Cart() {
                           <div className="flex items-center border border-gray-200 rounded-md">
                             <button 
                               onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1))}
-                              className="px-3 py-1 hover:bg-secondary-peach transition-colors duration-200"
+                              className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-secondary-peach active:bg-secondary-peach/80 transition-colors duration-200"
                               aria-label="Decrease quantity"
                             >
                               -
                             </button>
-                            <span className="px-4 py-1 border-x border-gray-200 min-w-[40px] text-center">
+                            <span className="w-8 sm:w-10 h-8 sm:h-10 flex items-center justify-center border-x border-gray-200">
                               {item.quantity}
                             </span>
                             <button 
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="px-3 py-1 hover:bg-secondary-peach transition-colors duration-200"
+                              className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-secondary-peach active:bg-secondary-peach/80 transition-colors duration-200"
                               aria-label="Increase quantity"
                             >
                               +
@@ -161,7 +161,7 @@ export default function Cart() {
 
           {/* Checkout Section */}
           {cart.length > 0 && (
-            <div className="border-t border-gray-200 bg-white px-6 py-4">
+            <div className="border-t border-gray-200 bg-white px-4 sm:px-6 py-4">
               {/* Order Summary */}
               <div className="space-y-2 mb-4">
                 <div className="flex justify-between">
@@ -202,11 +202,11 @@ export default function Cart() {
                 <p className="text-center text-sm text-gray-500">
                   Shipping & taxes calculated at checkout
                 </p>
-                <div className="flex justify-center space-x-4 text-gray-400">
-                  <FaCcVisa size={32} />
-                  <FaCcMastercard size={32} />
-                  <FaCcAmex size={32} />
-                  <FaCcStripe size={32} />
+                <div className="flex flex-wrap justify-center gap-4 text-gray-400">
+                  <FaCcVisa size={28} className="sm:text-[32px]" />
+                  <FaCcMastercard size={28} className="sm:text-[32px]" />
+                  <FaCcAmex size={28} className="sm:text-[32px]" />
+                  <FaCcStripe size={28} className="sm:text-[32px]" />
                 </div>
               </div>
             </div>

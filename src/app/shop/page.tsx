@@ -425,7 +425,7 @@ const applyFilters = (products: TransformedProduct[], currentFilters: typeof fil
       {/* Products Grid */}
       <div className={`transform transition-all duration-300 ease-in-out ${showFilters ? 'translate-y-0' : '-translate-y-4'}`}>
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {[...Array(8)].map((_, index) => (
               <ProductComponent
                 key={index}
@@ -436,7 +436,7 @@ const applyFilters = (products: TransformedProduct[], currentFilters: typeof fil
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
               {currentProducts.map((product) => (
                 <ProductComponent
                   key={product.id}
