@@ -578,7 +578,7 @@ export async function getProducts({ limit = 250 }: { limit?: number } = {}): Pro
   return response.products.edges.map(edge => edge.node);
 }
 
-export default {
+const shopifyClient = {
   getCollections,
   getProductsByCollection,
   searchProducts,
@@ -588,3 +588,5 @@ export default {
   createCart,
   addToCart,
 };
+
+export default shopifyClient;

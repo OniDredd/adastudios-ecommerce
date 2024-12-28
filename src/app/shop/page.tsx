@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ProductComponent from '../../components/ProductComponent';
 import { Button } from '../../components/ui/button';
@@ -95,7 +95,7 @@ const transformProduct = (product: ShopifyProduct): TransformedProduct => ({
   }))
 });
 
-const ShopAllPage = () => {
+const ShopContent = () => {
   const searchParams = useSearchParams();
   const [products, setProducts] = useState<TransformedProduct[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<TransformedProduct[]>([]);
@@ -131,77 +131,56 @@ const ShopAllPage = () => {
   const endIndex = startIndex + PRODUCTS_PER_PAGE;
   const currentProducts = filteredProducts.slice(startIndex, endIndex);
 
-  const handleSearch = (value: string) => {
-    setSearchTerm(value);
-    setSearchLoading(true);
-    
-    const searchValue = value.toLowerCase().trim();
+  const applyFilters = useCallback((products: TransformedProduct[], currentFilters: typeof filters) => {
     let filtered = [...products];
 
-    if (searchValue) {
-      filtered = filtered.filter(product => 
-        product.title.toLowerCase().includes(searchValue)
-      );
-    }
-
-    // Apply existing filters to search results
-    filtered = applyFilters(filtered, filters);
-
-    setFilteredProducts(filtered);
-    setSearchLoading(false);
-    setCurrentPage(1);
-  };
-
-const applyFilters = (products: TransformedProduct[], currentFilters: typeof filters) => {
-  let filtered = [...products];
-
-  // Apply main category filter
-  if (currentFilters.mainCategory !== 'all') {
-    if (currentFilters.mainCategory === 'Sale') {
-      // Show products that have a compareAtPrice higher than their regular price
-      filtered = filtered.filter(product => 
-        product.compareAtPrice && 
-        product.compareAtPrice > product.price
-      );
-    } else if (currentFilters.mainCategory === 'low-stock') {
-      filtered = filtered.filter(product => 
-        product.availableForSale && 
-        product.quantityAvailable > 0 && 
-        product.quantityAvailable <= 5
-      );
-    } else {
-      filtered = filtered.filter(product =>
-        product.tags.includes(currentFilters.mainCategory)
-      );
-
-      if (currentFilters.subcategory !== 'all') {
-        filtered = filtered.filter(product =>
-          product.tags.includes(currentFilters.subcategory)
+    // Apply main category filter
+    if (currentFilters.mainCategory !== 'all') {
+      if (currentFilters.mainCategory === 'Sale') {
+        // Show products that have a compareAtPrice higher than their regular price
+        filtered = filtered.filter(product => 
+          product.compareAtPrice && 
+          product.compareAtPrice > product.price
         );
+      } else if (currentFilters.mainCategory === 'low-stock') {
+        filtered = filtered.filter(product => 
+          product.availableForSale && 
+          product.quantityAvailable > 0 && 
+          product.quantityAvailable <= 5
+        );
+      } else {
+        filtered = filtered.filter(product =>
+          product.tags.includes(currentFilters.mainCategory)
+        );
+
+        if (currentFilters.subcategory !== 'all') {
+          filtered = filtered.filter(product =>
+            product.tags.includes(currentFilters.subcategory)
+          );
+        }
       }
     }
-  }
 
-  // Apply sort
-  filtered.sort((a, b) => {
-    switch (currentFilters.sortBy) {
-      case 'title-asc':
-        return a.title.localeCompare(b.title);
-      case 'title-desc':
-        return b.title.localeCompare(a.title);
-      case 'price-asc':
-        return a.price - b.price;
-      case 'price-desc':
-        return b.price - a.price;
-      default:
-        return 0;
-    }
-  });
+    // Apply sort
+    filtered.sort((a, b) => {
+      switch (currentFilters.sortBy) {
+        case 'title-asc':
+          return a.title.localeCompare(b.title);
+        case 'title-desc':
+          return b.title.localeCompare(a.title);
+        case 'price-asc':
+          return a.price - b.price;
+        case 'price-desc':
+          return b.price - a.price;
+        default:
+          return 0;
+      }
+    });
 
-  return filtered;
-};
+    return filtered;
+  }, []);
 
-  const filterProducts = (allProducts: TransformedProduct[], currentFilters: typeof filters) => {
+  const filterProducts = useCallback((allProducts: TransformedProduct[], currentFilters: typeof filters) => {
     let filtered = [...allProducts];
 
     // Apply search filter if there's a search term
@@ -231,9 +210,30 @@ const applyFilters = (products: TransformedProduct[], currentFilters: typeof fil
 
     setFilteredProducts(filtered);
     setCurrentPage(1);
-  };
+  }, [applyFilters, searchTerm, setSubCategories, setFilteredProducts, setCurrentPage]);
 
-  const fetchProducts = async () => {
+  const handleSearch = useCallback((value: string) => {
+    setSearchTerm(value);
+    setSearchLoading(true);
+    
+    const searchValue = value.toLowerCase().trim();
+    let filtered = [...products];
+
+    if (searchValue) {
+      filtered = filtered.filter(product => 
+        product.title.toLowerCase().includes(searchValue)
+      );
+    }
+
+    // Apply existing filters to search results
+    filtered = applyFilters(filtered, filters);
+
+    setFilteredProducts(filtered);
+    setSearchLoading(false);
+    setCurrentPage(1);
+  }, [applyFilters, filters, products, setSearchTerm, setSearchLoading, setFilteredProducts, setCurrentPage]);
+
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
       const fetchedProducts = await shopify.getProducts();
@@ -244,15 +244,15 @@ const applyFilters = (products: TransformedProduct[], currentFilters: typeof fil
       console.error('Error fetching products:', error);
     }
     setLoading(false);
-  };
+  }, [filterProducts, filters, setLoading, setProducts]);
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [fetchProducts]);
 
   useEffect(() => {
     filterProducts(products, filters);
-  }, [filters, products]);
+  }, [filterProducts, filters, products]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-8">
@@ -495,6 +495,25 @@ const applyFilters = (products: TransformedProduct[], currentFilters: typeof fil
         )}
       </div>
     </div>
+  );
+};
+
+const ShopAllPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-8">
+        <div className="animate-pulse">
+          <div className="h-8 w-48 bg-main-maroon/20 rounded mb-8"></div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            {[...Array(8)].map((_, index) => (
+              <div key={index} className="aspect-square bg-main-maroon/10 rounded-lg"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    }>
+      <ShopContent />
+    </Suspense>
   );
 };
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { ProductGallery } from './ProductGallery';
 import { OptionSelector } from './OptionSelector';
 import { ShopifyProduct } from '../types/shopify';
@@ -37,25 +37,28 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
     ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
     : 0;
 
-  // Create a map of variant options to their image indices
-  const variantImageMap = new Map<string, number>();
-  product.variants.edges.forEach((variant) => {
-    const variantImage = variant.node.image;
-    if (variantImage?.originalSrc) {
-      const imageIndex = product.images.edges.findIndex(
-        img => img.node.originalSrc === variantImage.originalSrc
-      );
-      if (imageIndex !== -1) {
-        // Create a key from the variant's color option if it exists
-        const colorOption = variant.node.selectedOptions.find(
-          opt => opt.name.toLowerCase().includes('color') || opt.name.toLowerCase().includes('colour')
+  // Memoize the variant image map to prevent recreation on every render
+  const variantImageMap = useMemo(() => {
+    const map = new Map<string, number>();
+    product.variants.edges.forEach((variant) => {
+      const variantImage = variant.node.image;
+      if (variantImage?.originalSrc) {
+        const imageIndex = product.images.edges.findIndex(
+          img => img.node.originalSrc === variantImage.originalSrc
         );
-        if (colorOption) {
-          variantImageMap.set(colorOption.value, imageIndex);
+        if (imageIndex !== -1) {
+          // Create a key from the variant's color option if it exists
+          const colorOption = variant.node.selectedOptions.find(
+            opt => opt.name.toLowerCase().includes('color') || opt.name.toLowerCase().includes('colour')
+          );
+          if (colorOption) {
+            map.set(colorOption.value, imageIndex);
+          }
         }
       }
-    }
-  });
+    });
+    return map;
+  }, [product.variants.edges, product.images.edges]);
 
   // Update selected image when color option changes
   useEffect(() => {
@@ -70,7 +73,7 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
         setSelectedImageIndex(imageIndex);
       }
     }
-  }, [selectedOptions]);
+  }, [selectedOptions, variantImageMap]);
 
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {

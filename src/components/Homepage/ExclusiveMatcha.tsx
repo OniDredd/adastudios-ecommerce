@@ -80,13 +80,14 @@ const ProductSlider = ({ products }: ExclusiveMatchaProps) => {
       });
     }, options);
 
-    if (videoContainerRef.current) {
-      observer.observe(videoContainerRef.current);
+    const currentRef = videoContainerRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
     }
 
     return () => {
-      if (videoContainerRef.current) {
-        observer.unobserve(videoContainerRef.current);
+      if (currentRef) {
+        observer.unobserve(currentRef);
       }
     };
   }, [isMobile]);

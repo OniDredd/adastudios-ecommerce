@@ -1,25 +1,36 @@
 'use client';
 
-import { useCart } from '@/components/CartProvider';
+import { useCart } from '../../components/CartProvider';
 import Image from 'next/image';
-import client from '@/lib/shopify';
+import { useState } from 'react';
+import shopifyClient from '../../lib/shopify';
 
 export default function CartPage() {
   const { cart, removeFromCart } = useCart();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const subtotal = cart.reduce((total, item) => total + parseFloat(item.price) * item.quantity, 0);
+  const subtotal = cart.reduce((total, item) => total + (Number(item.price) * item.quantity), 0);
 
   const handleCheckout = async () => {
     try {
-      const checkout = await client.checkout.create();
+      setIsLoading(true);
+      const newCart = await shopifyClient.createCart();
       const lineItems = cart.map(item => ({
-        variantId: item.id,
+        merchandiseId: item.id,
         quantity: item.quantity,
       }));
-      const updatedCheckout = await client.checkout.addLineItems(checkout.id, lineItems);
-      window.location.href = updatedCheckout.webUrl;
+      const updatedCart = await shopifyClient.addToCart(newCart.id, lineItems);
+      
+      if (!updatedCart.checkoutUrl) {
+        throw new Error('No checkout URL returned from Shopify');
+      }
+
+      window.location.href = updatedCart.checkoutUrl;
     } catch (error) {
       console.error('Error creating checkout:', error);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -40,7 +51,8 @@ export default function CartPage() {
               </div>
               <button 
                 onClick={() => removeFromCart(item.id)}
-                className="bg-red-500 text-white px-2 py-1 rounded"
+                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition-colors"
+                disabled={isLoading}
               >
                 Remove
               </button>
@@ -50,9 +62,21 @@ export default function CartPage() {
             <p className="text-xl font-semibold">Subtotal: ${subtotal.toFixed(2)}</p>
             <button 
               onClick={handleCheckout}
-              className="bg-black text-white px-4 py-2 rounded mt-4"
+              disabled={isLoading}
+              className={`bg-black text-white px-4 py-2 rounded mt-4 relative ${
+                isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-gray-800'
+              } transition-colors w-full sm:w-auto`}
             >
-              Proceed to Checkout
+              {isLoading ? (
+                <>
+                  <span className="opacity-0">Proceed to Checkout</span>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                </>
+              ) : (
+                'Proceed to Checkout'
+              )}
             </button>
           </div>
         </>
