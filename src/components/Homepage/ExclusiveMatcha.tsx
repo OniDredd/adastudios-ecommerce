@@ -207,7 +207,7 @@ const ProductSlider = ({ products }: ExclusiveMatchaProps) => {
             {/* Product Display */}
             <div className="flex-1 max-w-[260px] md:max-w-[280px] mx-auto">
               <Link href={`/product/${products[currentSlide].handle}`}>
-                <div className="bg-white p-3 rounded-lg relative aspect-[3/4] overflow-hidden group cursor-pointer">
+                <div className="bg-main-maroon p-3 rounded-lg relative aspect-[3/4] overflow-hidden group cursor-pointer border border-transparent hover:border-secondary-peach transition-colors">
                   {/* Hidden preload container */}
                   <div className="hidden">
                     {products.map((product) => (

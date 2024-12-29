@@ -104,7 +104,7 @@ export function ProductGallery({ images, title, selectedImageIndex }: ProductGal
   const dragOffset = isDragging ? currentX - startX : 0;
 
   return (
-    <div className="w-full h-[100dvh] md:h-screen sticky top-0 relative bg-secondary-peach border-b border-[0.5px] border-main-maroon">
+    <div className="w-full h-[100dvh] md:h-screen sticky top-0 relative bg-secondary-peach max-sm:border-b max-sm:border-[0.5px] max-sm:border-main-maroon">
       {/* Drag hint - only on mobile */}
       {showDragHint && (
         <div className="md:hidden absolute inset-0 z-20 pointer-events-none">

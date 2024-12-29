@@ -26,13 +26,13 @@ export function RecommendedProducts({ products, currentProductId }: RecommendedP
             YOU MAY ALSO LIKE
           </h2>
           <Link
-            href="/shop"
-            className="text-sm text-main-maroon hover:underline"
+            href="/shopall"
+            className="text-sm text-main-maroon border border-transparent hover:border-main-maroon rounded px-2 py-1 transition-colors"
           >
             VIEW ALL
           </Link>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Suspense fallback={<LoadingGrid />}>
             {recommendations.map((product) => {
               const processedProduct = {

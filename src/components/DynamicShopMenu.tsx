@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type JSX } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -131,7 +131,7 @@ export function ShopAllMenu(): JSX.Element {
     return (
       <NavigationMenuItem>
         <div onClick={(e) => handleNavigation('/shop', e)} className="inline-flex cursor-pointer">
-          <NavigationMenuTrigger className="data-[state=open]:bg-main-maroon bg-transparent hover:bg-main-maroon hover:text-secondary-peach data-[state=open]:text-secondary-peach">
+          <NavigationMenuTrigger className="data-[state=open]:bg-main-maroon bg-transparent border border-transparent hover:border-main-maroon data-[state=open]:text-secondary-peach">
             SHOP ALL
           </NavigationMenuTrigger>
         </div>
@@ -147,7 +147,7 @@ export function ShopAllMenu(): JSX.Element {
   return (
     <NavigationMenuItem>
       <div onClick={(e) => handleNavigation('/shop', e)} className="inline-flex cursor-pointer">
-        <NavigationMenuTrigger className="data-[state=open]:bg-main-maroon bg-transparent hover:bg-main-maroon hover:text-secondary-peach data-[state=open]:text-secondary-peach">
+        <NavigationMenuTrigger className="data-[state=open]:bg-main-maroon bg-transparent border border-transparent hover:border-main-maroon data-[state=open]:text-secondary-peach">
           SHOP ALL
         </NavigationMenuTrigger>
       </div>
@@ -167,10 +167,10 @@ export function ShopAllMenu(): JSX.Element {
                     <a
                       href={category.href}
                       onClick={(e) => handleNavigation(category.href, e)}
-                      className={`block p-2 rounded-md transition-colors hover:bg-main-maroon hover:text-secondary-peach ${
+                      className={`block p-2 rounded-md transition-colors border ${
                         activeCategory.name === category.name 
-                          ? 'bg-main-maroon text-secondary-peach' 
-                          : 'text-main-maroon'
+                          ? 'border-main-maroon' 
+                          : 'border-transparent hover:border-main-maroon text-main-maroon'
                       }`}
                     >
                       <div className="text-sm font-medium">{category.name}</div>

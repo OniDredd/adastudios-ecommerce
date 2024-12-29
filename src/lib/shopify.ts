@@ -7,7 +7,8 @@ if (!domain || !storefrontAccessToken) {
   throw new Error('Shopify configuration is missing');
 }
 
-const endpoint = `https://${domain}/api/2023-07/graphql.json`;
+const apiVersion = process.env.NEXT_PUBLIC_STOREFRONT_API_VERSION || '2024-01';
+const endpoint = `https://${domain}/api/${apiVersion}/graphql.json`;
 
 const graphQLClient = new GraphQLClient(endpoint, {
   headers: {
@@ -17,12 +18,12 @@ const graphQLClient = new GraphQLClient(endpoint, {
   },
 });
 
-interface ShopifyImage {
+export interface ShopifyImage {
   originalSrc: string;
   altText: string | null;
 }
 
-interface ShopifyProduct {
+export interface ShopifyProduct {
   id: string;
   title: string;
   handle: string;
@@ -72,7 +73,7 @@ interface ShopifyProduct {
   };
 }
 
-interface ShopifyCollection {
+export interface ShopifyCollection {
   id: string;
   handle: string;
   title: string;
@@ -94,9 +95,17 @@ interface CartLinesAddResponse {
   };
 }
 
+interface CartLinesRemoveResponse {
+  cartLinesRemove: {
+    cart: Cart;
+    userErrors: UserError[];
+  };
+}
+
 interface Cart {
   id: string;
   checkoutUrl: string;
+  totalQuantity: number;
   lines: {
     edges: Array<{
       node: CartLine;
@@ -105,7 +114,6 @@ interface Cart {
   cost: {
     totalAmount: Money;
     subtotalAmount: Money;
-    totalTaxAmount: Money | null;
   };
 }
 
@@ -115,7 +123,11 @@ interface CartLine {
   merchandise: {
     id: string;
     title: string;
-    priceV2: Money;
+    price: Money;
+    product: {
+      title: string;
+      handle: string;
+    };
   };
 }
 
@@ -127,15 +139,32 @@ interface Money {
 interface UserError {
   field: string[];
   message: string;
+  code: string;
 }
+
+type CartErrorCode = 
+  | 'INVALID_INPUT'
+  | 'INVALID_QUANTITY'
+  | 'MISSING_FIELD'
+  | 'INVALID_MERCHANDISE_LINE'
+  | 'INVENTORY_OUT_OF_STOCK';
 
 export async function shopifyFetch<T>(query: string, variables: Record<string, unknown> = {}): Promise<T> {
   try {
     const data = await graphQLClient.request<T>(query, variables);
     return data;
-  } catch (error) {
-    console.error('Error fetching from Shopify:', error);
-    throw new Error('Failed to fetch data from Shopify');
+  } catch (error: any) {
+    // Check if the response is HTML (usually an error page)
+    if (error.response?.headers?.['content-type']?.includes('text/html')) {
+      throw new Error('Received HTML response instead of JSON. This might be an authentication issue.');
+    }
+    
+    // Check for specific error types
+    if (error.response?.errors) {
+      throw new Error(`Shopify API Error: ${JSON.stringify(error.response.errors)}`);
+    }
+
+    throw new Error(`Failed to fetch data from Shopify: ${error.message}`);
   }
 }
 
@@ -147,6 +176,7 @@ export async function createCart(): Promise<Cart> {
         cart {
           id
           checkoutUrl
+          totalQuantity
           lines(first: 10) {
             edges {
               node {
@@ -156,9 +186,13 @@ export async function createCart(): Promise<Cart> {
                   ... on ProductVariant {
                     id
                     title
-                    priceV2 {
+                    price {
                       amount
                       currencyCode
+                    }
+                    product {
+                      title
+                      handle
                     }
                   }
                 }
@@ -174,42 +208,44 @@ export async function createCart(): Promise<Cart> {
               amount
               currencyCode
             }
-            totalTaxAmount {
-              amount
-              currencyCode
-            }
-          }
-          buyerIdentity {
-            email
-            phone
-            customer {
-              id
-            }
-            countryCode
           }
         }
         userErrors {
           field
           message
+          code
         }
       }
     }
   `;
 
-  const response = await shopifyFetch<CartCreateResponse>(mutation);
-  if (response.cartCreate.userErrors.length > 0) {
-    throw new Error(response.cartCreate.userErrors[0].message);
+  try {
+    const response = await shopifyFetch<CartCreateResponse>(mutation);
+    if (response.cartCreate.userErrors.length > 0) {
+      const error = response.cartCreate.userErrors[0];
+      const errorMessage = `Cart creation failed: ${error.message}`;
+      throw new Error(errorMessage);
+    }
+    return response.cartCreate.cart;
+  } catch (error: any) {
+    if (error.message.includes('HTML response')) {
+      throw new Error('Unable to connect to checkout. Please check your internet connection and try again.');
+    }
+    throw error;
   }
-  return response.cartCreate.cart;
 }
 
 export async function addToCart(cartId: string, lines: { merchandiseId: string; quantity: number }[]): Promise<Cart> {
   const mutation = `
     mutation cartLinesAdd($cartId: ID!, $lines: [CartLineInput!]!) {
-      cartLinesAdd(cartId: $cartId, lines: $lines) {
+      cartLinesAdd(
+        cartId: $cartId
+        lines: $lines
+      ) {
         cart {
           id
           checkoutUrl
+          totalQuantity
           lines(first: 10) {
             edges {
               node {
@@ -219,9 +255,13 @@ export async function addToCart(cartId: string, lines: { merchandiseId: string; 
                   ... on ProductVariant {
                     id
                     title
-                    priceV2 {
+                    price {
                       amount
                       currencyCode
+                    }
+                    product {
+                      title
+                      handle
                     }
                   }
                 }
@@ -237,41 +277,129 @@ export async function addToCart(cartId: string, lines: { merchandiseId: string; 
               amount
               currencyCode
             }
-            totalTaxAmount {
-              amount
-              currencyCode
-            }
-          }
-          buyerIdentity {
-            email
-            phone
-            customer {
-              id
-            }
-            countryCode
           }
         }
         userErrors {
           field
           message
+          code
         }
       }
     }
   `;
 
-  const variables = {
-    cartId,
-    lines: lines.map(line => ({
-      merchandiseId: line.merchandiseId,
-      quantity: line.quantity,
-    })),
-  };
+  try {
+    const variables = {
+      cartId,
+      lines: lines.map(line => ({
+        merchandiseId: line.merchandiseId,
+        quantity: line.quantity,
+      })),
+    };
 
-  const response = await shopifyFetch<CartLinesAddResponse>(mutation, variables);
-  if (response.cartLinesAdd.userErrors.length > 0) {
-    throw new Error(response.cartLinesAdd.userErrors[0].message);
+    const response = await shopifyFetch<CartLinesAddResponse>(mutation, variables);
+    if (response.cartLinesAdd.userErrors.length > 0) {
+      const error = response.cartLinesAdd.userErrors[0];
+      let errorMessage = 'Failed to add items to cart';
+      
+      // Handle specific error codes
+      switch (error.code as CartErrorCode) {
+        case 'INVALID_QUANTITY':
+          errorMessage = 'Invalid quantity selected';
+          break;
+        case 'INVENTORY_OUT_OF_STOCK':
+          errorMessage = 'Item is out of stock';
+          break;
+        case 'INVALID_MERCHANDISE_LINE':
+          errorMessage = 'One or more items are no longer available';
+          break;
+        default:
+          errorMessage = `Failed to add items to cart: ${error.message}`;
+      }
+      
+      throw new Error(errorMessage);
+    }
+    return response.cartLinesAdd.cart;
+  } catch (error: any) {
+    if (error.message.includes('HTML response')) {
+      throw new Error('Unable to connect to checkout. Please check your internet connection and try again.');
+    }
+    throw error;
   }
-  return response.cartLinesAdd.cart;
+}
+
+export async function removeFromCart(cartId: string, lineIds: string[]): Promise<Cart> {
+  const mutation = `
+    mutation cartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
+      cartLinesRemove(
+        cartId: $cartId
+        lineIds: $lineIds
+      ) {
+        cart {
+          id
+          checkoutUrl
+          totalQuantity
+          lines(first: 10) {
+            edges {
+              node {
+                id
+                quantity
+                merchandise {
+                  ... on ProductVariant {
+                    id
+                    title
+                    price {
+                      amount
+                      currencyCode
+                    }
+                    product {
+                      title
+                      handle
+                    }
+                  }
+                }
+              }
+            }
+          }
+          cost {
+            totalAmount {
+              amount
+              currencyCode
+            }
+            subtotalAmount {
+              amount
+              currencyCode
+            }
+          }
+        }
+        userErrors {
+          field
+          message
+          code
+        }
+      }
+    }
+  `;
+
+  try {
+    const variables = {
+      cartId,
+      lineIds,
+    };
+
+    const response = await shopifyFetch<CartLinesRemoveResponse>(mutation, variables);
+    if (response.cartLinesRemove.userErrors.length > 0) {
+      const error = response.cartLinesRemove.userErrors[0];
+      const errorMessage = `Failed to remove items from cart: ${error.message}`;
+      throw new Error(errorMessage);
+    }
+    return response.cartLinesRemove.cart;
+  } catch (error: any) {
+    if (error.message.includes('HTML response')) {
+      throw new Error('Unable to connect to checkout. Please check your internet connection and try again.');
+    }
+    throw error;
+  }
 }
 
 export async function getCollections(): Promise<ShopifyCollection[]> {
@@ -496,7 +624,6 @@ export async function getProductByHandle(handle: string): Promise<ShopifyProduct
     const response = await shopifyFetch<ProductResponse>(query, { handle });
     return response.product;
   } catch (error) {
-    console.error('Error fetching product by handle:', error);
     return null;
   }
 }
@@ -587,6 +714,7 @@ const shopifyClient = {
   getProducts,
   createCart,
   addToCart,
+  removeFromCart,
 };
 
 export default shopifyClient;

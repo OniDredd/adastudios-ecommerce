@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, type JSX } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { FaShoppingCart, FaChevronDown } from "react-icons/fa";
-import LogoDark from "/public/adastudioslogo-maroon.svg";
+import LogoDark from "../../public/adastudioslogo-maroon.svg";
 import { useCart } from './CartProvider';
 import { useCurrency } from './CurrencyProvider';
 import {
@@ -97,7 +97,7 @@ export default function Navbar(): JSX.Element {
           {/* Mobile Menu Button */}
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-4 hover:bg-main-maroon/10 transition-colors relative w-[44px] h-[44px] flex flex-col items-center justify-center"
+            className="md:hidden p-4 border border-transparent hover:border-main-maroon transition-colors relative w-[44px] h-[44px] flex flex-col items-center justify-center"
             aria-label="Toggle menu"
           >
             <div className={`
@@ -124,8 +124,9 @@ export default function Navbar(): JSX.Element {
                     <NavigationMenuTrigger className={`
                       data-[state=open]:bg-main-maroon 
                       bg-transparent 
-                      hover:bg-main-maroon 
-                      hover:text-secondary-peach 
+                      border
+                      border-transparent
+                      hover:border-main-maroon
                       data-[state=open]:text-secondary-peach
                       ${!isScrolled && 'text-main-maroon'}
                     `}>
@@ -142,7 +143,7 @@ export default function Navbar(): JSX.Element {
                               <a
                                 href="/shop?onSale=true&tag=clearance"
                                 onClick={(e) => handleNavigation('/shop?onSale=true&tag=clearance', e)}
-                                className="block p-2 rounded-md transition-colors hover:bg-main-maroon hover:text-secondary-peach text-main-maroon"
+                                className="block p-2 rounded-md transition-colors border border-transparent hover:border-main-maroon text-main-maroon"
                               >
                                 <div className="text-sm font-medium">Clearance</div>
                                 <p className="text-sm opacity-80">Up to 70% off</p>
@@ -152,7 +153,7 @@ export default function Navbar(): JSX.Element {
                               <a
                                 href="/shop?stockFilter=low"
                                 onClick={(e) => handleNavigation('/shop?stockFilter=low', e)}
-                                className="block p-2 rounded-md transition-colors hover:bg-main-maroon hover:text-secondary-peach text-main-maroon"
+                                className="block p-2 rounded-md transition-colors border border-transparent hover:border-main-maroon text-main-maroon"
                               >
                                 <div className="text-sm font-medium">Last Chance</div>
                                 <p className="text-sm opacity-80">Limited availability</p>
@@ -219,7 +220,7 @@ export default function Navbar(): JSX.Element {
             <DropdownMenu onOpenChange={setIsCurrencyOpen}>
               <DropdownMenuTrigger className={`
                 flex items-center gap-2 
-                hover:text-main-maroon/80 
+                border border-transparent hover:border-main-maroon
                 outline-none
                 ${isScrolled ? 'text-main-maroon' : 'text-main-maroon'}
               `}>
@@ -235,7 +236,7 @@ export default function Navbar(): JSX.Element {
                   <DropdownMenuItem
                     key={currency.code}
                     onClick={() => setSelectedCurrency(currency)}
-                    className="flex flex-col items-start px-3 py-2 text-main-maroon hover:bg-main-maroon hover:text-secondary-peach cursor-pointer"
+                    className="flex flex-col items-start px-3 py-2 text-main-maroon border border-transparent hover:border-main-maroon cursor-pointer"
                   >
                     <div className="font-medium">{currency.code}</div>
                     <p className="text-sm opacity-80">
@@ -248,7 +249,7 @@ export default function Navbar(): JSX.Element {
             
             <button 
               onClick={openCart} 
-              className="relative p-2 hover:bg-main-maroon/10 rounded-lg transition-colors"
+              className="relative p-2 border border-transparent hover:border-main-maroon rounded-lg transition-colors"
               aria-label="Shopping cart"
             >
               <FaShoppingCart className={`
@@ -282,7 +283,7 @@ export default function Navbar(): JSX.Element {
               <nav className="space-y-6">
                 <Link
                   href="/shop"
-                  className="flex items-center justify-between text-main-maroon font-medium py-3 px-4 rounded-lg hover:bg-main-maroon/10 transition-colors"
+                  className="flex items-center justify-between text-main-maroon font-medium py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   SHOP ALL
@@ -292,7 +293,7 @@ export default function Navbar(): JSX.Element {
                   <h3 className="text-sm font-semibold text-main-maroon px-4">Shop Categories</h3>
                   <Link
                     href="/shop?category=Matcha"
-                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg hover:bg-main-maroon/10 transition-colors"
+                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <div>
@@ -302,7 +303,7 @@ export default function Navbar(): JSX.Element {
                   </Link>
                   <Link
                     href="/shop?category=Glasses"
-                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg hover:bg-main-maroon/10 transition-colors"
+                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <div>
@@ -312,7 +313,7 @@ export default function Navbar(): JSX.Element {
                   </Link>
                   <Link
                     href="/shop?category=Accessories"
-                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg hover:bg-main-maroon/10 transition-colors"
+                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <div>
@@ -323,7 +324,7 @@ export default function Navbar(): JSX.Element {
                 </div>
                 <Link
                   href="/shop?onSale=true"
-                  className="flex items-center justify-between text-main-maroon font-medium py-3 px-4 rounded-lg hover:bg-main-maroon/10 transition-colors"
+                  className="flex items-center justify-between text-main-maroon font-medium py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   SALE
@@ -333,7 +334,7 @@ export default function Navbar(): JSX.Element {
                   <h3 className="text-sm font-semibold text-main-maroon px-4">Sale Categories</h3>
                   <Link
                     href="/shop?onSale=true&tag=clearance"
-                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg hover:bg-main-maroon/10 transition-colors"
+                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <div>
@@ -343,7 +344,7 @@ export default function Navbar(): JSX.Element {
                   </Link>
                   <Link
                     href="/shop?stockFilter=low"
-                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg hover:bg-main-maroon/10 transition-colors"
+                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <div>

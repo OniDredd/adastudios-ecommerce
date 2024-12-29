@@ -61,7 +61,7 @@ const HeroSlider = () => {
             key={index} 
             className="flex items-center"
           >
-            <span className="text-xl text-main-maroon uppercase whitespace-nowrap px-10">
+            <span className="text-sm text-main-maroon uppercase whitespace-nowrap px-10">
               {text}
             </span>
             <div className="h-[1px] w-20 bg-main-maroon" />

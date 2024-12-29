@@ -1,8 +1,4 @@
 import React from 'react';
-import { GiWaterDrop, GiWineGlass, GiSpotedFlower } from 'react-icons/gi';
-import { MdCleaningServices, MdOutlineStorage, MdSunny } from 'react-icons/md';
-import { FaHandsWash } from 'react-icons/fa';
-import { BsQuestionCircle } from 'react-icons/bs';
 
 export default function CareInstructionsPage() {
   return (
@@ -15,7 +11,6 @@ export default function CareInstructionsPage() {
         {/* General Care */}
         <section>
           <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
-            <GiWineGlass className="inline-block w-5 h-5 mr-2 mb-1" />
             General Care Guidelines
           </h2>
           <div className="space-y-4">
@@ -36,14 +31,12 @@ export default function CareInstructionsPage() {
         {/* Cleaning Instructions */}
         <section>
           <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
-            <MdCleaningServices className="inline-block w-5 h-5 mr-2 mb-1" />
             Cleaning Instructions
           </h2>
           
           <div className="space-y-6">
             <div className="space-y-4">
               <h3 className="font-semibold">
-                <FaHandsWash className="inline-block w-4 h-4 mr-2 mb-1" />
                 Hand Washing (Recommended)
               </h3>
               <ol className="list-decimal pl-5 space-y-2">
@@ -57,7 +50,6 @@ export default function CareInstructionsPage() {
 
             <div className="space-y-4">
               <h3 className="font-semibold">
-                <GiWaterDrop className="inline-block w-4 h-4 mr-2 mb-1" />
                 Dishwasher Use
               </h3>
               <p>While our glassware is dishwasher safe, we recommend hand washing for optimal care and longevity.</p>
@@ -76,7 +68,6 @@ export default function CareInstructionsPage() {
         {/* Matcha Care */}
         <section>
           <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
-            <GiSpotedFlower className="inline-block w-5 h-5 mr-2 mb-1" />
             Matcha Glassware Special Care
           </h2>
           <div className="space-y-4">
@@ -96,7 +87,6 @@ export default function CareInstructionsPage() {
         {/* Matcha Powder Care */}
         <section>
           <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
-            <GiSpotedFlower className="inline-block w-5 h-5 mr-2 mb-1" />
             Matcha Powder Care
           </h2>
           <div className="space-y-4">
@@ -119,7 +109,6 @@ export default function CareInstructionsPage() {
         {/* Storage */}
         <section>
           <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
-            <MdOutlineStorage className="inline-block w-5 h-5 mr-2 mb-1" />
             Storage Recommendations
           </h2>
           <div className="space-y-4">
@@ -136,13 +125,11 @@ export default function CareInstructionsPage() {
         {/* Troubleshooting */}
         <section>
           <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
-            <BsQuestionCircle className="inline-block w-5 h-5 mr-2 mb-1" />
             Troubleshooting Common Issues
           </h2>
           <div className="space-y-6">
             <div className="space-y-2">
               <h3 className="font-semibold">
-                <GiWaterDrop className="inline-block w-4 h-4 mr-2 mb-1" />
                 Water Spots
               </h3>
               <p>
@@ -152,7 +139,6 @@ export default function CareInstructionsPage() {
             </div>
             <div className="space-y-2">
               <h3 className="font-semibold">
-                <MdCleaningServices className="inline-block w-4 h-4 mr-2 mb-1" />
                 Stubborn Stains
               </h3>
               <p>
@@ -162,7 +148,6 @@ export default function CareInstructionsPage() {
             </div>
             <div className="space-y-2">
               <h3 className="font-semibold">
-                <MdSunny className="inline-block w-4 h-4 mr-2 mb-1" />
                 Cloudy Glass
               </h3>
               <p>
@@ -176,7 +161,6 @@ export default function CareInstructionsPage() {
         {/* Contact Section */}
         <section>
           <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
-            <BsQuestionCircle className="inline-block w-5 h-5 mr-2 mb-1" />
             Need Additional Help?
           </h2>
           <div className="space-y-4">

@@ -1,13 +1,50 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    images: {
-      domains: [
-        'cdn.shopify.com',
-        'scontent.cdninstagram.com',
-        'instagram.fakl2-1.fna.fbcdn.net',
-        'scontent-akl1-1.cdninstagram.com'
-      ],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cdn.shopify.com'
+      },
+      {
+        protocol: 'https',
+        hostname: 'scontent.cdninstagram.com'
+      },
+      {
+        protocol: 'https',
+        hostname: 'instagram.fakl2-1.fna.fbcdn.net'
+      },
+      {
+        protocol: 'https',
+        hostname: 'scontent-akl1-1.cdninstagram.com'
+      },
+      {
+        protocol: 'https',
+        hostname: 'scontent-syd2-1.cdninstagram.com'
+      }
+    ],
+  },
+  // Enable React 19 features
+  reactStrictMode: true,
+  // Enable experimental features
+  experimental: {
+    // Enable optimized server components
+    serverActions: {
+      bodySizeLimit: '2mb'
     },
-  };
-  
-  export default nextConfig;
+    // Optimize memory usage
+    optimizePackageImports: [
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-navigation-menu',
+      '@radix-ui/react-select',
+      'react-icons'
+    ]
+  },
+  // Improve loading performance
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production'
+  }
+};
+
+export default nextConfig;

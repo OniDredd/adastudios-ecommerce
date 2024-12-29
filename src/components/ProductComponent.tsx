@@ -69,9 +69,9 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
 
   const ProductContent = () => (
     <div
-      className={`cursor-${product.availableForSale ? 'pointer' : 'not-allowed'} flex-grow flex flex-col hover:border-main-maroon transition-all duration-200 ease-in-out`}
+      className={`cursor-${product.availableForSale ? 'pointer' : 'not-allowed'} flex-grow flex flex-col transition-all duration-200 ease-in-out`}
     >
-      <div className="aspect-[3/4] w-full mb-2 sm:mb-3 relative rounded-sm group overflow-hidden">
+      <div className="aspect-[3/4] w-full mb-2 sm:mb-3 relative rounded-sm group overflow-hidden border border-transparent hover:border-main-maroon transition-colors">
         {/* Out of Stock Overlay and Badge */}
         {!product.availableForSale && (
           <>

@@ -2,10 +2,12 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import shopifyClient from '../lib/shopify';
 
 interface CartItem {
-  id: string;
-  variantId: string; // Shopify variant ID for checkout
+  id: string;          // Product ID
+  lineId: string;      // Shopify cart line ID
+  variantId: string;   // Shopify variant ID for checkout
   title: string;
   price: number;
   image: string;
@@ -18,7 +20,7 @@ interface CartContextType {
   closeCart: () => void;
   toggleCart: () => void;
   cart: CartItem[];
-  addToCart: (item: Omit<CartItem, 'quantity'>) => void;
+  addToCart: (item: Omit<CartItem, 'quantity' | 'lineId'>) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -31,17 +33,24 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [cartId, setCartId] = useState<string | null>(null);
 
-  // Load cart from localStorage on mount
+  // Initialize cart state
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
+    const initializeCart = async () => {
       try {
-        setCart(JSON.parse(savedCart));
+        // Always create a new cart to ensure fresh state
+        const newCart = await shopifyClient.createCart();
+        setCartId(newCart.id);
+        localStorage.setItem('shopifyCartId', newCart.id);
+        
+        // Clear any existing cart data
+        setCart([]);
+        localStorage.removeItem('cart');
       } catch (error) {
-        console.error('Error parsing cart from localStorage:', error);
       }
-    }
+    };
+    initializeCart();
   }, []);
 
   // Save cart to localStorage whenever it changes
@@ -53,39 +62,109 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const closeCart = () => setIsCartOpen(false);
   const toggleCart = () => setIsCartOpen(!isCartOpen);
 
-  const addToCart = (item: Omit<CartItem, 'quantity'>) => {
-    setCart(currentCart => {
-      const existingItem = currentCart.find(cartItem => cartItem.id === item.id);
-      
-      if (existingItem) {
-        return currentCart.map(cartItem =>
-          cartItem.id === item.id
-            ? { ...cartItem, quantity: cartItem.quantity + 1 }
-            : cartItem
-        );
+  const addToCart = async (item: Omit<CartItem, 'quantity' | 'lineId'>) => {
+    if (!cartId) {
+      return;
+    }
+
+    try {
+      const cartData = await shopifyClient.addToCart(cartId, [{
+        merchandiseId: item.variantId,
+        quantity: 1
+      }]);
+
+      // Get the line ID from the response
+      const lastLine = cartData.lines.edges[cartData.lines.edges.length - 1]?.node;
+      if (!lastLine?.id) {
+        throw new Error('No line ID returned from Shopify');
       }
 
-      return [...currentCart, { ...item, quantity: 1 }];
-    });
-    openCart();
+      setCart(currentCart => {
+        const existingItem = currentCart.find(cartItem => cartItem.id === item.id);
+        
+        if (existingItem) {
+          // Update existing item with new line ID and increment quantity
+          return currentCart.map(cartItem =>
+            cartItem.id === item.id
+              ? { ...cartItem, lineId: lastLine.id, quantity: cartItem.quantity + 1 }
+              : cartItem
+          );
+        }
+
+        // Add new item with line ID
+        return [...currentCart, { ...item, lineId: lastLine.id, quantity: 1 }];
+      });
+      openCart();
+    } catch (error) {
+    }
   };
 
-  const removeFromCart = (id: string) => {
-    setCart(currentCart => currentCart.filter(item => item.id !== id));
+  const removeFromCart = async (id: string) => {
+    if (!cartId) {
+      return;
+    }
+
+    const item = cart.find(item => item.id === id);
+    if (!item?.lineId) {
+      // If no line ID is found, try to remove by product ID
+      setCart(currentCart => currentCart.filter(item => item.id !== id));
+      return;
+    }
+
+    try {
+      await shopifyClient.removeFromCart(cartId, [item.lineId]);
+      setCart(currentCart => currentCart.filter(item => item.id !== id));
+    } catch (error) {
+      // If Shopify removal fails, still remove from local state
+      setCart(currentCart => currentCart.filter(item => item.id !== id));
+    }
   };
 
-  const updateQuantity = (id: string, quantity: number) => {
-    setCart(currentCart => {
+  const updateQuantity = async (id: string, quantity: number) => {
+    if (!cartId) {
+      return;
+    }
+
+    const item = cart.find(item => item.id === id);
+    if (!item) return;
+
+    try {
       if (quantity <= 0) {
-        return currentCart.filter(item => item.id !== id);
+        if (item.lineId) {
+          await shopifyClient.removeFromCart(cartId, [item.lineId]);
+        }
+        setCart(currentCart => currentCart.filter(item => item.id !== id));
+      } else {
+        const cartData = await shopifyClient.addToCart(cartId, [{
+          merchandiseId: item.variantId,
+          quantity: quantity
+        }]);
+
+        // Get the new line ID from the response
+        const lastLine = cartData.lines.edges[cartData.lines.edges.length - 1]?.node;
+        if (!lastLine?.id) {
+          throw new Error('No line ID returned from Shopify');
+        }
+
+        setCart(currentCart => currentCart.map(item =>
+          item.id === id ? { ...item, lineId: lastLine.id, quantity } : item
+        ));
       }
-      return currentCart.map(item =>
-        item.id === id ? { ...item, quantity } : item
-      );
-    });
+    } catch (error) {
+    }
   };
 
-  const clearCart = () => {
+  const clearCart = async () => {
+    if (cartId) {
+      try {
+        // Remove all items from Shopify cart
+        const lineIds = cart.map(item => item.lineId).filter(Boolean);
+        if (lineIds.length > 0) {
+          await shopifyClient.removeFromCart(cartId, lineIds);
+        }
+      } catch (error) {
+      }
+    }
     setCart([]);
     localStorage.removeItem('cart');
   };
