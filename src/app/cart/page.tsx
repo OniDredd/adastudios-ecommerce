@@ -6,7 +6,7 @@ import { useState } from 'react';
 import shopifyClient from '../../lib/shopify';
 
 export default function CartPage() {
-  const { cart, removeFromCart } = useCart();
+  const { cart, removeFromCart, updateQuantity } = useCart();
   const [isLoading, setIsLoading] = useState(false);
 
   const subtotal = cart.reduce((total, item) => total + (Number(item.price) * item.quantity), 0);
@@ -46,8 +46,26 @@ export default function CartPage() {
               <Image src={item.image} alt={item.title} width={100} height={100} className="mr-4" />
               <div className="flex-grow">
                 <h2 className="text-xl font-semibold">{item.title}</h2>
-                <p>Quantity: {item.quantity}</p>
-                <p>Price: ${item.price}</p>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center border border-gray-300 rounded">
+                    <button 
+                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                      className="px-3 py-1 hover:bg-gray-100"
+                      disabled={isLoading}
+                    >
+                      -
+                    </button>
+                    <span className="px-3 py-1 border-x border-gray-300">{item.quantity}</span>
+                    <button 
+                      onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      className="px-3 py-1 hover:bg-gray-100"
+                      disabled={isLoading}
+                    >
+                      +
+                    </button>
+                  </div>
+                  <p>Price: ${item.price}</p>
+                </div>
               </div>
               <button 
                 onClick={() => removeFromCart(item.id)}

@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { ProductGallery } from './ProductGallery';
 import { OptionSelector } from './OptionSelector';
 import { ShopifyProduct } from '../types/shopify';
 import AddToCartButton from './AddToCartButton';
 import { useCurrency } from './CurrencyProvider';
-import { Heart, Share2 } from 'lucide-react';
+import { Share2, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface SelectedOptions {
   [key: string]: string;
@@ -17,6 +17,84 @@ interface ProductDetailsProps {
   collection?: {
     title: string;
   };
+}
+
+// Character limit for collapsed description
+const CHAR_LIMIT = 250;
+
+function ProductDescription({ description }: { description: string }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const plainText = useMemo(() => {
+    const div = document.createElement('div');
+    div.innerHTML = description;
+    return div.textContent || div.innerText || '';
+  }, [description]);
+
+  const shouldShowButton = plainText.length > CHAR_LIMIT;
+
+  // Create truncated HTML content
+  const truncatedContent = useMemo(() => {
+    if (!shouldShowButton || isExpanded) return description;
+
+    const div = document.createElement('div');
+    div.innerHTML = description;
+    
+    let currentLength = 0;
+    const walk = document.createTreeWalker(div, NodeFilter.SHOW_TEXT);
+    let node = walk.nextNode();
+    
+    while (node) {
+      const textLength = node.textContent?.length || 0;
+      if (currentLength + textLength > CHAR_LIMIT) {
+        const remainingLength = CHAR_LIMIT - currentLength;
+        node.textContent = node.textContent?.slice(0, remainingLength) + '...';
+        
+        // Remove all following text nodes
+        let next = walk.nextNode();
+        while (next) {
+          next.textContent = '';
+          next = walk.nextNode();
+        }
+        break;
+      }
+      currentLength += textLength;
+      node = walk.nextNode();
+    }
+
+    return div.innerHTML;
+  }, [description, isExpanded, shouldShowButton]);
+
+  return (
+    <div className="border-t border-main-maroon/20 pt-8">
+      <h2 className="text-lg font-semibold text-main-maroon mb-4">About This Product</h2>
+      <div className="relative">
+        <div
+          className="prose prose-xs max-w-none text-main-maroon [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-4 [&>ul]:mb-4 [&>h3]:font-medium [&>h3]:text-base [&>h3]:mb-2"
+          dangerouslySetInnerHTML={{ __html: truncatedContent }}
+        />
+        {shouldShowButton && (
+          <div className="relative z-10 mt-2">
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="flex items-center gap-2 text-sm font-medium text-main-maroon hover:opacity-70 transition-opacity"
+            >
+              {isExpanded ? (
+                <>
+                  Read Less
+                  <ChevronUp className="w-4 h-4" />
+                </>
+              ) : (
+                <>
+                  Read More
+                  <ChevronDown className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function ProductDetails({ product, collection }: ProductDetailsProps) {
@@ -36,6 +114,26 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
   const discountPercentage = isDiscounted
     ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
     : 0;
+
+  // Handle sharing functionality
+  const handleShare = useCallback(async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: product.title,
+          text: `Check out ${product.title} on Ada Studios`,
+          url: window.location.href
+        });
+      } else {
+        // Fallback to copying URL to clipboard
+        await navigator.clipboard.writeText(window.location.href);
+        // You might want to add a toast notification here
+        alert('Link copied to clipboard!');
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
+  }, [product.title]);
 
   // Memoize the variant image map to prevent recreation on every render
   const variantImageMap = useMemo(() => {
@@ -126,7 +224,7 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
   const brand = product.vendor || 'Brand';
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full divide-x divide-[0.5px] divide-main-maroon">
       <div className="w-1/2 relative">
         <ProductGallery 
           images={product.images.edges} 
@@ -144,10 +242,10 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
 
       <div 
         ref={detailsRef}
-        className="w-1/2 h-screen bg-secondary-peach text-main-maroon scrollbar-thin scrollbar-thumb-main-maroon scrollbar-track-secondary-peach flex items-center"
+        className="w-1/2 min-h-screen max-h-screen bg-secondary-peach text-main-maroon scrollbar-thin scrollbar-thumb-main-maroon scrollbar-track-secondary-peach flex items-center"
       >
-        <div className="w-full px-32">
-          <div className="max-w-xl mx-auto space-y-8">
+        <div className="w-full h-full px-32 overflow-y-auto">
+          <div className="max-w-xl mx-auto space-y-8 min-h-screen flex flex-col justify-center py-20">
             {/* Header Section */}
             <div className="flex justify-between items-start">
               <div>
@@ -155,14 +253,17 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
                   <span className="text-sm">{collection.title.toUpperCase()}</span>
                 )}
                 <h1 className="text-2xl font-bold">{product.title}</h1>
-                <p className="text-sm">{brand}</p>
               </div>
-              <div className="flex gap-2">
-                <button className="p-2 hover:opacity-70">
-                  <Heart className="w-5 h-5" />
-                </button>
-                <button className="p-2 hover:opacity-70">
+              <div>
+                <button 
+                  onClick={handleShare}
+                  className="p-2 hover:opacity-70 relative group"
+                  aria-label="Share product"
+                >
                   <Share2 className="w-5 h-5" />
+                  <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-main-maroon text-secondary-peach text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity">
+                    Share product
+                  </span>
                 </button>
               </div>
             </div>
@@ -204,12 +305,17 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
             )}
 
             {/* About This Product */}
+            <ProductDescription description={product.descriptionHtml} />
+
+            {/* Product Care Link */}
             <div className="border-t border-main-maroon/20 pt-8">
-              <h2 className="text-lg font-semibold text-main-maroon mb-4">About This Product</h2>
-              <div
-                className="prose prose-xs max-w-none text-main-maroon [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-4 [&>ul]:mb-4 [&>h3]:font-medium [&>h3]:text-base [&>h3]:mb-2"
-                dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
-              />
+              <a 
+                href="/product-care" 
+                className="inline-flex items-center text-main-maroon hover:opacity-70 transition-opacity text-sm font-medium"
+              >
+                View Product Care Instructions
+                <ChevronDown className="w-4 h-4 ml-1 rotate-[-90deg]" />
+              </a>
             </div>
 
             {/* Add to Cart Button - Only show if in stock */}

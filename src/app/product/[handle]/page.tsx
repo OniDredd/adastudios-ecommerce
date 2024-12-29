@@ -2,7 +2,6 @@
 import { notFound } from 'next/navigation';
 import shopify from '../../../lib/shopify';
 import ProductDetails from '../../../components/ProductDetails';
-import { ProductDescription } from '../../../components/ProductDescription';
 import { RecommendedProducts } from '../../../components/RecommendedProducts';
 
 export default async function ProductPage({ params }: { params: { handle: string } }) {
@@ -22,11 +21,8 @@ export default async function ProductPage({ params }: { params: { handle: string
 
     return (
       <main className="relative">
-        <section className="min-h-screen bg-white">
+        <section className="min-h-screen bg-white border-b border-[0.5px] border-main-maroon">
           <ProductDetails product={product} />
-        </section>
-        <section>
-          <ProductDescription product={product} />
         </section>
         <section>
           <RecommendedProducts products={recommendedProducts} currentProductId={product.id} />

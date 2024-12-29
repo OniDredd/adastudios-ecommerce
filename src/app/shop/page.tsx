@@ -255,9 +255,9 @@ const ShopContent = () => {
   }, [filterProducts, filters, products]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-8">
+    <div className="mx-auto pt-32 pb-8">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-8 px-3 sm:px-4 md:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-4xl font-bold text-main-maroon">Shop All</h1>
           <Button
@@ -425,7 +425,7 @@ const ShopContent = () => {
       {/* Products Grid */}
       <div className={`transform transition-all duration-300 ease-in-out ${showFilters ? 'translate-y-0' : '-translate-y-4'}`}>
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {[...Array(8)].map((_, index) => (
               <ProductComponent
                 key={index}
@@ -436,7 +436,7 @@ const ShopContent = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {currentProducts.map((product) => (
                 <ProductComponent
                   key={product.id}
@@ -501,12 +501,12 @@ const ShopContent = () => {
 const ShopAllPage = () => {
   return (
     <Suspense fallback={
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-8">
-        <div className="animate-pulse">
+      <div className="mx-auto pt-32 pb-8">
+        <div className="animate-pulse px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="h-8 w-48 bg-main-maroon/20 rounded mb-8"></div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {[...Array(8)].map((_, index) => (
-              <div key={index} className="aspect-square bg-main-maroon/10 rounded-lg"></div>
+              <div key={index} className="aspect-[3/4] bg-main-maroon/10 rounded-lg"></div>
             ))}
           </div>
         </div>

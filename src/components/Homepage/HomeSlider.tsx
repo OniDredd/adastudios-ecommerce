@@ -49,7 +49,7 @@ const HeroSlider = () => {
   };
 
   return (
-    <div className="w-screen overflow-hidden py-5 border-y-2 border-main-maroon">
+    <div className="w-screen overflow-hidden py-5 border-y-[1px] border-main-maroon">
       <motion.div
         className="flex items-center"
         variants={sliderVariantsRight}

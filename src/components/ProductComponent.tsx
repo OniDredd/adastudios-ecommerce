@@ -29,7 +29,7 @@ const LOW_STOCK_THRESHOLD = 5;
 
 const ProductSkeleton: React.FC = () => (
   <div className="animate-pulse flex flex-col h-full rounded-lg">
-    <div className="aspect-square w-full bg-main-maroon/20 rounded-sm mb-2 sm:mb-3"></div>
+    <div className="aspect-[3/4] w-full bg-main-maroon/20 rounded-sm mb-2 sm:mb-3"></div>
     <div className="mt-auto px-2 sm:px-3">
       <div className="h-3 sm:h-4 bg-main-maroon/20 rounded w-3/4 mb-1 sm:mb-2"></div>
       <div className="h-4 sm:h-5 bg-main-maroon/20 rounded w-1/4 mb-2 sm:mb-3"></div>
@@ -74,7 +74,7 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="aspect-square w-full overflow-hidden mb-2 sm:mb-3 relative rounded-sm">
+      <div className="aspect-[3/4] w-full overflow-hidden mb-2 sm:mb-3 relative rounded-sm">
         {/* Out of Stock Overlay and Badge */}
         {!product.availableForSale && (
           <>
@@ -136,25 +136,6 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
           />
         </div>
 
-        {/* Hover Add to Cart Button - Only show if product is available */}
-        {product.availableForSale && (
-          <div
-            className={`absolute bottom-0 left-0 right-0 p-2 transition-all duration-300 ${
-              isHovered ? "opacity-100" : "opacity-0"
-            }`}
-            onClick={(e) => e.preventDefault()}
-          >
-            <AddToCartButton
-              product={{
-                id: product.id,
-                variantId: product.variantId,
-                title: product.title,
-                price: product.price,
-                image: primaryImage,
-              }}
-            />
-          </div>
-        )}
       </div>
       <div className="mt-auto px-2 sm:px-3">
         <h3 className={`text-xs sm:text-sm text-${textColor} mb-1 sm:mb-2 line-clamp-2`}>{product.title}</h3>

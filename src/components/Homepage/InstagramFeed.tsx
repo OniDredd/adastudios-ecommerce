@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { MoreHorizontal } from 'lucide-react';
 import Image from 'next/image';
 import InstagramErrorBoundary from './InstagramErrorBoundary';
 import './InstagramFeed.css';
@@ -47,71 +46,33 @@ const InstagramFeedContent: React.FC = () => {
   };
 
   const renderPost = (post: InstagramPost) => {
-    const hashtags = post.caption?.match(/#[a-zA-Z0-9]+/g) || [];
-    const captionWithoutHashtags = post.caption?.replace(/#[a-zA-Z0-9]+/g, '').trim();
-
+    const caption = post.caption?.replace(/#[a-zA-Z0-9]+/g, '').trim() || '';
     return (
-      <article className="instagram-post">
-        <header className="post-header">
-          <div className="post-header-avatar">
-            <Image
-              src={profile?.profile_picture_url || "/adastudioslogo-maroon.svg"}
-              alt={profile?.username || "Ada Studios"}
-              width={32}
-              height={32}
-              className="object-cover"
-            />
-          </div>
-          <div className="post-header-info">
-            <div className="post-header-username">{profile?.username || "adastudios"}</div>
-          </div>
-          <button className="post-header-more">
-            <MoreHorizontal size={20} />
-          </button>
-        </header>
-
-        <div className="post-image-container">
-          {post.media_type === 'VIDEO' ? (
-            <video
-              src={post.media_url}
-              className="post-image"
-              muted
-              playsInline
-              loop
-            />
-          ) : (
-            <div className="relative w-full h-full">
-              <Image
-                src={post.media_url}
-                alt={captionWithoutHashtags?.slice(0, 100) || 'Instagram post'}
-                className="post-image"
-                width={400}
-                height={400}
-                priority
-              />
-            </div>
-          )}
+      <div className="instagram-post">
+        {post.media_type === 'VIDEO' ? (
+          <video
+            src={post.media_url}
+            className="post-media"
+            muted
+            playsInline
+            loop
+          />
+        ) : (
+          <Image
+            src={post.media_url}
+            alt="Instagram post"
+            className="post-media"
+            width={300}
+            height={300}
+            priority
+          />
+        )}
+        <div className="post-overlay">
+          <p className="post-caption">
+            {caption.length > 100 ? `${caption.slice(0, 100)}...` : caption}
+          </p>
         </div>
-
-        <div className="post-content">
-          {(captionWithoutHashtags || hashtags.length > 0) && (
-            <div className="post-caption">
-              <span className="post-username">{profile?.username || "adastudios"}</span>{' '}
-              {captionWithoutHashtags && (
-                captionWithoutHashtags.length > 60 
-                  ? `${captionWithoutHashtags.slice(0, 60)}...` 
-                  : captionWithoutHashtags
-              )}
-              {hashtags.length > 0 && (
-                <div className="post-hashtags">
-                  {hashtags.slice(0, 2).join(' ')}
-                  {hashtags.length > 2 && ' ...'}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </article>
+      </div>
     );
   };
 

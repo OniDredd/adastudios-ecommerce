@@ -40,7 +40,7 @@ export default function AddToCartButton({ product, disabled = false }: AddToCart
     w-full px-1 py-2 
     ${disabled 
       ? 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300' 
-      : 'bg-main-maroon text-secondary-peach border-main-maroon hover:border-secondary-peach cursor-pointer'
+      : 'bg-secondary-peach text-main-maroon border-main-maroon hover:bg-main-maroon hover:text-secondary-peach cursor-pointer'
     }
     border-[1px] rounded-full transition-colors duration-200 font-semibold 
     flex items-center justify-center
