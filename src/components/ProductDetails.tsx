@@ -224,8 +224,8 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
   const brand = product.vendor || 'Brand';
 
   return (
-    <div className="flex h-full divide-x divide-[0.5px] divide-main-maroon">
-      <div className="w-1/2 relative">
+    <div className="flex flex-col md:flex-row h-full md:divide-x md:divide-[0.5px] divide-main-maroon">
+      <div className="w-full md:w-1/2 relative">
         <ProductGallery 
           images={product.images.edges} 
           title={product.title}
@@ -242,17 +242,17 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
 
       <div 
         ref={detailsRef}
-        className="w-1/2 min-h-screen max-h-screen bg-secondary-peach text-main-maroon scrollbar-thin scrollbar-thumb-main-maroon scrollbar-track-secondary-peach flex items-center"
+        className="w-full md:w-1/2 min-h-screen md:max-h-screen bg-secondary-peach text-main-maroon scrollbar-thin scrollbar-thumb-main-maroon scrollbar-track-secondary-peach flex items-center"
       >
-        <div className="w-full h-full px-32 overflow-y-auto">
-          <div className="max-w-xl mx-auto space-y-8 min-h-screen flex flex-col justify-center py-20">
+        <div className="w-full h-full px-4 sm:px-6 md:px-32 overflow-y-auto">
+          <div className="max-w-xl mx-auto space-y-6 md:space-y-8 min-h-screen flex flex-col justify-center py-12 md:py-20">
             {/* Header Section */}
             <div className="flex justify-between items-start">
               <div>
                 {collection && (
                   <span className="text-sm">{collection.title.toUpperCase()}</span>
                 )}
-                <h1 className="text-2xl font-bold">{product.title}</h1>
+                <h1 className="text-2xl md:text-2xl font-bold leading-tight">{product.title}</h1>
               </div>
               <div>
                 <button 
@@ -269,8 +269,8 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
             </div>
 
             {/* Price Section */}
-            <div className="flex items-center gap-3">
-              <p className={`text-2xl font-bold ${!isAvailable ? "opacity-70" : ""}`}>
+            <div className="flex flex-wrap items-center gap-3">
+              <p className={`text-3xl md:text-2xl font-bold ${!isAvailable ? "opacity-70" : ""}`}>
                 {formattedPrice}
               </p>
               {isDiscounted && (
@@ -320,7 +320,7 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
 
             {/* Add to Cart Button - Only show if in stock */}
             {isAvailable && (
-              <div>
+              <div className="sticky bottom-0 left-0 right-0 bg-secondary-peach py-4 px-4 md:px-0 md:py-0 md:static border-t border-main-maroon/20 md:border-0 mt-auto md:mt-0">
                 <AddToCartButton
                   product={{
                     id: product.id,
@@ -332,7 +332,7 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
                 />
                 
                 {price >= 1 && price <= 2000 && (
-                  <div className="text-sm text-main-maroon text-center mt-4">
+                  <div className="text-sm text-main-maroon text-center mt-2 md:mt-4">
                     4x {convertPrice(price / 4)} on <span className="font-semibold">afterpay</span>
                   </div>
                 )}

@@ -42,7 +42,6 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
   isLoading = false,
   textColor = "main-maroon",
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
   const { convertPrice } = useCurrency();
 
   if (isLoading) {
@@ -71,10 +70,8 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
   const ProductContent = () => (
     <div
       className={`cursor-${product.availableForSale ? 'pointer' : 'not-allowed'} flex-grow flex flex-col hover:border-main-maroon transition-all duration-200 ease-in-out`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="aspect-[3/4] w-full overflow-hidden mb-2 sm:mb-3 relative rounded-sm">
+      <div className="aspect-[3/4] w-full mb-2 sm:mb-3 relative rounded-sm group overflow-hidden">
         {/* Out of Stock Overlay and Badge */}
         {!product.availableForSale && (
           <>
@@ -106,36 +103,27 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
         )}
 
         {/* Primary Image */}
-        <div
-          className={`absolute inset-0 transition-opacity duration-300 ${
-            isHovered ? "opacity-0" : "opacity-100"
-          }`}
-        >
+        <div className="absolute inset-0">
           <Image
             src={primaryImage}
             alt={product.title}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             priority
-            className="object-cover object-center"
+            className="object-cover object-center transform transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-110"
           />
         </div>
 
         {/* Secondary Image */}
-        <div
-          className={`absolute inset-0 transition-opacity duration-300 ${
-            isHovered ? "opacity-100" : "opacity-0"
-          }`}
-        >
+        <div className="absolute inset-0">
           <Image
             src={secondaryImage}
             alt={`${product.title} - alternate view`}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover object-center"
+            className="object-cover object-center transform transition-all duration-500 ease-in-out opacity-0 scale-110 group-hover:opacity-100 group-hover:scale-100"
           />
         </div>
-
       </div>
       <div className="mt-auto px-2 sm:px-3">
         <h3 className={`text-xs sm:text-sm text-${textColor} mb-1 sm:mb-2 line-clamp-2`}>{product.title}</h3>
