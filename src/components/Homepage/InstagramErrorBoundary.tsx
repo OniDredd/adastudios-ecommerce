@@ -20,14 +20,16 @@ class InstagramErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Error is handled by showing the fallback UI
+    console.error('Instagram Feed Error:', error);
+    console.error('Error Info:', errorInfo);
   }
 
   public render() {
     if (this.state.hasError) {
       return (
         <div className="w-full py-8 text-center">
-          <p className="text-gray-500">Unable to load Instagram feed</p>
+          <p className="text-gray-500 mb-2">Unable to load Instagram feed</p>
+          <p className="text-sm text-gray-400">Please try refreshing the page</p>
         </div>
       );
     }

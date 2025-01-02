@@ -3,14 +3,14 @@ import React from 'react';
 export default function CareInstructionsPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
-      <h1 className="text-3xl sm:text-4xl text-[hsl(var(--main-maroon))] mb-6 sm:mb-8 uppercase font-bold text-center sm:text-left">
+      <h1 className="text-xl text-[hsl(var(--main-maroon))] mb-6 sm:mb-8 uppercase font-medium text-center sm:text-left">
         Care Instructions
       </h1>
       
       <div className="space-y-8 text-[hsl(var(--main-maroon))]">
         {/* General Care */}
         <section>
-          <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
             General Care Guidelines
           </h2>
           <div className="space-y-4">
@@ -30,7 +30,7 @@ export default function CareInstructionsPage() {
 
         {/* Cleaning Instructions */}
         <section>
-          <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
             Cleaning Instructions
           </h2>
           
@@ -67,7 +67,7 @@ export default function CareInstructionsPage() {
 
         {/* Matcha Care */}
         <section>
-          <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
             Matcha Glassware Special Care
           </h2>
           <div className="space-y-4">
@@ -86,7 +86,7 @@ export default function CareInstructionsPage() {
 
         {/* Matcha Powder Care */}
         <section>
-          <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
             Matcha Powder Care
           </h2>
           <div className="space-y-4">
@@ -108,7 +108,7 @@ export default function CareInstructionsPage() {
 
         {/* Storage */}
         <section>
-          <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
             Storage Recommendations
           </h2>
           <div className="space-y-4">
@@ -124,7 +124,7 @@ export default function CareInstructionsPage() {
 
         {/* Troubleshooting */}
         <section>
-          <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
             Troubleshooting Common Issues
           </h2>
           <div className="space-y-6">
@@ -160,7 +160,7 @@ export default function CareInstructionsPage() {
 
         {/* Contact Section */}
         <section>
-          <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
             Need Additional Help?
           </h2>
           <div className="space-y-4">

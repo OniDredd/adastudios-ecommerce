@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server';
 
-interface InstagramProfile {
+type InstagramPost = {
   id: string;
-  username: string;
-  profile_picture_url: string;
-}
+  media_url: string;
+  permalink: string;
+  caption?: string;
+  media_type: string;
+  thumbnail_url?: string;
+};
 
-interface InstagramApiResponse {
+type InstagramApiResponse = {
   data: InstagramPost[];
   paging?: {
     cursors: {
@@ -15,59 +18,54 @@ interface InstagramApiResponse {
     };
     next?: string;
   };
+};
+
+async function fetchInstagramPosts(postIds: string[]): Promise<InstagramPost[]> {
+  if (!process.env.INSTAGRAM_ACCESS_TOKEN) {
+    throw new Error('INSTAGRAM_ACCESS_TOKEN is not configured');
+  }
+
+  const url = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url&limit=100&access_token=${process.env.INSTAGRAM_ACCESS_TOKEN}`;
+  
+  const response = await fetch(url, {
+    next: { revalidate: 3600 },
+    headers: { 'Accept': 'application/json' }
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(`Instagram API error: ${JSON.stringify(error)}`);
+  }
+
+  const data: InstagramApiResponse = await response.json();
+  if (!data.data?.length) {
+    throw new Error('No posts returned from Instagram API');
+  }
+
+  // Create a Set of requested IDs for faster lookup
+  const requestedIds = new Set(postIds);
+
+  // Filter posts to match requested IDs and exclude videos
+  return data.data.filter(post => {
+    if (post.media_type === 'VIDEO') return false;
+    const postId = post.permalink.split('/p/')[1]?.replace(/\//g, '');
+    return postId && requestedIds.has(postId);
+  });
 }
 
-interface InstagramPost {
-  id: string;
-  media_url: string;
-  permalink: string;
-  caption?: string;
-  media_type: string;
-  thumbnail_url?: string;
-  timestamp: string;
-}
-
-export async function GET() {
+export async function POST(request: Request) {
   try {
-    // Fetch user profile information
-    const profileResponse = await fetch(
-      `https://graph.instagram.com/me?fields=id,username,profile_picture_url&access_token=${process.env.INSTAGRAM_ACCESS_TOKEN}`,
-      {
-        next: { revalidate: 3600 },
-        headers: {
-          'Accept': 'application/json'
-        }
-      }
-    );
+    const { postIds } = await request.json();
 
-    if (!profileResponse.ok) {
-      const errorData = await profileResponse.json();
-      throw new Error(`Failed to fetch profile from Instagram: ${JSON.stringify(errorData)}`);
+    if (!Array.isArray(postIds)) {
+      return NextResponse.json(
+        { message: 'postIds must be an array of strings' },
+        { status: 400 }
+      );
     }
 
-    const profile: InstagramProfile = await profileResponse.json();
-
-    // Fetch media posts
-    const mediaResponse = await fetch(
-      `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp&access_token=${process.env.INSTAGRAM_ACCESS_TOKEN}`,
-      { 
-        next: { revalidate: 3600 }, // Cache for 1 hour
-        headers: {
-          'Accept': 'application/json'
-        }
-      }
-    );
-
-    if (!mediaResponse.ok) {
-      const errorData = await mediaResponse.json();
-      throw new Error(`Failed to fetch from Instagram: ${JSON.stringify(errorData)}`);
-    }
-    
-    const data: InstagramApiResponse = await mediaResponse.json();
-    return NextResponse.json({
-      profile,
-      posts: data.data
-    });
+    const posts = await fetchInstagramPosts(postIds);
+    return NextResponse.json({ posts });
   } catch (error) {
     console.error('Instagram API error:', error);
     return NextResponse.json(

@@ -75,7 +75,7 @@ function ProductDescription({ description }: { description: string }) {
 
   return (
     <div className="border-t border-main-maroon/20 pt-8">
-      <h2 className="text-lg font-semibold text-main-maroon mb-4">About This Product</h2>
+      <h2 className="text-base font-medium text-main-maroon mb-4">About This Product</h2>
       <div className="relative">
         <div
           className={`
@@ -115,7 +115,7 @@ function ProductDescription({ description }: { description: string }) {
 export default function ProductDetails({ product, collection }: ProductDetailsProps) {
   const [isPending, startTransition] = useTransition();
   const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>({});
-  const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
+  const [selectedMediaIndex, setSelectedMediaIndex] = useState<number>(0);
   const [shareError, setShareError] = useState<string | null>(null);
   const detailsRef = useRef<HTMLDivElement>(null);
   const { convertPrice } = useCurrency();
@@ -151,26 +151,28 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
     }
   }, [product.title]);
 
-  const variantImageMap = useMemo(() => {
+  const variantMediaMap = useMemo(() => {
     const map = new Map<string, number>();
     product.variants.edges.forEach((variant) => {
       const variantImage = variant.node.image;
       if (variantImage?.originalSrc) {
-        const imageIndex = product.images.edges.findIndex(
-          img => img.node.originalSrc === variantImage.originalSrc
-        );
-        if (imageIndex !== -1) {
+        // Find matching media by comparing image URLs
+        const mediaIndex = product.media?.edges?.findIndex(
+          media => media.node.mediaContentType === 'IMAGE' && 
+                   media.node.image?.originalSrc === variantImage.originalSrc
+        ) ?? -1;
+        if (mediaIndex !== -1) {
           const colorOption = variant.node.selectedOptions.find(
             opt => opt.name.toLowerCase().includes('color') || opt.name.toLowerCase().includes('colour')
           );
           if (colorOption) {
-            map.set(colorOption.value, imageIndex);
+            map.set(colorOption.value, mediaIndex);
           }
         }
       }
     });
     return map;
-  }, [product.variants.edges, product.images.edges]);
+  }, [product.variants.edges, product.media?.edges]);
 
   useEffect(() => {
     const colorOption = Object.entries(selectedOptions).find(
@@ -179,14 +181,14 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
     
     if (colorOption) {
       const [_, value] = colorOption;
-      const imageIndex = variantImageMap.get(value);
-      if (imageIndex !== undefined) {
+      const mediaIndex = variantMediaMap.get(value);
+      if (mediaIndex !== undefined) {
         startTransition(() => {
-          setSelectedImageIndex(imageIndex);
+          setSelectedMediaIndex(mediaIndex);
         });
       }
     }
-  }, [selectedOptions, variantImageMap]);
+  }, [selectedOptions, variantMediaMap]);
 
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
@@ -237,6 +239,11 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
 
   const hasVariants = validOptions.length > 0;
 
+  // Get first image for cart thumbnail
+  const cartThumbnail = product.media?.edges?.find(
+    media => media.node.mediaContentType === 'IMAGE'
+  )?.node.image?.originalSrc || '';
+
   return (
     <div className={`
       flex flex-col md:flex-row h-full md:divide-x md:divide-[0.5px] divide-main-maroon
@@ -244,9 +251,17 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
     `}>
       <div className="w-full md:w-1/2 relative">
         <ProductGallery 
-          images={product.images.edges} 
+          media={product.media?.edges?.length > 0 
+            ? product.media?.edges 
+            : product.images.edges.map(edge => ({
+                node: {
+                  mediaContentType: 'IMAGE' as const,
+                  image: edge.node
+                }
+              }))
+          } 
           title={product.title}
-          selectedImageIndex={selectedImageIndex}
+          selectedMediaIndex={selectedMediaIndex}
         />
         {!isAvailable && (
           <div className="absolute inset-0 bg-gradient-to-t from-main-maroon to-transparent z-10 flex items-center justify-center">
@@ -269,7 +284,7 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
                 {collection && (
                   <span className="text-sm">{collection.title.toUpperCase()}</span>
                 )}
-                <h1 className="text-2xl md:text-2xl font-bold leading-[1.2]">{product.title}</h1>
+                <h1 className="text-xl md:text-xl font-medium leading-[1.2]">{product.title}</h1>
               </div>
               <div>
                 <button 
@@ -340,7 +355,7 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
                     variantId: firstVariant.id,
                     title: product.title,
                     price: parseFloat(firstVariant.priceV2.amount),
-                    image: product.images.edges[0]?.node.originalSrc,
+                    image: cartThumbnail,
                   }}
                 />
                 

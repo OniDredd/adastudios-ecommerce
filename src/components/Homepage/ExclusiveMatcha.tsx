@@ -1,133 +1,58 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCurrency } from '../CurrencyProvider';
-
-// Custom hook to detect mobile viewport
-const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768); // md breakpoint
-    };
-    
-    // Initial check
-    checkMobile();
-    
-    // Add resize listener
-    window.addEventListener('resize', checkMobile);
-    
-    // Cleanup
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  return isMobile;
-};
-
-interface Product {
-  id: string;
-  name: string;
-  handle: string;
-  price: number;
-  imageUrl: string;
-  availableForSale: boolean;
-}
+import { useIsMobile } from '../../hooks/useIsMobile';
+import { useVideoLoader } from '../../hooks/useVideoLoader';
+import { ExclusiveMatchaProduct } from '../../types/product';
 
 interface ExclusiveMatchaProps {
-  products: Product[];
+  products: ExclusiveMatchaProduct[];
 }
 
-const ProductSlider = ({ products }: ExclusiveMatchaProps) => {
+export default function ExclusiveMatcha({ products: allProducts }: ExclusiveMatchaProps) {
+  // Filter out out-of-stock products using useMemo
+  const products = useMemo(() => 
+    allProducts.filter(product => product.availableForSale),
+    [allProducts]
+  );
+  
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [loadedImages, setLoadedImages] = useState<string[]>([]);
-  const [isVideoVisible, setIsVideoVisible] = useState(false);
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const videoContainerRef = useRef<HTMLDivElement>(null);
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const { convertPrice } = useCurrency();
   const isMobile = useIsMobile();
+  const {
+    isVideoVisible,
+    isVideoLoaded,
+    videoRef,
+    videoContainerRef,
+    handleVideoLoad,
+    handleVideoError
+  } = useVideoLoader({ isMobile });
 
-
-  // Video intersection observer - only run on non-mobile
+  // Preload images
   useEffect(() => {
-    if (isMobile) {
-      setIsVideoVisible(false);
-      return;
-    }
+    if (products.length === 0) return;
+    setIsLoading(true);
 
-    const options = {
-      root: null,
-      rootMargin: '50px', // Start loading video slightly before it comes into view
-      threshold: 0.1
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setIsVideoVisible(true);
-          if (videoRef.current) {
-            videoRef.current.play().catch((error) => {
-              // Silently handle video play error
-            });
-          }
-        }
-      });
-    }, options);
-
-    const currentRef = videoContainerRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-    };
-  }, [isMobile]);
-
-  // Handle video load events
-  const handleVideoLoad = () => {
-    setIsVideoLoaded(true);
-  };
-
-  const handleVideoError = (error: any) => {
-    setIsVideoLoaded(false);
-  };
-
-  // Preload all images
-  useEffect(() => {
-    const preloadImages = async () => {
-      setIsLoading(true);
-      const imagePromises = products.map((product) => {
-        return new Promise<string>((resolve, reject) => {
+    Promise.all(
+      products.map(product => 
+        new Promise<void>((resolve) => {
           const img = new window.Image();
           img.src = product.imageUrl;
           img.onload = () => {
-            setLoadedImages((prev) => [...prev, product.imageUrl]);
-            resolve(product.imageUrl);
+            setLoadedImages(prev => new Set(prev).add(product.imageUrl));
+            resolve();
           };
-          img.onerror = reject;
-        });
-      });
-
-      try {
-        await Promise.all(imagePromises);
-        setIsLoading(false);
-      } catch (error) {
-        setIsLoading(false);
-      }
-    };
-
-    if (products.length > 0) {
-      preloadImages();
-    }
+          img.onerror = () => resolve();
+        })
+      )
+    ).finally(() => setIsLoading(false));
   }, [products]);
 
   const nextSlide = () => {
@@ -142,7 +67,7 @@ const ProductSlider = ({ products }: ExclusiveMatchaProps) => {
     return null;
   }
 
-  const isImageLoaded = (imageUrl: string) => loadedImages.includes(imageUrl);
+  const isImageLoaded = (imageUrl: string) => loadedImages.has(imageUrl);
 
   return (
     <section className="w-full h-auto md:h-[600px] flex flex-col md:flex-row border-y-[1px] border-main-maroon">
@@ -187,114 +112,114 @@ const ProductSlider = ({ products }: ExclusiveMatchaProps) => {
       )}
 
       {/* Product Slider (full width on mobile, half on desktop) */}
-      <div className="w-full md:w-1/2 bg-main-maroon p-5 md:p-6 flex flex-col">
-        <div className="text-lg md:text-xl font-bold mb-1 md:mb-2 text-center text-secondary-peach">EXCLUSIVE MATCHA</div>
-        <div className="text-xs md:text-sm mb-2 md:mb-4 text-center text-secondary-peach">
-          {currentSlide + 1} OF {products.length}
-        </div>
-        
-        <div className="py-4 md:py-6">
-          <div className="w-full flex items-center justify-between gap-3">
-            {/* Left Navigation Button */}
-            <button 
-              onClick={prevSlide}
-              className="bg-secondary-peach text-secondary-peach p-2.5 md:p-2 rounded-full hover:bg-[#FFB6A3] transition-colors z-10"
-              disabled={isLoading}
-            >
-              <ChevronLeft className="w-4 h-4 text-main-maroon" />
-            </button>
+      <div className="w-full md:w-1/2 bg-main-maroon flex items-center justify-center min-h-[500px] md:min-h-full py-8 md:py-12">
+        <div className="relative w-full flex items-center">
+          {/* Left Navigation Button */}
+          <button 
+            onClick={prevSlide}
+            className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-10 md:w-11 aspect-square bg-secondary-peach text-secondary-peach rounded-full hover:bg-[#FFB6A3] transition-colors z-10 flex items-center justify-center"
+            disabled={isLoading}
+          >
+            <ChevronLeft className="w-5 h-5 text-main-maroon" />
+          </button>
 
-            {/* Product Display */}
-            <div className="flex-1 max-w-[260px] md:max-w-[280px] mx-auto">
-              <Link href={`/product/${products[currentSlide].handle}`}>
-                <div className="bg-main-maroon p-3 rounded-lg relative aspect-[3/4] overflow-hidden group cursor-pointer border border-transparent hover:border-secondary-peach transition-colors">
-                  {/* Hidden preload container */}
-                  <div className="hidden">
-                    {products.map((product) => (
-                      <Image
-                        key={product.id}
-                        src={product.imageUrl}
-                        alt="preload"
-                        width={1}
-                        height={1}
-                        priority
-                      />
-                    ))}
-                  </div>
+          <div className="w-full max-w-[480px] px-8 md:px-12 mx-auto">
+            <div className="flex flex-col items-center">
+              <div className="text-base md:text-xl font-medium mb-1 md:mb-2 text-center text-secondary-peach">EXCLUSIVE MATCHA</div>
+              <div className="text-xs md:text-sm mb-8 text-center text-secondary-peach/90">
+                {currentSlide + 1} OF {products.length}
+              </div>
 
-                  <AnimatePresence initial={false}>
-                    {products.map((product, index) => (
-                      index === currentSlide && isImageLoaded(product.imageUrl) && (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.5 }}
-                          className="absolute inset-0"
-                        >
-                          <Image
-                            src={product.imageUrl}
-                            alt={product.name}
-                            fill
-                            className="object-cover rounded transition-transform duration-300 group-hover:scale-105"
-                            sizes="(max-width: 768px) 80vw, 40vw"
-                            priority
-                          />
-                          {/* Out of Stock Overlay */}
-                          {!product.availableForSale && (
-                            <div className="absolute inset-0 bg-gradient-to-t from-main-maroon to-transparent z-10 flex items-center justify-center">
-                              <span className="text-secondary-peach px-4 py-2 text-lg font-medium">
-                                Out of Stock
-                              </span>
-                            </div>
-                          )}
-                        </motion.div>
-                      )
-                    ))}
-                  </AnimatePresence>
-
-                  {/* Loading state */}
-                  {isLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                      <div className="w-8 h-8 border-4 border-main-maroon border-t-transparent rounded-full animate-spin"></div>
+              {/* Product Display */}
+              <div className="w-full max-w-[260px] md:max-w-[280px]">
+                <Link href={`/product/${products[currentSlide].handle}`}>
+                  <div className="bg-main-maroon p-3 md:p-4 rounded-lg relative aspect-[3/4] overflow-hidden group cursor-pointer border border-transparent hover:border-secondary-peach transition-colors">
+                    {/* Hidden preload container */}
+                    <div className="hidden">
+                      {products.map((product) => (
+                        <Image
+                          key={product.id}
+                          src={product.imageUrl}
+                          alt="preload"
+                          width={1}
+                          height={1}
+                          priority
+                        />
+                      ))}
                     </div>
-                  )}
-                </div>
-                
-                <AnimatePresence mode="wait">
-                  <motion.div 
-                    key={`text-${currentSlide}`}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="mt-2 md:mt-3 text-center group-hover:opacity-80 transition-opacity"
-                  >
-                    <h2 className="text-base md:text-lg font-semibold text-secondary-peach">
-                      {products[currentSlide].name}
-                    </h2>
-                    <p className={`text-sm md:text-base mt-1 text-secondary-peach ${!products[currentSlide].availableForSale ? "line-through opacity-70" : ""}`}>
-                      {convertPrice(products[currentSlide].price)}
-                    </p>
-                  </motion.div>
-                </AnimatePresence>
-              </Link>
-            </div>
 
-            {/* Right Navigation Button */}
-            <button 
-              onClick={nextSlide}
-              className="bg-secondary-peach text-main-maroon p-2.5 md:p-2 rounded-full hover:bg-[#FFB6A3] transition-colors z-10"
-              disabled={isLoading}
-            >
-              <ChevronRight className="w-4 h-4 text-[#800020]" />
-            </button>
+                    <AnimatePresence initial={false}>
+                      {products.map((product, index) => (
+                        index === currentSlide && isImageLoaded(product.imageUrl) && (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.5 }}
+                            className="absolute inset-0"
+                          >
+                            <Image
+                              src={product.imageUrl}
+                              alt={product.name}
+                              fill
+                              className="object-cover rounded transition-transform duration-300 group-hover:scale-105"
+                              sizes="(max-width: 768px) 80vw, 40vw"
+                              priority
+                            />
+                            {/* Out of Stock Overlay */}
+                            {!product.availableForSale && (
+                              <div className="absolute inset-0 bg-gradient-to-t from-main-maroon to-transparent z-10 flex items-center justify-center">
+                                <span className="text-secondary-peach px-4 py-2 text-lg font-medium">
+                                  Out of Stock
+                                </span>
+                              </div>
+                            )}
+                          </motion.div>
+                        )
+                      ))}
+                    </AnimatePresence>
+
+                    {/* Loading state */}
+                    {isLoading && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                        <div className="w-8 h-8 border-4 border-main-maroon border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <AnimatePresence mode="wait">
+                    <motion.div 
+                      key={`text-${currentSlide}`}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="mt-2 md:mt-3 text-center group-hover:opacity-80 transition-opacity"
+                    >
+                      <h2 className="text-base md:text-lg font-semibold text-secondary-peach truncate px-2">
+                        {products[currentSlide].name}
+                      </h2>
+                      <p className={`text-sm md:text-base mt-1 text-secondary-peach ${!products[currentSlide].availableForSale ? "line-through opacity-70" : ""}`}>
+                        {convertPrice(products[currentSlide].price)}
+                      </p>
+                    </motion.div>
+                  </AnimatePresence>
+                </Link>
+              </div>
+            </div>
           </div>
+
+          {/* Right Navigation Button */}
+          <button 
+            onClick={nextSlide}
+            className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-10 md:w-11 aspect-square bg-secondary-peach text-main-maroon rounded-full hover:bg-[#FFB6A3] transition-colors z-10 flex items-center justify-center"
+            disabled={isLoading}
+          >
+            <ChevronRight className="w-5 h-5 text-[#800020]" />
+          </button>
         </div>
       </div>
     </section>
   );
 };
-
-export default ProductSlider;

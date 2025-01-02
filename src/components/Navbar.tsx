@@ -21,7 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ShopAllMenu } from './DynamicShopMenu';
+import { ShopAllMenu, SaleMenu } from './DynamicShopMenu';
 import shopify from '../lib/shopify';
 
 export default function Navbar(): JSX.Element {
@@ -119,84 +119,7 @@ export default function Navbar(): JSX.Element {
               <NavigationMenuList className="text-main-maroon">
                 <ShopAllMenu />
 
-                <NavigationMenuItem>
-                  <div onClick={(e) => handleNavigation('/shop?onSale=true', e)} className="inline-flex cursor-pointer">
-                    <NavigationMenuTrigger className={`
-                      data-[state=open]:bg-main-maroon 
-                      bg-transparent 
-                      border
-                      border-transparent
-                      hover:border-main-maroon
-                      data-[state=open]:text-secondary-peach
-                      ${!isScrolled && 'text-main-maroon'}
-                    `}>
-                      SALE
-                    </NavigationMenuTrigger>
-                  </div>
-                  <NavigationMenuContent>
-                    <div className="w-screen bg-secondary-peach p-6 border border-main-maroon rounded-lg">
-                      <div className="container mx-auto grid grid-cols-3 gap-6">
-                        <div className="space-y-4">
-                          <h3 className="text-lg font-semibold text-main-maroon">Sale Categories</h3>
-                          <ul className="space-y-2 pr-4">
-                            <li className="group">
-                              <a
-                                href="/shop?onSale=true&tag=clearance"
-                                onClick={(e) => handleNavigation('/shop?onSale=true&tag=clearance', e)}
-                                className="block p-2 rounded-md transition-colors border border-transparent hover:border-main-maroon text-main-maroon"
-                              >
-                                <div className="text-sm font-medium">Clearance</div>
-                                <p className="text-sm opacity-80">Up to 70% off</p>
-                              </a>
-                            </li>
-                            <li className="group">
-                              <a
-                                href="/shop?stockFilter=low"
-                                onClick={(e) => handleNavigation('/shop?stockFilter=low', e)}
-                                className="block p-2 rounded-md transition-colors border border-transparent hover:border-main-maroon text-main-maroon"
-                              >
-                                <div className="text-sm font-medium">Last Chance</div>
-                                <p className="text-sm opacity-80">Limited availability</p>
-                              </a>
-                            </li>
-                          </ul>
-                        </div>
-                        <div className="col-span-2">
-                          <h3 className="text-lg font-semibold text-main-maroon mb-4">Featured Sale Items</h3>
-                          <div className="grid grid-cols-2 gap-4">
-                            {saleProducts.map((product) => (
-                              <Link
-                                key={product.id}
-                                href={`/product/${product.handle}`}
-                                className="group relative"
-                              >
-                                <div className="aspect-square relative rounded-lg overflow-hidden">
-                                  <Image
-                                    src={product.images.edges[0]?.node.originalSrc || '/placeholder.jpg'}
-                                    alt={product.title}
-                                    className="object-cover transition-transform group-hover:scale-105"
-                                    fill
-                                  />
-                                  <div className="absolute top-2 right-2 bg-main-maroon text-secondary-peach px-3 py-1 rounded-full">
-                                    <p className="text-sm font-bold">-{getDiscountPercentage(product)}%</p>
-                                  </div>
-                                </div>
-                                <div className="mt-3">
-                                  <h4 className="text-base font-bold text-main-maroon mb-2 tracking-wide">
-                                    {product.title}
-                                  </h4>
-                                  <p className="text-sm text-main-maroon/80 line-clamp-2 leading-relaxed">
-                                    Limited time offer
-                                  </p>
-                                </div>
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
+                <SaleMenu />
               </NavigationMenuList>
             </NavigationMenu>
           </nav>
@@ -218,15 +141,14 @@ export default function Navbar(): JSX.Element {
           {/* Right side - Currency and Cart */}
           <div className="w-8 md:w-auto flex justify-end items-center space-x-3 md:space-x-6 md:mr-10">
             <DropdownMenu onOpenChange={setIsCurrencyOpen}>
-              <DropdownMenuTrigger className={`
-                flex items-center gap-2 
-                border border-transparent hover:border-main-maroon
-                outline-none
-                ${isScrolled ? 'text-main-maroon' : 'text-main-maroon'}
-              `}>
-                <span className="text-sm font-medium">{selectedCurrency.code}</span>
-                <FaChevronDown className={`transition-transform duration-200 ${isCurrencyOpen ? 'rotate-180' : ''}`} />
-              </DropdownMenuTrigger>
+              <div className="inline-flex cursor-pointer">
+                <DropdownMenuTrigger className="data-[state=open]:bg-transparent bg-transparent border-none hover:border-main-maroon rounded-lg transition-all duration-300">
+                  <div className="flex items-center gap-2 px-4 py-2">
+                    <span className="text-sm font-medium text-main-maroon">{selectedCurrency.code}</span>
+                    <FaChevronDown className={`transition-transform duration-200 text-main-maroon ${isCurrencyOpen ? 'rotate-180' : ''}`} />
+                  </div>
+                </DropdownMenuTrigger>
+              </div>
               <DropdownMenuContent 
                 className="w-[200px] bg-secondary-peach border border-main-maroon rounded-lg"
                 align="end"
@@ -236,7 +158,7 @@ export default function Navbar(): JSX.Element {
                   <DropdownMenuItem
                     key={currency.code}
                     onClick={() => setSelectedCurrency(currency)}
-                    className="flex flex-col items-start px-3 py-2 text-main-maroon border border-transparent hover:border-main-maroon cursor-pointer"
+                    className="flex flex-col items-start px-3 py-2 text-main-maroon border border-transparent hover:border-secondary-peach cursor-pointer"
                   >
                     <div className="font-medium">{currency.code}</div>
                     <p className="text-sm opacity-80">
@@ -290,7 +212,7 @@ export default function Navbar(): JSX.Element {
                 </Link>
 
                 <div className="space-y-3 border-t border-main-maroon/20 pt-6">
-                  <h3 className="text-sm font-semibold text-main-maroon px-4">Shop Categories</h3>
+                  <h3 className="text-sm font-medium text-main-maroon px-4">Shop Categories</h3>
                   <Link
                     href="/shop?category=Matcha"
                     className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
@@ -331,7 +253,7 @@ export default function Navbar(): JSX.Element {
                 </Link>
                 
                 <div className="space-y-3 border-t border-main-maroon/20 pt-6">
-                  <h3 className="text-sm font-semibold text-main-maroon px-4">Sale Categories</h3>
+                  <h3 className="text-sm font-medium text-main-maroon px-4">Sale Categories</h3>
                   <Link
                     href="/shop?onSale=true&tag=clearance"
                     className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"

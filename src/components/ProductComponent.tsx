@@ -1,26 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import AddToCartButton from "./AddToCartButton";
+import { SimpleProduct } from '../lib/shopify';
 import { useCurrency } from './CurrencyProvider';
 
-interface Product {
-  id: string;
-  title: string;
-  handle: string;
-  variantId: string;
-  price: number;
-  compareAtPrice?: number;
-  brand: string;
-  availableForSale: boolean;
-  quantityAvailable?: number;
-  images: { file: { url: string } }[];
-}
-
 interface ProductComponentProps {
-  product: Product;
+  product: SimpleProduct;
   isLoading?: boolean;
   textColor?: "main-maroon" | "secondary-peach";
 }
@@ -48,15 +35,14 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
     return <ProductSkeleton />;
   }
 
-  const primaryImage =
-    product.images && product.images.length > 0 && product.images[0].file
-      ? product.images[0].file.url
-      : "/placeholder-image.jpg";
+  // Handle both media edges and direct images array
+  const primaryImage = product.media?.edges?.find(
+    edge => edge.node.mediaContentType === 'IMAGE'
+  )?.node.image?.originalSrc || "/placeholder.jpg";
 
-  const secondaryImage =
-    product.images && product.images.length > 1 && product.images[1].file
-      ? product.images[1].file.url
-      : primaryImage;
+  const secondaryImage = product.media?.edges?.filter(
+    edge => edge.node.mediaContentType === 'IMAGE'
+  )[1]?.node.image?.originalSrc || primaryImage;
 
   const isLowStock = product.quantityAvailable !== undefined && 
                     product.quantityAvailable > 0 && 
@@ -71,7 +57,7 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
     <div
       className={`cursor-${product.availableForSale ? 'pointer' : 'not-allowed'} flex-grow flex flex-col transition-all duration-200 ease-in-out`}
     >
-      <div className="aspect-[3/4] w-full mb-2 sm:mb-3 relative rounded-sm group overflow-hidden border border-transparent hover:border-main-maroon transition-colors">
+      <div className="aspect-[3/4] w-full mb-2 sm:mb-3 relative rounded-sm overflow-hidden border border-transparent hover:border-main-maroon transition-colors">
         {/* Out of Stock Overlay and Badge */}
         {!product.availableForSale && (
           <>
@@ -110,7 +96,7 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             priority
-            className="object-cover object-center transform transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-110"
+            className="object-cover object-center transform transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-110 will-change-transform"
           />
         </div>
 
@@ -121,7 +107,7 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
             alt={`${product.title} - alternate view`}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover object-center transform transition-all duration-500 ease-in-out opacity-0 scale-110 group-hover:opacity-100 group-hover:scale-100"
+            className="object-cover object-center transform transition-all duration-500 ease-in-out opacity-0 scale-110 group-hover:opacity-100 group-hover:scale-100 will-change-transform"
           />
         </div>
       </div>
@@ -144,7 +130,7 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
   return (
     <div className="relative flex flex-col h-full rounded-lg">
       {product.availableForSale ? (
-        <Link href={`/product/${product.handle}`} passHref>
+        <Link href={`/product/${product.handle}`} className="flex-grow flex flex-col group">
           <ProductContent />
         </Link>
       ) : (

@@ -23,6 +23,40 @@ export interface ShopifyImage {
   altText: string | null;
 }
 
+export interface ShopifyVideo {
+  sources: Array<{
+    url: string;
+    mimeType: string;
+    format: string;
+    height: number;
+    width: number;
+  }>;
+}
+
+export interface ShopifyMediaEdge {
+  node: {
+    mediaContentType: 'IMAGE' | 'VIDEO';
+    image?: ShopifyImage;
+    sources?: ShopifyVideo['sources'];
+  };
+}
+
+export interface SimpleProduct {
+  id: string;
+  title: string;
+  handle: string;
+  variantId: string;
+  price: number;
+  compareAtPrice?: number;
+  vendor: string;
+  availableForSale: boolean;
+  quantityAvailable: number;
+  tags: string[];
+  media: {
+    edges: ShopifyMediaEdge[];
+  };
+}
+
 export interface ShopifyProduct {
   id: string;
   title: string;
@@ -42,6 +76,9 @@ export interface ShopifyProduct {
     edges: Array<{
       node: ShopifyImage;
     }>;
+  };
+  media: {
+    edges: ShopifyMediaEdge[];
   };
   options: Array<{
     name: string;
@@ -450,11 +487,34 @@ export async function getProductsByCollection(collectionHandle: string): Promise
                   currencyCode
                 }
               }
-              images(first: 1) {
+              images(first: 20) {
                 edges {
                   node {
                     originalSrc
                     altText
+                  }
+                }
+              }
+              media(first: 20) {
+                edges {
+                  node {
+                    ... on MediaImage {
+                      mediaContentType
+                      image {
+                        originalSrc
+                        altText
+                      }
+                    }
+                    ... on Video {
+                      mediaContentType
+                      sources {
+                        url
+                        mimeType
+                        format
+                        height
+                        width
+                      }
+                    }
                   }
                 }
               }
@@ -514,11 +574,34 @@ export async function searchProducts(searchTerm: string): Promise<ShopifyProduct
                 currencyCode
               }
             }
-            images(first: 1) {
+            images(first: 20) {
               edges {
                 node {
                   originalSrc
                   altText
+                }
+              }
+            }
+            media(first: 20) {
+              edges {
+                node {
+                  ... on MediaImage {
+                    mediaContentType
+                    image {
+                      originalSrc
+                      altText
+                    }
+                  }
+                  ... on Video {
+                    mediaContentType
+                    sources {
+                      url
+                      mimeType
+                      format
+                      height
+                      width
+                    }
+                  }
                 }
               }
             }
@@ -573,11 +656,34 @@ export async function getProductByHandle(handle: string): Promise<ShopifyProduct
             currencyCode
           }
         }
-        images(first: 10) {
+        images(first: 20) {
           edges {
             node {
               originalSrc
               altText
+            }
+          }
+        }
+        media(first: 20) {
+          edges {
+            node {
+              ... on MediaImage {
+                mediaContentType
+                image {
+                  originalSrc
+                  altText
+                }
+              }
+              ... on Video {
+                mediaContentType
+                sources {
+                  url
+                  mimeType
+                  format
+                  height
+                  width
+                }
+              }
             }
           }
         }
@@ -648,11 +754,34 @@ export async function getProducts({ limit = 250 }: { limit?: number } = {}): Pro
                 currencyCode
               }
             }
-            images(first: 10) {
+            images(first: 20) {
               edges {
                 node {
                   originalSrc
                   altText
+                }
+              }
+            }
+            media(first: 20) {
+              edges {
+                node {
+                  ... on MediaImage {
+                    mediaContentType
+                    image {
+                      originalSrc
+                      altText
+                    }
+                  }
+                  ... on Video {
+                    mediaContentType
+                    sources {
+                      url
+                      mimeType
+                      format
+                      height
+                      width
+                    }
+                  }
                 }
               }
             }

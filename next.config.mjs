@@ -12,15 +12,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'instagram.fakl2-1.fna.fbcdn.net'
+        hostname: '**.fna.fbcdn.net'
       },
       {
         protocol: 'https',
-        hostname: 'scontent-akl1-1.cdninstagram.com'
-      },
-      {
-        protocol: 'https',
-        hostname: 'scontent-syd2-1.cdninstagram.com'
+        hostname: '**.cdninstagram.com'
       }
     ],
   },

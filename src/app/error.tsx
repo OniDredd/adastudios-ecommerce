@@ -18,7 +18,7 @@ export default function Error({
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary-peach px-4">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-main-maroon mb-4">
+        <h2 className="text-xl font-medium text-main-maroon mb-4">
           Something went wrong
         </h2>
         <p className="text-main-maroon/80 mb-8 max-w-md">

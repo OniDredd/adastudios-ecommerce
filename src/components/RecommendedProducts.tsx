@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ShopifyProduct } from '../types/shopify';
+import { ShopifyProduct, SimpleProduct } from '../lib/shopify';
 import ProductComponent from './ProductComponent';
 import { Suspense } from 'react';
 
@@ -11,18 +11,21 @@ interface RecommendedProductsProps {
 }
 
 export function RecommendedProducts({ products, currentProductId }: RecommendedProductsProps) {
-  // Filter out the current product and limit to 4 recommendations
-  const recommendations = products
-    .filter(product => product.id !== currentProductId)
-    .slice(0, 4);
+  // Filter out the current product and get only in-stock products
+  const inStockRecommendations = products
+    .filter(product => product.id !== currentProductId && product.availableForSale);
 
-  if (recommendations.length === 0) return null;
+  // Only show section if we have at least 4 in-stock recommendations
+  if (inStockRecommendations.length < 4) return null;
+
+  // Take first 4 in-stock recommendations
+  const recommendations = inStockRecommendations.slice(0, 4);
 
   return (
     <section className="w-full py-20 bg-secondary-peach">
       <div className="mx-auto">
         <div className="flex justify-between items-center mb-4 px-5">
-          <h2 className="text-2xl font-bold text-main-maroon">
+          <h2 className="text-xl font-medium text-main-maroon">
             YOU MAY ALSO LIKE
           </h2>
           <Link
@@ -35,7 +38,7 @@ export function RecommendedProducts({ products, currentProductId }: RecommendedP
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Suspense fallback={<LoadingGrid />}>
             {recommendations.map((product) => {
-              const processedProduct = {
+              const processedProduct: SimpleProduct = {
                 id: product.id,
                 title: product.title,
                 handle: product.handle,
@@ -44,13 +47,20 @@ export function RecommendedProducts({ products, currentProductId }: RecommendedP
                 compareAtPrice: product.variants.edges[0]?.node.compareAtPriceV2
                   ? parseFloat(product.variants.edges[0].node.compareAtPriceV2.amount)
                   : undefined,
-                brand: product.vendor,
+                vendor: product.vendor,
                 availableForSale: product.availableForSale,
-                images: product.images.edges.map(edge => ({
-                  file: {
-                    url: edge.node.originalSrc
-                  }
-                }))
+                quantityAvailable: product.variants.edges[0]?.node.quantityAvailable || 0,
+                tags: product.tags,
+                media: {
+                  edges: (product.media?.edges?.length ?? 0) > 0 
+                    ? product.media?.edges ?? []
+                    : product.images?.edges?.map(edge => ({
+                        node: {
+                          mediaContentType: 'IMAGE' as const,
+                          image: edge.node
+                        }
+                      })) ?? []
+                }
               };
 
               return (
@@ -79,9 +89,11 @@ function LoadingGrid() {
             handle: "",
             variantId: "",
             price: 0,
-            brand: "",
+            vendor: "",
             availableForSale: true,
-            images: [],
+            quantityAvailable: 0,
+            tags: [],
+            media: { edges: [] },
           }}
           isLoading={true}
         />

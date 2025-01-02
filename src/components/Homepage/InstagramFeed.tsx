@@ -5,103 +5,148 @@ import Image from 'next/image';
 import InstagramErrorBoundary from './InstagramErrorBoundary';
 import './InstagramFeed.css';
 
-interface InstagramProfile {
-  id: string;
-  username: string;
-  profile_picture_url: string;
-}
-
-interface InstagramPost {
+type InstagramPost = {
   id: string;
   media_url: string;
   permalink: string;
   caption?: string;
   media_type: string;
   thumbnail_url?: string;
-  timestamp: string;
-}
+};
 
-const InstagramFeedContent: React.FC = () => {
-  const [profile, setProfile] = useState<InstagramProfile | null>(null);
-  const [posts, setPosts] = useState<InstagramPost[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+type GridConfig = {
+  positions: Record<number, string>;
+};
 
-  useEffect(() => {
-    fetchInstagramPosts();
-  }, []);
+const ImagePlaceholder = () => (
+  <div className="instagram-post bg-gray-100">
+    <div className="w-full h-full flex items-center justify-center text-gray-400">
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    </div>
+  </div>
+);
 
-  const fetchInstagramPosts = async () => {
-    try {
-      const response = await fetch('/api/instagram-feed');
-      if (!response.ok) throw new Error('Failed to fetch posts');
-      const data = await response.json();
-      setProfile(data.profile);
-      setPosts(data.posts);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
+const LoadingSpinner = () => (
+  <div className="w-full h-64 flex items-center justify-center">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900" />
+  </div>
+);
 
-  const renderPost = (post: InstagramPost) => {
-    const caption = post.caption?.replace(/#[a-zA-Z0-9]+/g, '').trim() || '';
-    return (
-      <div className="instagram-post">
-        {post.media_type === 'VIDEO' ? (
-          <video
-            src={post.media_url}
-            className="post-media"
-            muted
-            playsInline
-            loop
-          />
-        ) : (
-          <Image
-            src={post.media_url}
-            alt="Instagram post"
-            className="post-media"
-            width={300}
-            height={300}
-            priority
-          />
+const ErrorMessage = ({ message }: { message: string }) => (
+  <div className="w-full h-64 flex flex-col items-center justify-center text-red-500">
+    <p className="mb-2">Error loading Instagram posts</p>
+    <p className="text-sm text-gray-500">{message}</p>
+  </div>
+);
+
+const InstagramPost = ({ post }: { post: InstagramPost }) => {
+  const imageUrl = post.media_type === 'CAROUSEL_ALBUM' && post.thumbnail_url 
+    ? post.thumbnail_url 
+    : post.media_url;
+  const caption = post.caption?.replace(/#[a-zA-Z0-9]+/g, '').trim() || '';
+
+  if (!imageUrl) return <ImagePlaceholder />;
+
+  return (
+    <div className="instagram-post">
+      <div className="relative w-full h-full">
+        <Image
+          src={imageUrl}
+          alt={caption || 'Instagram post'}
+          className="post-media"
+          width={300}
+          height={300}
+          priority
+        />
+        {post.media_type === 'CAROUSEL_ALBUM' && (
+          <div className="media-indicator">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+              <path d="M4 6h2v2H4V6zm0 5h2v2H4v-2zm0 5h2v2H4v-2zm16-8V6h-2v2h2zm0 5h-2v2h2v-2zm0 5h-2v2h2v-2zM8 6h8v2H8V6zm0 5h8v2H8v-2zm0 5h8v2H8v-2z"/>
+            </svg>
+          </div>
         )}
+      </div>
+      {caption && (
         <div className="post-overlay">
           <p className="post-caption">
             {caption.length > 100 ? `${caption.slice(0, 100)}...` : caption}
           </p>
         </div>
-      </div>
-    );
-  };
+      )}
+    </div>
+  );
+};
 
-  if (loading) {
-    return (
-      <div className="w-full h-64 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
+const InstagramFeedContent = ({ config }: { config: GridConfig }) => {
+  const [posts, setPosts] = useState<InstagramPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (error) {
-    return (
-      <div className="w-full h-64 flex items-center justify-center text-red-500">
-        Error loading Instagram posts: {error}
-      </div>
-    );
-  }
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const postIds = Object.values(config.positions)
+          .map(url => {
+            const match = url.match(/instagram\.com\/p\/([^\/]+)/);
+            return match?.[1] || '';
+          })
+          .filter(Boolean);
 
-  // Create duplicated posts array for seamless scrolling
-  const duplicatedPosts = [...posts, ...posts, ...posts];
+        if (!postIds.length) {
+          throw new Error('No valid Instagram post IDs found');
+        }
+
+        const response = await fetch('/api/instagram-feed', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ postIds }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch Instagram posts');
+        }
+
+        const data = await response.json();
+        if (!data.posts?.length) {
+          throw new Error('No posts available');
+        }
+
+        setPosts(data.posts);
+      } catch (err) {
+        console.error('Error fetching Instagram posts:', err);
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, [config]);
+
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage message="Some posts may be temporarily unavailable" />;
+  if (!posts.length) return <ErrorMessage message="Please check back later" />;
+
+  const gridPosts = Array(10).fill(null).map((_, index) => {
+    const position = index + 1;
+    const postUrl = config.positions[position];
+    const postId = postUrl?.match(/instagram\.com\/p\/([^\/]+)/)?.[1];
+    return posts.find(post => post.permalink.includes(postId || ''));
+  });
 
   return (
     <div className="relative w-full py-10">
-      <h2 className="text-2xl font-bold italic text-center tracking-widest mb-6 text-main-maroon">#ADASTUDIOS</h2>
+      <div className="flex justify-between items-center mb-6 px-5">
+        <h2 className="text-xl font-medium text-main-maroon">
+          FOLLOW US ON INSTAGRAM
+        </h2>
+      </div>
       
-      <div id="instagram-container">
-        <div className="instagram-scroll">
-          {duplicatedPosts.map((post, index) => (
+      <div className="instagram-grid">
+        {gridPosts.map((post, index) => (
+          post ? (
             <a
               key={`${post.id}-${index}`}
               href={post.permalink}
@@ -109,21 +154,21 @@ const InstagramFeedContent: React.FC = () => {
               rel="noopener noreferrer"
               className="cursor-pointer transition-opacity hover:opacity-90"
             >
-              {renderPost(post)}
+              <InstagramPost post={post} />
             </a>
-          ))}
-        </div>
+          ) : (
+            <ImagePlaceholder key={`placeholder-${index}`} />
+          )
+        ))}
       </div>
     </div>
   );
 };
 
-const InstagramFeed: React.FC = () => {
-  return (
-    <InstagramErrorBoundary>
-      <InstagramFeedContent />
-    </InstagramErrorBoundary>
-  );
-};
+const InstagramFeed = ({ config }: { config: GridConfig }) => (
+  <InstagramErrorBoundary>
+    <InstagramFeedContent config={config} />
+  </InstagramErrorBoundary>
+);
 
 export default InstagramFeed;
