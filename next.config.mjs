@@ -8,6 +8,10 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: '**.shopifycdn.com'
+      },
+      {
+        protocol: 'https',
         hostname: 'scontent.cdninstagram.com'
       },
       {
@@ -18,7 +22,7 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.cdninstagram.com'
       }
-    ],
+    ]
   },
   // Enable React 19 features
   reactStrictMode: true,

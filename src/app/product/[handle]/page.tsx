@@ -111,6 +111,7 @@ export default async function ProductPage({ params }: { params: Params }) {
   }
 }
 
-// Enable partial prerendering for dynamic product pages
+// Configure page options
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge'; // Use edge runtime for better performance
+export const runtime = 'nodejs'; // Use Node.js runtime for better video support
+export const fetchCache = 'force-no-store'; // Disable caching for dynamic content

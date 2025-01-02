@@ -17,7 +17,7 @@ const PRODUCTS_PER_PAGE = 12;
 export default function ShopContent() {
   const searchParams = useSearchParams();
   const [products, setProducts] = useState<SimpleProduct[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
   const {
@@ -50,15 +50,19 @@ export default function ShopContent() {
   }, [searchParams, updateFilters]);
 
   const fetchProducts = useCallback(async () => {
-    setLoading(true);
     try {
+      setError(null);
       const fetchedProducts = await shopify.getProducts();
+      if (!fetchedProducts || fetchedProducts.length === 0) {
+        throw new Error('No products found');
+      }
       const transformedProducts = fetchedProducts.map(transformProduct);
       setProducts(transformedProducts);
     } catch (error) {
       console.error("Error fetching products:", error);
+      setError('Failed to load products. Please try again later.');
+      setProducts([]);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -104,11 +108,23 @@ export default function ShopContent() {
           showFilters ? "translate-y-0" : "-translate-y-4"
         }`}
       >
-        <ProductGrid
-          products={currentProducts}
-          isLoading={loading || isPending}
-          loadingCount={8}
-        />
+        {error ? (
+          <div className="text-center py-12">
+            <p className="text-main-maroon text-lg">{error}</p>
+            <button
+              onClick={() => fetchProducts()}
+              className="mt-4 px-4 py-2 bg-main-maroon text-secondary-peach rounded hover:bg-main-maroon/90 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : (
+          <ProductGrid
+            products={currentProducts}
+            isLoading={products.length === 0 || isPending}
+            loadingCount={8}
+          />
+        )}
 
         {/* Pagination */}
         <Pagination

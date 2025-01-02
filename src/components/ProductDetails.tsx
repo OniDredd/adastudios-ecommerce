@@ -74,14 +74,14 @@ function ProductDescription({ description }: { description: string }) {
   }, []);
 
   return (
-    <div className="border-t border-main-maroon/20 pt-8">
-      <h2 className="text-base font-medium text-main-maroon mb-4">About This Product</h2>
+    <div className="border-t border-main-maroon/20 pt-6">
+      <h2 className="text-base font-medium text-main-maroon mb-3">About This Product</h2>
       <div className="relative">
         <div
           className={`
             prose prose-xs max-w-none text-main-maroon 
-            [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-4 [&>ul]:mb-4 
-            [&>h3]:font-medium [&>h3]:text-base [&>h3]:mb-2
+            [&>p]:mb-2 [&>ul]:list-disc [&>ul]:pl-4 [&>ul]:mb-2 
+            [&>h3]:font-medium [&>h3]:text-base [&>h3]:mb-1.5
             ${isPending ? 'opacity-70' : ''}
           `}
           dangerouslySetInnerHTML={{ __html: processedContent }}
@@ -276,8 +276,8 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
         ref={detailsRef}
         className="w-full md:w-1/2 min-h-screen md:max-h-screen bg-secondary-peach text-main-maroon scrollbar-thin scrollbar-thumb-main-maroon scrollbar-track-secondary-peach flex items-center"
       >
-        <div className="w-full h-full px-4 sm:px-6 md:px-32 overflow-y-auto">
-          <div className="max-w-xl mx-auto space-y-6 md:space-y-8 min-h-screen flex flex-col justify-center py-8 md:py-20">
+        <div className="w-full h-full px-4 sm:px-6 md:px-24 overflow-y-auto">
+          <div className="max-w-xl mx-auto space-y-4 md:space-y-6 min-h-screen flex flex-col justify-center py-6 md:py-16">
             {/* Header Section */}
             <div className="flex justify-between items-start">
               <div>
@@ -302,7 +302,7 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
             </div>
 
             {/* Price Section */}
-            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+            <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
               <p className={`text-3xl font-bold ${!isAvailable ? "opacity-70" : ""}`}>
                 {formattedPrice}
               </p>
@@ -336,7 +336,7 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
             <ProductDescription description={product.descriptionHtml} />
 
             {/* Product Care Link */}
-            <div className="border-t border-main-maroon/20 pt-8">
+            <div className="border-t border-main-maroon/20 pt-6">
               <a 
                 href="/product-care" 
                 className="inline-flex items-center text-main-maroon hover:opacity-70 transition-opacity text-sm font-medium"

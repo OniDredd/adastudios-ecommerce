@@ -1,4 +1,4 @@
-import { useCallback, useState, useTransition } from 'react';
+import { useCallback, useState, useTransition, useEffect } from 'react';
 import { SimpleProduct } from '../lib/shopify';
 
 export type FilterState = {
@@ -9,7 +9,7 @@ export type FilterState = {
 
 export const useProductFilters = (initialProducts: SimpleProduct[]) => {
   const [isPending, startTransition] = useTransition();
-  const [filteredProducts, setFilteredProducts] = useState<SimpleProduct[]>(initialProducts);
+  const [filteredProducts, setFilteredProducts] = useState<SimpleProduct[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchLoading, setSearchLoading] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
@@ -62,6 +62,24 @@ export const useProductFilters = (initialProducts: SimpleProduct[]) => {
     return filtered;
   }, []);
 
+  // Update filtered products when initial products or filters change
+  useEffect(() => {
+    if (initialProducts.length > 0) {
+      startTransition(() => {
+        let filtered = [...initialProducts];
+        
+        if (searchTerm) {
+          filtered = filtered.filter(product =>
+            product.title.toLowerCase().includes(searchTerm.toLowerCase().trim())
+          );
+        }
+        
+        filtered = applyFilters(filtered, filters);
+        setFilteredProducts(filtered);
+      });
+    }
+  }, [initialProducts, filters, searchTerm, applyFilters]);
+
   const handleSearch = useCallback((value: string) => {
     setSearchTerm(value);
     setSearchLoading(true);
@@ -77,29 +95,14 @@ export const useProductFilters = (initialProducts: SimpleProduct[]) => {
       }
 
       filtered = applyFilters(filtered, filters);
-
       setFilteredProducts(filtered);
       setSearchLoading(false);
     });
   }, [applyFilters, filters, initialProducts]);
 
   const updateFilters = useCallback((newFilters: Partial<FilterState>) => {
-    startTransition(() => {
-      const updatedFilters = { ...filters, ...newFilters };
-      setFilters(updatedFilters);
-      
-      let filtered = [...initialProducts];
-      
-      if (searchTerm) {
-        filtered = filtered.filter(product =>
-          product.title.toLowerCase().includes(searchTerm.toLowerCase().trim())
-        );
-      }
-      
-      filtered = applyFilters(filtered, updatedFilters);
-      setFilteredProducts(filtered);
-    });
-  }, [applyFilters, filters, initialProducts, searchTerm]);
+    setFilters(prev => ({ ...prev, ...newFilters }));
+  }, []);
 
   return {
     filters,
