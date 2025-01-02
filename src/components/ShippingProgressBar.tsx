@@ -27,7 +27,7 @@ export default function ShippingProgressBar({ subtotal, freeShippingThreshold }:
             <span className="font-medium">${remaining.toFixed(2)}</span> away from free shipping
           </p>
         ) : (
-          <p className="font-medium">You've qualified for free shipping!</p>
+          <p className="font-medium">You&apos;ve qualified for free shipping!</p>
         )}
       </div>
     </div>
