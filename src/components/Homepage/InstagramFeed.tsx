@@ -137,8 +137,8 @@ const InstagramFeedContent = ({ config }: { config: GridConfig }) => {
   });
 
   return (
-    <div className="w-full py-10 overflow-hidden">
-      <div className="w-full px-8 max-w-[2000px] mx-auto">
+    <div className="w-full overflow-hidden">
+      <div className="w-full px-4">
         <h2 className="text-xl font-medium text-main-maroon">
           FOLLOW US ON INSTAGRAM
         </h2>
