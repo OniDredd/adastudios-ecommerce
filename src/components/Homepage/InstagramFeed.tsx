@@ -137,29 +137,31 @@ const InstagramFeedContent = ({ config }: { config: GridConfig }) => {
   });
 
   return (
-    <div className="w-full overflow-hidden py-20">
-      <div className="flex justify-between items-center mb-6 px-4 md:px-6">
+    <div className="w-full py-10">
+      <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-medium text-main-maroon">
           FOLLOW US ON INSTAGRAM
         </h2>
       </div>
       
-      <div className="instagram-grid">
-        {gridPosts.map((post, index) => (
-          post ? (
-            <a
-              key={`${post.id}-${index}`}
-              href={post.permalink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="cursor-pointer transition-opacity hover:opacity-90"
-            >
-              <InstagramPost post={post} />
-            </a>
-          ) : (
-            <ImagePlaceholder key={`placeholder-${index}`} />
-          )
-        ))}
+      <div className="instagram-grid-container">
+        <div className="instagram-grid">
+          {gridPosts.map((post, index) => (
+            post ? (
+              <a
+                key={`${post.id}-${index}`}
+                href={post.permalink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cursor-pointer transition-opacity hover:opacity-90"
+              >
+                <InstagramPost post={post} />
+              </a>
+            ) : (
+              <ImagePlaceholder key={`placeholder-${index}`} />
+            )
+          ))}
+        </div>
       </div>
     </div>
   );

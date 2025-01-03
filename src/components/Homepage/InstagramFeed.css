@@ -3,11 +3,35 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(2, 1fr);
-  gap: 0.5rem;
+  gap: 1rem;
   width: 100%;
   margin: 0;
-  padding: 0;
+  padding: 0 1rem;
+  overflow: hidden;
+  height: auto;
+}
+
+.instagram-grid-container {
+  width: 100%;
+  max-height: 800px;
   overflow-y: auto;
+  scrollbar-gutter: stable;
+  padding-right: 15px;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  scrollbar-width: thin;
+}
+
+.instagram-grid-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.instagram-grid-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.instagram-grid-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
 }
 
 /* Post Container */
