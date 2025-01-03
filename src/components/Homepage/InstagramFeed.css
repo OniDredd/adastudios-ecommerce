@@ -13,7 +13,7 @@
 }
 
 .instagram-grid-container {
-  width: 100%;
+  width: 100vw;
   max-height: 800px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -21,6 +21,12 @@
   -ms-overflow-style: -ms-autohiding-scrollbar;
   scrollbar-width: thin;
   box-sizing: border-box;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  position: relative;
+  left: 50%;
+  right: 50%;
+  transform: translateX(-50%);
 }
 
 .instagram-grid-container::-webkit-scrollbar {
@@ -135,6 +141,7 @@
   .instagram-grid {
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(4, 1fr);
+    padding: 0 1.5rem;
   }
 }
 
@@ -142,6 +149,7 @@
   .instagram-grid {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(5, 1fr);
+    padding: 0 1rem;
   }
 }
 
