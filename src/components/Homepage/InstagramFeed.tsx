@@ -137,7 +137,7 @@ const InstagramFeedContent = ({ config }: { config: GridConfig }) => {
   });
 
   return (
-    <div className="w-full py-10">
+    <div className="w-full py-10 overflow-hidden">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-medium text-main-maroon">
           FOLLOW US ON INSTAGRAM
@@ -168,7 +168,7 @@ const InstagramFeedContent = ({ config }: { config: GridConfig }) => {
 };
 
 const InstagramFeed = ({ config }: { config: GridConfig }) => (
-  <div className="w-full">
+  <div className="w-full overflow-hidden">
     <InstagramErrorBoundary>
       <InstagramFeedContent config={config} />
     </InstagramErrorBoundary>
