@@ -13,32 +13,15 @@
 }
 
 .instagram-grid-container {
-  width: 100vw;
-  max-height: 800px;
+  width: 100%;
+  max-height: auto;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-gutter: stable;
   -ms-overflow-style: -ms-autohiding-scrollbar;
-  scrollbar-width: thin;
-  box-sizing: border-box;
   position: relative;
-  left: 50%;
-  transform: translateX(-50%);
   margin: 0;
   padding: 0;
-}
-
-.instagram-grid-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.instagram-grid-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.instagram-grid-container::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
 }
 
 /* Post Container */
