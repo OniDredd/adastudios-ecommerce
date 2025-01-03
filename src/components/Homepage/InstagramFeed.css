@@ -3,19 +3,18 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(2, 1fr);
-  gap: 0;
+  gap: 2px;
   width: 100%;
   margin: 0;
   padding: 0;
   overflow: hidden;
   height: auto;
-  box-sizing: border-box;
 }
 
 .instagram-grid-container {
   width: 100%;
   max-height: auto;
-  overflow-y: auto;
+  overflow-y: hidden;
   overflow-x: hidden;
   scrollbar-gutter: stable;
   -ms-overflow-style: -ms-autohiding-scrollbar;
@@ -60,7 +59,6 @@
   justify-content: center;
   opacity: 0;
   transition: opacity 0.3s ease;
-  padding: 1rem;
 }
 
 .instagram-post:hover .post-overlay {
