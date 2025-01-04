@@ -126,9 +126,7 @@ export default function ExclusiveMatcha({ products: allProducts }: ExclusiveMatc
           <div className="w-full max-w-[480px] px-8 md:px-12 mx-auto">
             <div className="flex flex-col items-center">
               <div className="text-base md:text-xl font-medium mb-1 md:mb-2 text-center text-secondary-peach">EXCLUSIVE MATCHA</div>
-              <div className="text-xs md:text-sm mb-8 text-center text-secondary-peach/90">
-                {currentSlide + 1} OF {products.length}
-              </div>
+              <div className="mb-8"></div>
 
               {/* Product Display */}
               <div className="w-full max-w-[260px] md:max-w-[280px]">

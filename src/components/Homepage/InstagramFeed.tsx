@@ -138,13 +138,10 @@ const InstagramFeedContent = ({ config }: { config: GridConfig }) => {
 
   return (
     <div className="w-full overflow-hidden">
-      <div className="w-full px-4">
-        <h2 className="text-xl font-medium text-main-maroon">
+      <div className="instagram-grid-container">
+        <h2 className="text-2xl font-medium text-main-maroon mb-4">
           FOLLOW US ON INSTAGRAM
         </h2>
-      </div>
-      
-      <div className="instagram-grid-container">
         <div className="instagram-grid">
           {gridPosts.map((post, index) => (
             post ? (
@@ -168,11 +165,11 @@ const InstagramFeedContent = ({ config }: { config: GridConfig }) => {
 };
 
 const InstagramFeed = ({ config }: { config: GridConfig }) => (
-  <div className="w-full overflow-hidden">
+  <section className="w-full py-8 md:py-12">
     <InstagramErrorBoundary>
       <InstagramFeedContent config={config} />
     </InstagramErrorBoundary>
-  </div>
+  </section>
 );
 
 export default InstagramFeed;

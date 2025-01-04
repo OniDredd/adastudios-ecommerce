@@ -82,6 +82,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setCart(currentCart => {
         const existingItem = currentCart.find(cartItem => cartItem.id === item.id);
         
+        // Remove " - Default Title" from the item title if it exists
+        const cleanedTitle = item.title.replace(/ - Default Title$/, '');
+        const itemWithCleanTitle = { ...item, title: cleanedTitle };
+        
         if (existingItem) {
           // Update existing item with new line ID and increment quantity
           return currentCart.map(cartItem =>
@@ -91,8 +95,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
           );
         }
 
-        // Add new item with line ID
-        return [...currentCart, { ...item, lineId: lastLine.id, quantity: 1 }];
+        // Add new item with line ID and cleaned title
+        return [...currentCart, { ...itemWithCleanTitle, lineId: lastLine.id, quantity: 1 }];
       });
       openCart();
     } catch (error) {

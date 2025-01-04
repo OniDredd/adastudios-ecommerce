@@ -114,18 +114,40 @@ function ProductDescription({ description }: { description: string }) {
 
 export default function ProductDetails({ product, collection }: ProductDetailsProps) {
   const [isPending, startTransition] = useTransition();
-  const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>({});
+  const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>(() => {
+    // Initialize with first variant's options
+    const firstVariant = product.variants.edges[0]?.node;
+    if (!firstVariant) return {};
+    return firstVariant.selectedOptions.reduce((acc, option) => ({
+      ...acc,
+      [option.name]: option.value
+    }), {});
+  });
   const [selectedMediaIndex, setSelectedMediaIndex] = useState<number>(0);
-  const [shareError, setShareError] = useState<string | null>(null);
+  const [shareStatus, setShareStatus] = useState<{
+    message: string;
+    type: 'success' | 'error' | null;
+    visible: boolean;
+  }>({ message: '', type: null, visible: false });
   const detailsRef = useRef<HTMLDivElement>(null);
   const { convertPrice } = useCurrency();
 
   // Get the first variant's availability status and pricing
-  const firstVariant = product.variants.edges[0]?.node;
-  const isAvailable = firstVariant ? firstVariant.availableForSale : product.availableForSale;
-  const price = parseFloat(product.priceRange.minVariantPrice.amount);
-  const compareAtPrice = firstVariant?.compareAtPriceV2
-    ? parseFloat(firstVariant.compareAtPriceV2.amount)
+  // Find the selected variant based on selected options
+  const selectedVariant = useMemo(() => {
+    return product.variants.edges.find(({ node }) => {
+      return node.selectedOptions.every(
+        option => selectedOptions[option.name] === option.value
+      );
+    })?.node || product.variants.edges[0]?.node;
+  }, [product.variants.edges, selectedOptions]);
+
+  const isAvailable = selectedVariant ? selectedVariant.availableForSale : product.availableForSale;
+  const price = selectedVariant 
+    ? parseFloat(selectedVariant.priceV2.amount)
+    : parseFloat(product.priceRange.minVariantPrice.amount);
+  const compareAtPrice = selectedVariant?.compareAtPriceV2
+    ? parseFloat(selectedVariant.compareAtPriceV2.amount)
     : null;
   const isDiscounted = compareAtPrice && compareAtPrice > price;
   const discountPercentage = isDiscounted
@@ -133,21 +155,45 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
     : 0;
 
   const handleShare = useCallback(async () => {
-    try {
-      setShareError(null);
-      if (navigator.share) {
-        await navigator.share({
-          title: product.title,
-          text: `Check out ${product.title} on Ada Studios`,
-          url: window.location.href
-        });
-      } else {
+    setShareStatus({ message: '', type: null, visible: false });
+    
+    const shareData = {
+      title: product.title,
+      text: `Check out ${product.title} on Ada Studios`,
+      url: window.location.href
+    };
+
+    // Check if Web Share API is available and can share this data
+    if (typeof navigator.share === 'function' && 
+        typeof navigator.canShare === 'function' && 
+        navigator.canShare(shareData)) {
+      // Use Web Share API
+      navigator.share(shareData).catch(() => {
+        // Ignore any errors from share dialog (including cancellation)
+      });
+    } else {
+      // Fallback to clipboard
+      try {
         await navigator.clipboard.writeText(window.location.href);
-        alert('Link copied to clipboard!');
+        setShareStatus({
+          message: 'Link copied to clipboard!',
+          type: 'success',
+          visible: true
+        });
+        setTimeout(() => {
+          setShareStatus(prev => ({ ...prev, visible: false }));
+        }, 3000);
+      } catch (error) {
+        console.error('Error copying to clipboard:', error);
+        setShareStatus({
+          message: 'Failed to copy link',
+          type: 'error',
+          visible: true
+        });
+        setTimeout(() => {
+          setShareStatus(prev => ({ ...prev, visible: false }));
+        }, 3000);
       }
-    } catch (error) {
-      console.error('Error sharing:', error);
-      setShareError('Failed to share product');
     }
   }, [product.title]);
 
@@ -294,9 +340,23 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
                   disabled={isPending}
                 >
                   <Share2 className="w-5 h-5" />
-                  <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-main-maroon text-secondary-peach text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity">
-                    {shareError || 'Share product'}
-                  </span>
+                  <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
+                    {/* Hover tooltip */}
+                    <span className="bg-main-maroon text-secondary-peach text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity">
+                      Share product
+                    </span>
+                    {/* Status message */}
+                    {shareStatus.visible && (
+                      <span className={`
+                        absolute left-1/2 -translate-x-1/2 -bottom-8
+                        text-xs px-2 py-1 rounded whitespace-nowrap
+                        ${shareStatus.type === 'success' ? 'bg-green-600 text-white' : ''}
+                        ${shareStatus.type === 'error' ? 'bg-red-600 text-white' : ''}
+                      `}>
+                        {shareStatus.message}
+                      </span>
+                    )}
+                  </div>
                 </button>
               </div>
             </div>
@@ -352,10 +412,10 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
                 <AddToCartButton
                   product={{
                     id: product.id,
-                    variantId: firstVariant.id,
-                    title: product.title,
-                    price: parseFloat(firstVariant.priceV2.amount),
-                    image: cartThumbnail,
+                    variantId: selectedVariant.id,
+                    title: selectedVariant.title === "Default Title" ? product.title : `${product.title} - ${selectedVariant.title}`,
+                    price: parseFloat(selectedVariant.priceV2.amount),
+                    image: selectedVariant.image?.originalSrc || cartThumbnail,
                   }}
                 />
                 

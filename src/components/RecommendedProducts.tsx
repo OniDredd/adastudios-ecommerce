@@ -29,7 +29,7 @@ export function RecommendedProducts({ products, currentProductId }: RecommendedP
             YOU MAY ALSO LIKE
           </h2>
           <Link
-            href="/shopall"
+            href="/shop"
             className="text-sm text-main-maroon border border-transparent hover:border-main-maroon rounded px-2 py-1 transition-colors"
           >
             VIEW ALL

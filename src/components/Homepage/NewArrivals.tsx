@@ -28,7 +28,7 @@ export default function NewArrivals({ products }: NewArrivalsProps) {
           </h2>
           <Link
             href="/shop"
-            className="text-sm text-main-maroon hover:underline"
+            className="text-sm text-main-maroon border border-transparent hover:border-main-maroon rounded px-2 py-1 transition-colors"
           >
             VIEW ALL
           </Link>
