@@ -3,13 +3,13 @@ import React from 'react';
 export default function Sustainability() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
-      <h1 className="text-3xl sm:text-4xl text-[hsl(var(--main-maroon))] mb-6 sm:mb-8 uppercase font-bold text-center sm:text-left">
+      <h1 className="text-xl text-[hsl(var(--main-maroon))] mb-6 sm:mb-8 uppercase font-medium text-center sm:text-left">
         Our Commitment to Sustainability
       </h1>
       
       <div className="space-y-8 sm:space-y-12 text-[hsl(var(--main-maroon))]">
         <section>
-          <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
             Sustainable Materials
           </h2>
           <div className="space-y-4">
@@ -20,7 +20,7 @@ export default function Sustainability() {
         </section>
 
         <section>
-          <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
             Eco-Friendly Packaging
           </h2>
           <div className="space-y-4">
@@ -31,7 +31,7 @@ export default function Sustainability() {
         </section>
 
         <section>
-          <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
             Responsible Manufacturing
           </h2>
           <div className="space-y-4">
@@ -42,7 +42,7 @@ export default function Sustainability() {
         </section>
 
         <section>
-          <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
             Carbon Footprint Reduction
           </h2>
           <div className="space-y-4">
@@ -59,7 +59,7 @@ export default function Sustainability() {
         </section>
 
         <section>
-          <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
             Product Longevity
           </h2>
           <div className="space-y-4">
@@ -70,7 +70,7 @@ export default function Sustainability() {
         </section>
 
         <section>
-          <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
             Future Goals
           </h2>
           <div className="space-y-4">

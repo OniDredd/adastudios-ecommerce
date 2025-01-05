@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Cart() {
-  const { isCartOpen, closeCart, cart, removeFromCart, updateQuantity } = useCart();
+  const { isCartOpen, closeCart, cart, removeFromCart, updateQuantity, isItemLoading, error } = useCart();
   const { convertPrice } = useCurrency();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -87,6 +87,12 @@ export default function Cart() {
                 <FaTimes size={20} />
               </button>
             </div>
+            {error && (
+              <div className="mt-2 text-sm text-red-600 bg-red-50 px-3 py-1.5 rounded-md flex items-center gap-2">
+                <FaTimes className="w-4 h-4 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
           </div>
 
           {/* Cart Items */}
@@ -114,12 +120,12 @@ export default function Cart() {
               ) : (
                 <div className="grid grid-cols-1 gap-1 w-full self-start">
                   <AnimatePresence mode="popLayout">
-                  {cart.map((item) => (
+                  {cart.map((item, index) => (
                   <motion.div 
-                    key={item.id}
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 20 }}
+                    key={`${item.variantId}-${index}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
                     className="w-full px-2 py-1.5 bg-white rounded-lg border border-gray-200 hover:border-main-maroon/50 transition-all duration-200"
                     layout
                   >
@@ -143,28 +149,35 @@ export default function Cart() {
                         <div className="mt-2.5 flex justify-between items-center">
                           <div className="flex items-center">
                             <button 
-                              onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1))}
-                              className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-l-md border border-gray-200 hover:bg-secondary-peach active:bg-secondary-peach/80 transition-all duration-200 hover:border-main-maroon/30"
+                              onClick={() => updateQuantity(item.variantId, Math.max(0, item.quantity - 1))}
+                              disabled={isItemLoading(item.variantId)}
+                              className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-l-md border border-gray-200 hover:bg-secondary-peach active:bg-secondary-peach/80 transition-all duration-200 hover:border-main-maroon/30 disabled:opacity-50 disabled:cursor-not-allowed"
                               aria-label="Decrease quantity"
                             >
                               <span className="text-main-maroon font-medium">−</span>
                             </button>
                             <span className="w-7 sm:w-8 h-6 sm:h-7 flex items-center justify-center border-y border-gray-200 bg-white text-main-maroon font-medium text-xs">
-                              {item.quantity}
+                              {isItemLoading(item.variantId) ? (
+                                <div className="w-3 h-3 border-2 border-main-maroon border-t-transparent rounded-full animate-spin" />
+                              ) : (
+                                item.quantity
+                              )}
                             </span>
                             <button 
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-r-md border border-gray-200 hover:bg-secondary-peach active:bg-secondary-peach/80 transition-all duration-200 hover:border-main-maroon/30"
+                              onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
+                              disabled={isItemLoading(item.variantId)}
+                              className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-r-md border border-gray-200 hover:bg-secondary-peach active:bg-secondary-peach/80 transition-all duration-200 hover:border-main-maroon/30 disabled:opacity-50 disabled:cursor-not-allowed"
                               aria-label="Increase quantity"
                             >
                               <span className="text-main-maroon font-medium">+</span>
                             </button>
                           </div>
                           <button 
-                            onClick={() => removeFromCart(item.id)}
-                            className="text-xs text-main-maroon/70 hover:text-main-maroon hover:underline transition-colors duration-200"
+                            onClick={() => removeFromCart(item.variantId)}
+                            disabled={isItemLoading(item.variantId)}
+                            className="text-xs text-main-maroon/70 hover:text-main-maroon hover:underline transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
                           >
-                            Remove
+                            {isItemLoading(item.variantId) ? 'Removing...' : 'Remove'}
                           </button>
                         </div>
                       </div>
@@ -206,7 +219,7 @@ export default function Cart() {
 
                 <button 
                   onClick={handleCheckout}
-                  disabled={isCheckingOut}
+                  disabled={isCheckingOut || cart.some(item => isItemLoading(item.variantId))}
                   className="w-full bg-main-maroon text-white py-3 rounded-lg font-medium text-sm hover:opacity-90 active:scale-[0.99] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isCheckingOut ? 'Processing...' : 'Proceed to Checkout'}

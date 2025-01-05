@@ -73,7 +73,7 @@ export default function ExclusiveMatcha({ products: allProducts }: ExclusiveMatc
     <section className="w-full h-auto md:h-[600px] flex flex-col md:flex-row border-y-[1px] border-main-maroon">
       {/* Left Side - Video (hidden on mobile) */}
       {!isMobile && (
-        <div ref={videoContainerRef} className="hidden md:block md:w-1/2 relative overflow-hidden bg-main-maroon aspect-video md:aspect-auto md:h-full">
+        <div ref={videoContainerRef} className="hidden md:block md:w-1/2 relative overflow-hidden bg-secondary-peach aspect-video md:aspect-auto md:h-full">
           {isVideoVisible && (
             <video 
               ref={videoRef}
@@ -90,23 +90,35 @@ export default function ExclusiveMatcha({ products: allProducts }: ExclusiveMatc
               <source src="/MatchaVideo.webm" type="video/webm" />
               <source src="/MatchaVideo.mp4" type="video/mp4" />
               {/* Fallback for when video fails to load */}
-              <Image
-                src={products[0]?.imageUrl || "/placeholder.jpg"}
-                alt="Matcha Video Fallback"
-                fill
-                className="object-cover"
-                priority={false}
-              />
+              <div className="absolute inset-0 bg-secondary-peach">
+                <Image
+                  src={products[0]?.imageUrl || "/placeholder.jpg"}
+                  alt="Matcha Video Fallback"
+                  fill
+                  className="object-cover"
+                  priority={false}
+                  quality={85}
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVigAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVigAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkLzYvLy02LjY2OjY2Njo2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Njb/2wBDARUXFyAeIB4gHh4gIB4lICAgICUmJSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              </div>
             </video>
           )}
           {(!isVideoVisible || !isVideoLoaded) && (
-            <Image
-              src={products[0]?.imageUrl || "/placeholder.jpg"}
-              alt="Matcha Preview"
-              fill
-              className="object-cover"
-              priority
-            />
+            <div className="absolute inset-0 bg-secondary-peach">
+              <Image
+                src={products[0]?.imageUrl || "/placeholder.jpg"}
+                alt="Matcha Preview"
+                fill
+                className="object-cover"
+                priority
+                quality={85}
+                placeholder="blur"
+                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVigAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVigAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkLzYvLy02LjY2OjY2Njo2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Njb/2wBDARUXFyAeIB4gHh4gIB4lICAgICUmJSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
           )}
         </div>
       )}
@@ -131,8 +143,8 @@ export default function ExclusiveMatcha({ products: allProducts }: ExclusiveMatc
               {/* Product Display */}
               <div className="w-full max-w-[260px] md:max-w-[280px]">
                 <Link href={`/product/${products[currentSlide].handle}`}>
-                  <div className="bg-main-maroon p-3 md:p-4 rounded-lg relative aspect-[3/4] overflow-hidden group cursor-pointer border border-transparent hover:border-secondary-peach transition-colors">
-                    {/* Hidden preload container */}
+                  <div className="bg-secondary-peach p-3 md:p-4 rounded-lg relative aspect-[3/4] overflow-hidden group cursor-pointer border border-transparent hover:border-secondary-peach transition-colors">
+                    {/* Hidden preload container - optimized */}
                     <div className="hidden">
                       {products.map((product) => (
                         <Image
@@ -141,7 +153,8 @@ export default function ExclusiveMatcha({ products: allProducts }: ExclusiveMatc
                           alt="preload"
                           width={1}
                           height={1}
-                          priority
+                          priority={false}
+                          quality={85}
                         />
                       ))}
                     </div>
@@ -155,15 +168,18 @@ export default function ExclusiveMatcha({ products: allProducts }: ExclusiveMatc
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.5 }}
-                            className="absolute inset-0"
+                            className="absolute inset-0 bg-secondary-peach"
                           >
                             <Image
                               src={product.imageUrl}
                               alt={product.name}
                               fill
                               className="object-cover rounded transition-transform duration-300 group-hover:scale-105"
-                              sizes="(max-width: 768px) 80vw, 40vw"
-                              priority
+                              sizes="(max-width: 768px) 260px, 280px"
+                              priority={index === 0}
+                              quality={85}
+                              placeholder="blur"
+                              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVigAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVigAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkLzYvLy02LjY2OjY2Njo2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Njb/2wBDARUXFyAeIB4gHh4gIB4lICAgICUmJSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
                             />
                             {/* Out of Stock Overlay */}
                             {!product.availableForSale && (
@@ -180,8 +196,8 @@ export default function ExclusiveMatcha({ products: allProducts }: ExclusiveMatc
 
                     {/* Loading state */}
                     {isLoading && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                        <div className="w-8 h-8 border-4 border-main-maroon border-t-transparent rounded-full animate-spin"></div>
+                      <div className="absolute inset-0 flex items-center justify-center bg-secondary-peach">
+                        <div className="w-8 h-8 border-2 border-main-maroon border-t-transparent rounded-full animate-spin"></div>
                       </div>
                     )}
                   </div>

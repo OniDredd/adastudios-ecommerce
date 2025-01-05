@@ -11,6 +11,13 @@ export interface IncomingProduct {
   availableForSale?: boolean;
   quantityAvailable?: number;
   tags?: string[];
+  variants?: {
+    edges: Array<{
+      node: {
+        quantityAvailable: number;
+      };
+    }>;
+  };
   images?: Array<{
     file: {
       url: string;
@@ -36,7 +43,8 @@ export const transformIncomingProduct = (product: IncomingProduct): SimpleProduc
   compareAtPrice: product.compareAtPrice,
   vendor: "Ada Studios", // Always set a default vendor
   availableForSale: product.availableForSale ?? true,
-  quantityAvailable: product.quantityAvailable ?? 0,
+  quantityAvailable: product.variants?.edges?.reduce((total: number, edge) => 
+    total + (edge.node.quantityAvailable || 0), 0) ?? product.quantityAvailable ?? 0,
   tags: product.tags || [],
   media: {
     edges: (product.images || []).map((image) => ({

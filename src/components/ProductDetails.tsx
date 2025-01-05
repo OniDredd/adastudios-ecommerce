@@ -6,7 +6,8 @@ import { OptionSelector } from './OptionSelector';
 import { ShopifyProduct } from '../lib/shopify';
 import AddToCartButton from './AddToCartButton';
 import { useCurrency } from './CurrencyProvider';
-import { Share2, ChevronDown, ChevronUp } from 'lucide-react';
+import { useCart } from './CartProvider';
+import { Share2, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
 
 interface SelectedOptions {
   [key: string]: string;
@@ -26,46 +27,44 @@ function ProductDescription({ description }: { description: string }) {
   const [isPending, startTransition] = useTransition();
   const [isExpanded, setIsExpanded] = useState(false);
   
-  const [plainText, setPlainText] = useState('');
-  const [processedContent, setProcessedContent] = useState(description);
-  
-  useEffect(() => {
-    // Only run in browser
-    if (typeof window === 'undefined') return;
-
-    const div = document.createElement('div');
-    div.innerHTML = description;
-    const text = div.textContent || div.innerText || '';
-    setPlainText(text);
-
-    if (text.length > CHAR_LIMIT && !isExpanded) {
-      div.innerHTML = description;
-      let currentLength = 0;
-      const walk = document.createTreeWalker(div, NodeFilter.SHOW_TEXT);
-      let node = walk.nextNode();
-      
-      while (node) {
-        const textLength = node.textContent?.length || 0;
-        if (currentLength + textLength > CHAR_LIMIT) {
-          const remainingLength = CHAR_LIMIT - currentLength;
-          node.textContent = node.textContent?.slice(0, remainingLength) + '...';
-          let next = walk.nextNode();
-          while (next) {
-            next.textContent = '';
-            next = walk.nextNode();
-          }
-          break;
-        }
-        currentLength += textLength;
-        node = walk.nextNode();
-      }
-      setProcessedContent(div.innerHTML);
-    } else {
-      setProcessedContent(description);
+  // Process description text using pure string manipulation
+  const { processedContent, shouldShowButton } = useMemo(() => {
+    // Extract text content using regex
+    const plainText = description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    
+    // If text is short enough or expanded, return full content
+    if (plainText.length <= CHAR_LIMIT || isExpanded) {
+      return {
+        processedContent: description,
+        shouldShowButton: plainText.length > CHAR_LIMIT
+      };
     }
-  }, [description, isExpanded]);
 
-  const shouldShowButton = plainText.length > CHAR_LIMIT;
+    // Find the last complete word within the limit
+    const truncateAt = plainText.lastIndexOf(' ', CHAR_LIMIT);
+    const truncatePoint = truncateAt > 0 ? truncateAt : CHAR_LIMIT;
+
+    // Create a regex that matches text nodes in HTML
+    const textNodeRegex = />([^<]+)</g;
+    let remainingChars = truncatePoint;
+    const truncatedHtml = description.replace(textNodeRegex, (match, text) => {
+      if (remainingChars <= 0) {
+        return '><';
+      }
+      if (text.length <= remainingChars) {
+        remainingChars -= text.length;
+        return match;
+      }
+      const truncated = text.slice(0, remainingChars) + '...';
+      remainingChars = 0;
+      return `>${truncated}<`;
+    });
+    
+    return {
+      processedContent: truncatedHtml,
+      shouldShowButton: true
+    };
+  }, [description, isExpanded]);
 
   const handleToggle = useCallback(() => {
     startTransition(() => {
@@ -113,7 +112,6 @@ function ProductDescription({ description }: { description: string }) {
 }
 
 export default function ProductDetails({ product, collection }: ProductDetailsProps) {
-  const [isPending, startTransition] = useTransition();
   const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>(() => {
     // Initialize with first variant's options
     const firstVariant = product.variants.edges[0]?.node;
@@ -123,7 +121,22 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
       [option.name]: option.value
     }), {});
   });
-  const [selectedMediaIndex, setSelectedMediaIndex] = useState<number>(0);
+  
+  const selectedMediaIndexRef = useRef(0);
+  const [, forceUpdate] = useState({});
+  
+  // Initialize media index
+  useEffect(() => {
+    const firstVariant = product.variants.edges[0]?.node;
+    if (firstVariant?.image?.originalSrc) {
+      const mediaIndex = product.media?.edges?.findIndex(
+        media => media.node.mediaContentType === 'IMAGE' && 
+                 media.node.image?.originalSrc === firstVariant.image.originalSrc
+      ) ?? -1;
+      selectedMediaIndexRef.current = mediaIndex !== -1 ? mediaIndex : 0;
+      forceUpdate({});
+    }
+  }, [product.variants.edges, product.media?.edges]);
   const [shareStatus, setShareStatus] = useState<{
     message: string;
     type: 'success' | 'error' | null;
@@ -131,16 +144,91 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
   }>({ message: '', type: null, visible: false });
   const detailsRef = useRef<HTMLDivElement>(null);
   const { convertPrice } = useCurrency();
+  const { error: cartError } = useCart();
 
-  // Get the first variant's availability status and pricing
-  // Find the selected variant based on selected options
-  const selectedVariant = useMemo(() => {
-    return product.variants.edges.find(({ node }) => {
+  // Find the selected variant and its corresponding media index
+  const { selectedVariant, selectedVariantMediaIndex } = useMemo(() => {
+    const variant = product.variants.edges.find(({ node }) => {
       return node.selectedOptions.every(
         option => selectedOptions[option.name] === option.value
       );
     })?.node || product.variants.edges[0]?.node;
-  }, [product.variants.edges, selectedOptions]);
+
+    // Find the media index for this variant's image
+    let mediaIndex = -1;
+    if (variant?.image?.originalSrc) {
+      const variantUrl = variant.image.originalSrc;
+      const variantUrlBase = variantUrl.split('?')[0];
+      const variantFilename = variantUrlBase.split('/').pop();
+      
+      // First try exact match in media edges
+      mediaIndex = product.media?.edges?.findIndex(
+        media => media.node.mediaContentType === 'IMAGE' && 
+                 media.node.image?.originalSrc === variantUrl
+      ) ?? -1;
+
+      // Then try matching without URL parameters
+      if (mediaIndex === -1) {
+        mediaIndex = product.media?.edges?.findIndex(
+          media => media.node.mediaContentType === 'IMAGE' && 
+                   media.node.image?.originalSrc.split('?')[0] === variantUrlBase
+        ) ?? -1;
+      }
+
+      // Then try matching just the filename
+      if (mediaIndex === -1 && variantFilename) {
+        mediaIndex = product.media?.edges?.findIndex(
+          media => media.node.mediaContentType === 'IMAGE' && 
+                   media.node.image?.originalSrc.split('/').pop()?.split('?')[0] === variantFilename
+        ) ?? -1;
+      }
+
+      // If still not found, try the same process with images array
+      if (mediaIndex === -1 && product.images?.edges) {
+        const imageIndex = product.images.edges.findIndex(edge => {
+          const imageUrl = edge.node.originalSrc;
+          const imageUrlBase = imageUrl.split('?')[0];
+          const imageFilename = imageUrlBase.split('/').pop();
+          
+          return imageUrl === variantUrl || 
+                 imageUrlBase === variantUrlBase || 
+                 imageFilename === variantFilename;
+        });
+        
+        if (imageIndex !== -1) {
+          const matchedImage = product.images.edges[imageIndex].node;
+          // Find this image in the media array
+          mediaIndex = product.media?.edges?.findIndex(
+            media => media.node.mediaContentType === 'IMAGE' && 
+                     media.node.image?.originalSrc === matchedImage.originalSrc
+          ) ?? -1;
+        }
+      }
+
+      console.log('Variant image lookup:', {
+        variant: variant.title,
+        variantUrl,
+        variantUrlBase,
+        variantFilename,
+        mediaIndex,
+        mediaUrls: product.media?.edges
+          ?.filter(media => media.node.mediaContentType === 'IMAGE')
+          .map(media => ({
+            full: media.node.image?.originalSrc,
+            base: media.node.image?.originalSrc.split('?')[0],
+            filename: media.node.image?.originalSrc.split('/').pop()?.split('?')[0]
+          })),
+        imageUrls: product.images?.edges
+          ?.map(edge => ({
+            full: edge.node.originalSrc,
+            base: edge.node.originalSrc.split('?')[0],
+            filename: edge.node.originalSrc.split('/').pop()?.split('?')[0]
+          }))
+      });
+    }
+
+    return { selectedVariant: variant, selectedVariantMediaIndex: mediaIndex };
+  }, [product.variants.edges, selectedOptions, product.media?.edges]);
 
   const isAvailable = selectedVariant ? selectedVariant.availableForSale : product.availableForSale;
   const price = selectedVariant 
@@ -202,39 +290,121 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
     product.variants.edges.forEach((variant) => {
       const variantImage = variant.node.image;
       if (variantImage?.originalSrc) {
-        // Find matching media by comparing image URLs
-        const mediaIndex = product.media?.edges?.findIndex(
+        const variantUrl = variantImage.originalSrc;
+        const variantUrlBase = variantUrl.split('?')[0];
+        const variantFilename = variantUrlBase.split('/').pop();
+        
+        // Try all matching strategies
+        let mediaIndex = -1;
+
+        // 1. Exact match
+        mediaIndex = product.media?.edges?.findIndex(
           media => media.node.mediaContentType === 'IMAGE' && 
-                   media.node.image?.originalSrc === variantImage.originalSrc
+                   media.node.image?.originalSrc === variantUrl
         ) ?? -1;
+
+        // 2. Match without URL parameters
+        if (mediaIndex === -1) {
+          mediaIndex = product.media?.edges?.findIndex(
+            media => media.node.mediaContentType === 'IMAGE' && 
+                     media.node.image?.originalSrc.split('?')[0] === variantUrlBase
+          ) ?? -1;
+        }
+
+        // 3. Match by filename
+        if (mediaIndex === -1 && variantFilename) {
+          mediaIndex = product.media?.edges?.findIndex(
+            media => {
+              if (media.node.mediaContentType !== 'IMAGE' || !media.node.image?.originalSrc) return false;
+              const mediaFilename = media.node.image.originalSrc.split('/').pop()?.split('?')[0];
+              // Remove any size suffixes (e.g., _100x, _medium, etc.) before comparing
+              const cleanVariantFilename = variantFilename.replace(/_(small|medium|large|[0-9]+x[0-9]*|[0-9]+x|x[0-9]+)(?=\.[a-zA-Z]+$)/g, '');
+              const cleanMediaFilename = mediaFilename?.replace(/_(small|medium|large|[0-9]+x[0-9]*|[0-9]+x|x[0-9]+)(?=\.[a-zA-Z]+$)/g, '');
+              return cleanMediaFilename === cleanVariantFilename;
+            }
+          ) ?? -1;
+        }
+
+        // 4. Try matching in images array as last resort
+        if (mediaIndex === -1 && product.images?.edges) {
+          const imageIndex = product.images.edges.findIndex(edge => {
+            const imageUrl = edge.node.originalSrc;
+            const imageUrlBase = imageUrl.split('?')[0];
+            const imageFilename = imageUrlBase.split('/').pop();
+            
+            // Try exact matches first
+            if (imageUrl === variantUrl || imageUrlBase === variantUrlBase) return true;
+            
+            // Then try filename match with size suffix removal
+            if (imageFilename && variantFilename) {
+              const cleanVariantFilename = variantFilename.replace(/_(small|medium|large|[0-9]+x[0-9]*|[0-9]+x|x[0-9]+)(?=\.[a-zA-Z]+$)/g, '');
+              const cleanImageFilename = imageFilename.replace(/_(small|medium|large|[0-9]+x[0-9]*|[0-9]+x|x[0-9]+)(?=\.[a-zA-Z]+$)/g, '');
+              return cleanImageFilename === cleanVariantFilename;
+            }
+            
+            return false;
+          });
+          
+          if (imageIndex !== -1) {
+            const matchedImage = product.images.edges[imageIndex].node;
+            mediaIndex = product.media?.edges?.findIndex(
+              media => media.node.mediaContentType === 'IMAGE' && 
+                       media.node.image?.originalSrc === matchedImage.originalSrc
+            ) ?? -1;
+          }
+        }
+
         if (mediaIndex !== -1) {
           const colorOption = variant.node.selectedOptions.find(
             opt => opt.name.toLowerCase().includes('color') || opt.name.toLowerCase().includes('colour')
           );
           if (colorOption) {
             map.set(colorOption.value, mediaIndex);
+            console.log('Color variant mapped:', {
+              color: colorOption.value,
+              mediaIndex,
+              variantTitle: variant.node.title
+            });
           }
         }
       }
     });
     return map;
-  }, [product.variants.edges, product.media?.edges]);
+  }, [product.variants.edges, product.media?.edges, product.images?.edges]);
 
+  // Handle variant changes and manual gallery navigation
+  const handleMediaChange = useCallback((index: number) => {
+    console.log('Manual gallery navigation:', index);
+    selectedMediaIndexRef.current = index;
+    forceUpdate({});
+  }, []);
+
+  // Update selected media index when variant changes
   useEffect(() => {
-    const colorOption = Object.entries(selectedOptions).find(
-      ([name]) => name.toLowerCase().includes('color') || name.toLowerCase().includes('colour')
-    );
+    let newIndex = -1;
     
-    if (colorOption) {
-      const [_, value] = colorOption;
-      const mediaIndex = variantMediaMap.get(value);
-      if (mediaIndex !== undefined) {
-        startTransition(() => {
-          setSelectedMediaIndex(mediaIndex);
-        });
+    if (selectedVariantMediaIndex !== -1) {
+      newIndex = selectedVariantMediaIndex;
+    } else {
+      // Fall back to color-based mapping if no variant image match found
+      const colorOption = Object.entries(selectedOptions).find(
+        ([name]) => name.toLowerCase().includes('color') || name.toLowerCase().includes('colour')
+      );
+      
+      if (colorOption) {
+        const [_, value] = colorOption;
+        const mediaIndex = variantMediaMap.get(value);
+        if (mediaIndex !== undefined) {
+          newIndex = mediaIndex;
+        }
       }
     }
-  }, [selectedOptions, variantMediaMap]);
+    
+    if (newIndex !== -1 && newIndex !== selectedMediaIndexRef.current) {
+      selectedMediaIndexRef.current = newIndex;
+      forceUpdate({});
+    }
+  }, [selectedOptions, variantMediaMap, selectedVariantMediaIndex]);
 
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
@@ -258,13 +428,29 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
     return () => window.removeEventListener('wheel', handleWheel);
   }, []);
 
-  const handleOptionSelect = useCallback((optionName: string, value: string) => {
-    startTransition(() => {
-      setSelectedOptions(prev => ({
-        ...prev,
-        [optionName]: value
-      }));
+  // Calculate which variants are out of stock for each option
+  const outOfStockOptions = useMemo(() => {
+    const outOfStock = new Map<string, Set<string>>();
+    
+    product.variants.edges.forEach(({ node: variant }) => {
+      if (!variant.availableForSale) {
+        variant.selectedOptions.forEach(option => {
+          if (!outOfStock.has(option.name)) {
+            outOfStock.set(option.name, new Set());
+          }
+          outOfStock.get(option.name)?.add(option.value);
+        });
+      }
     });
+    
+    return outOfStock;
+  }, [product.variants.edges]);
+
+  const handleOptionSelect = useCallback((optionName: string, value: string) => {
+    setSelectedOptions(prev => ({
+      ...prev,
+      [optionName]: value
+    }));
   }, []);
 
   const formattedPrice = convertPrice(price);
@@ -291,10 +477,7 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
   )?.node.image?.originalSrc || '';
 
   return (
-    <div className={`
-      flex flex-col md:flex-row h-full md:divide-x md:divide-[0.5px] divide-main-maroon
-      ${isPending ? 'opacity-70' : ''}
-    `}>
+    <div className="flex flex-col md:flex-row h-full md:divide-x md:divide-[0.5px] divide-main-maroon">
       <div className="w-full md:w-1/2 relative">
         <ProductGallery 
           media={product.media?.edges?.length > 0 
@@ -307,7 +490,8 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
               }))
           } 
           title={product.title}
-          selectedMediaIndex={selectedMediaIndex}
+          selectedMediaIndex={selectedMediaIndexRef.current}
+          onMediaChange={handleMediaChange}
         />
         {!isAvailable && (
           <div className="absolute inset-0 bg-gradient-to-t from-main-maroon to-transparent z-10 flex items-center justify-center">
@@ -337,7 +521,7 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
                   onClick={handleShare}
                   className="p-2 hover:opacity-70 relative group"
                   aria-label="Share product"
-                  disabled={isPending}
+                  disabled={false}
                 >
                   <Share2 className="w-5 h-5" />
                   <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
@@ -362,11 +546,12 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
             </div>
 
             {/* Price Section */}
-            <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
-              <p className={`text-3xl font-bold ${!isAvailable ? "opacity-70" : ""}`}>
-                {formattedPrice}
-              </p>
-              {isDiscounted && (
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
+                <p className={`text-3xl font-bold ${!isAvailable ? "opacity-70" : ""}`}>
+                  {formattedPrice}
+                </p>
+                {isDiscounted && (
                 <>
                   <p className="text-lg line-through opacity-60">
                     {formattedCompareAtPrice}
@@ -375,7 +560,30 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
                     {discountPercentage}% Off
                   </span>
                 </>
-              )}
+                )}
+              </div>
+              
+              {/* Stock Indicator */}
+              <div className="flex items-center gap-2">
+                <div className="text-sm font-medium text-main-maroon/70">Stock:</div>
+                {selectedVariant?.quantityAvailable > 0 ? (
+                  <div className="flex items-center gap-1.5">
+                    <div className={`w-2 h-2 rounded-full ${
+                      selectedVariant.quantityAvailable <= 5 
+                        ? 'bg-main-maroon/50' 
+                        : 'bg-main-maroon'
+                    }`} />
+                    <span className="text-sm font-medium text-main-maroon">
+                      {selectedVariant.quantityAvailable} {selectedVariant.quantityAvailable === 1 ? 'unit' : 'units'} available
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-main-maroon/30" />
+                    <span className="text-sm font-medium text-main-maroon/70">Out of Stock</span>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Variants Section */}
@@ -387,6 +595,7 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
                     option={option}
                     selectedValue={selectedOptions[option.name] || option.values[0]}
                     onSelect={(value) => handleOptionSelect(option.name, value)}
+                    disabledValues={Array.from(outOfStockOptions.get(option.name) || [])}
                   />
                 ))}
               </div>
@@ -409,6 +618,12 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
             {/* Add to Cart Button - Only show if in stock */}
             {isAvailable && (
               <div className="sticky bottom-0 left-0 right-0 bg-secondary-peach py-3 px-4 md:px-0 md:py-0 md:static mt-auto md:mt-0 z-40">
+                {cartError && (
+                  <div className="flex items-center gap-2 text-red-600 text-sm mb-2">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>{cartError}</span>
+                  </div>
+                )}
                 <AddToCartButton
                   product={{
                     id: product.id,
@@ -417,6 +632,7 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
                     price: parseFloat(selectedVariant.priceV2.amount),
                     image: selectedVariant.image?.originalSrc || cartThumbnail,
                   }}
+                  disabled={!selectedVariant.availableForSale}
                 />
                 
                 {price >= 1 && price <= 2000 && (

@@ -49,7 +49,8 @@ export function RecommendedProducts({ products, currentProductId }: RecommendedP
                   : undefined,
                 vendor: product.vendor,
                 availableForSale: product.availableForSale,
-                quantityAvailable: product.variants.edges[0]?.node.quantityAvailable || 0,
+                quantityAvailable: product.variants.edges.reduce((total, edge) => 
+                  total + (edge.node.quantityAvailable || 0), 0),
                 tags: product.tags,
                 media: {
                   edges: (product.media?.edges?.length ?? 0) > 0 

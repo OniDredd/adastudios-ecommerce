@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useTransition } from 'react';
+import React, { useCallback } from 'react';
 import { useCart } from './CartProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaShoppingCart, FaCheck, FaExclamationCircle } from 'react-icons/fa';
@@ -19,39 +19,53 @@ interface AddToCartButtonProps {
 }
 
 export default function AddToCartButton({ product, disabled = false }: AddToCartButtonProps) {
-  const { addToCart } = useCart();
-  const [isPending, startTransition] = useTransition();
-  const [status, setStatus] = React.useState<'idle' | 'added' | 'error'>('idle');
+  const { addToCart, error: cartError } = useCart();
+  const [status, setStatus] = React.useState<'idle' | 'added' | 'error' | 'out_of_stock'>('idle');
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState<string>('');
 
-  const handleAddToCart = useCallback(() => {
+  const handleAddToCart = useCallback(async () => {
     if (disabled) return;
     
-    startTransition(() => {
-      try {
-        addToCart({
-          id: product.id,
-          variantId: product.variantId,
-          title: product.title,
-          price: product.price,
-          image: product.image,
-        });
-        setStatus('added');
+    // Start loading animation immediately
+    setIsLoading(true);
+    setStatus('idle');
+
+    try {
+      // Start cart operation
+      const result = await addToCart({
+        id: product.id,
+        variantId: product.variantId,
+        title: product.title,
+        price: product.price,
+        image: product.image,
+      });
+      setIsLoading(false);
+      setStatus('added');
+      setTimeout(() => setStatus('idle'), 2000);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error adding to cart';
+      setIsLoading(false);
+      
+      // Handle out of stock items
+      if (message === 'out_of_stock') {
+        setStatus('out_of_stock');
+        setErrorMessage('Out of Stock');
         setTimeout(() => setStatus('idle'), 2000);
-      } catch (error) {
-        console.error('Error adding to cart:', error);
+      } else {
+        setErrorMessage(message);
         setStatus('error');
         setTimeout(() => setStatus('idle'), 2000);
       }
-    });
+    }
   }, [addToCart, disabled, product]);
 
   const buttonClasses = `
-    relative w-full px-1 py-2 
-    ${disabled 
-      ? 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300' 
-      : isPending
-        ? 'bg-secondary-peach/80 text-main-maroon/80 border-main-maroon/80 cursor-wait'
-        : 'bg-secondary-peach text-main-maroon border-main-maroon hover:bg-main-maroon hover:text-secondary-peach cursor-pointer'
+    relative w-full px-1 py-2 overflow-hidden
+    ${disabled
+      ? 'bg-main-maroon text-secondary-peach border-secondary-peach cursor-not-allowed' 
+      : 'bg-secondary-peach text-main-maroon border-main-maroon hover:bg-main-maroon hover:text-secondary-peach ' + 
+        ((isLoading || status !== 'idle') ? 'opacity-80 cursor-wait' : 'cursor-pointer')
     }
     border-[1px] rounded-full transition-colors duration-200 font-semibold 
     flex items-center justify-center
@@ -62,7 +76,7 @@ export default function AddToCartButton({ product, disabled = false }: AddToCart
     <button 
       onClick={handleAddToCart}
       className={`group ${buttonClasses}`}
-      disabled={disabled || isPending}
+      disabled={disabled}
       aria-label={disabled ? 'Out of Stock' : 'Add to Cart'}
     >
       <AnimatePresence mode="wait">
@@ -83,10 +97,10 @@ export default function AddToCartButton({ product, disabled = false }: AddToCart
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="flex items-center text-red-600"
+            className="flex items-center text-main-maroon group-hover:text-secondary-peach"
           >
             <FaExclamationCircle className="mr-2 h-4 w-4" />
-            Error
+            {errorMessage || 'Error'}
           </motion.span>
         ) : (
           <motion.span
@@ -96,11 +110,38 @@ export default function AddToCartButton({ product, disabled = false }: AddToCart
             exit={{ opacity: 0, y: -20 }}
             className="flex items-center"
           >
-            {isPending ? (
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-main-maroon border-t-transparent rounded-full animate-spin" />
+            {status === 'out_of_stock' ? (
+              <motion.span
+                key="out_of_stock"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="flex items-center text-main-maroon group-hover:text-secondary-peach"
+              >
+                <FaExclamationCircle className="mr-2 h-4 w-4" />
+                Out of Stock
+              </motion.span>
+            ) : isLoading ? (
+              <motion.div 
+                className="flex items-center gap-2 text-main-maroon group-hover:text-secondary-peach"
+                animate={{ opacity: [1, 0.5, 1] }}
+                transition={{ 
+                  duration: 0.8, 
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                <motion.div 
+                  className="w-4 h-4 border-2 border-current border-t-transparent rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{
+                    duration: 1,
+                    repeat: Infinity,
+                    ease: "linear"
+                  }}
+                />
                 Adding...
-              </div>
+              </motion.div>
             ) : (
               <>
                 <FaShoppingCart className="mr-2 h-4 w-4" />

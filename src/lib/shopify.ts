@@ -834,6 +834,98 @@ export async function getProducts({ limit = 250 }: { limit?: number } = {}): Pro
   return response.products.edges.map(edge => edge.node);
 }
 
+export async function updateCartLine(cartId: string, lineId: string, quantity: number): Promise<Cart> {
+  const mutation = `
+    mutation cartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+      cartLinesUpdate(cartId: $cartId, lines: $lines) {
+        cart {
+          id
+          checkoutUrl
+          totalQuantity
+          lines(first: 10) {
+            edges {
+              node {
+                id
+                quantity
+                merchandise {
+                  ... on ProductVariant {
+                    id
+                    title
+                    price {
+                      amount
+                      currencyCode
+                    }
+                    product {
+                      title
+                      handle
+                    }
+                  }
+                }
+              }
+            }
+          }
+          cost {
+            totalAmount {
+              amount
+              currencyCode
+            }
+            subtotalAmount {
+              amount
+              currencyCode
+            }
+          }
+        }
+        userErrors {
+          field
+          message
+          code
+        }
+      }
+    }
+  `;
+
+  try {
+    const variables = {
+      cartId,
+      lines: [{
+        id: lineId,
+        quantity: quantity
+      }]
+    };
+
+    const response = await shopifyFetch<{
+      cartLinesUpdate: {
+        cart: Cart;
+        userErrors: UserError[];
+      }
+    }>(mutation, variables);
+
+    if (response.cartLinesUpdate.userErrors.length > 0) {
+      const error = response.cartLinesUpdate.userErrors[0];
+      let errorMessage = 'Failed to update cart';
+      
+      switch (error.code as CartErrorCode) {
+        case 'INVALID_QUANTITY':
+          errorMessage = 'Invalid quantity selected';
+          break;
+        case 'INVENTORY_OUT_OF_STOCK':
+          errorMessage = 'Item is out of stock';
+          break;
+        default:
+          errorMessage = `Failed to update cart: ${error.message}`;
+      }
+      
+      throw new Error(errorMessage);
+    }
+    return response.cartLinesUpdate.cart;
+  } catch (error: any) {
+    if (error.message.includes('HTML response')) {
+      throw new Error('Unable to connect to checkout. Please check your internet connection and try again.');
+    }
+    throw error;
+  }
+}
+
 const shopifyClient = {
   getCollections,
   getProductsByCollection,
@@ -844,6 +936,7 @@ const shopifyClient = {
   createCart,
   addToCart,
   removeFromCart,
+  updateCartLine,
 };
 
 export default shopifyClient;

@@ -19,8 +19,8 @@ type GridConfig = {
 };
 
 const ImagePlaceholder = () => (
-  <div className="instagram-post bg-gray-100">
-    <div className="w-full h-full flex items-center justify-center text-gray-400">
+  <div className="instagram-post bg-secondary-peach">
+    <div className="w-full h-full flex items-center justify-center text-main-maroon">
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
@@ -29,15 +29,15 @@ const ImagePlaceholder = () => (
 );
 
 const LoadingSpinner = () => (
-  <div className="w-full h-64 flex items-center justify-center">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900" />
+  <div className="w-full h-64 flex items-center justify-center bg-secondary-peach">
+    <div className="w-12 h-12 border-2 border-main-maroon border-t-transparent rounded-full animate-spin" />
   </div>
 );
 
 const ErrorMessage = ({ message }: { message: string }) => (
-  <div className="w-full h-64 flex flex-col items-center justify-center text-red-500">
+  <div className="w-full h-64 flex flex-col items-center justify-center text-main-maroon bg-secondary-peach">
     <p className="mb-2">Error loading Instagram posts</p>
-    <p className="text-sm text-gray-500">{message}</p>
+    <p className="text-sm text-main-maroon/70">{message}</p>
   </div>
 );
 
@@ -56,9 +56,12 @@ const InstagramPost = ({ post }: { post: InstagramPost }) => {
           src={imageUrl}
           alt={caption || 'Instagram post'}
           className="post-media"
-          width={300}
-          height={300}
-          priority
+          width={600}
+          height={600}
+          quality={85}
+          placeholder="blur"
+          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVigAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVigAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkLzYvLy02LjY2OjY2Njo2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Njb/2wBDARUXFyAeIB4gHh4gIB4lICAgICUmJSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+          sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 20vw"
         />
         {post.media_type === 'CAROUSEL_ALBUM' && (
           <div className="media-indicator">
@@ -139,7 +142,7 @@ const InstagramFeedContent = ({ config }: { config: GridConfig }) => {
   return (
     <div className="w-full overflow-hidden">
       <div className="instagram-grid-container">
-        <h2 className="text-2xl font-medium text-main-maroon mb-4">
+        <h2 className="text-xl font-medium text-main-maroon mb-4">
           FOLLOW US ON INSTAGRAM
         </h2>
         <div className="instagram-grid">

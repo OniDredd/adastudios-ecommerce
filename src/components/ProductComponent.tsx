@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { SimpleProduct } from '../lib/shopify';
@@ -10,16 +10,17 @@ interface ProductComponentProps {
   product: SimpleProduct;
   isLoading?: boolean;
   textColor?: "main-maroon" | "secondary-peach";
+  isPriority?: boolean;
 }
 
 const LOW_STOCK_THRESHOLD = 5;
 
 const ProductSkeleton: React.FC = () => (
-  <div className="animate-pulse flex flex-col h-full rounded-lg">
-    <div className="aspect-[3/4] w-full bg-main-maroon/20 rounded-sm mb-2 sm:mb-3"></div>
+  <div className="flex flex-col h-full rounded-lg animate-pulse">
+    <div className="aspect-[3/4] w-full bg-secondary-peach rounded-sm mb-2 sm:mb-3"></div>
     <div className="mt-auto px-2 sm:px-3">
-      <div className="h-3 sm:h-4 bg-main-maroon/20 rounded w-3/4 mb-1 sm:mb-2"></div>
-      <div className="h-4 sm:h-5 bg-main-maroon/20 rounded w-1/4 mb-2 sm:mb-3"></div>
+      <div className="h-3 sm:h-4 bg-secondary-peach rounded w-3/4 mb-1 sm:mb-2"></div>
+      <div className="h-4 sm:h-5 bg-secondary-peach rounded w-1/4 mb-2 sm:mb-3"></div>
     </div>
   </div>
 );
@@ -28,12 +29,9 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
   product,
   isLoading = false,
   textColor = "main-maroon",
+  isPriority = false,
 }) => {
   const { convertPrice } = useCurrency();
-
-  if (isLoading) {
-    return <ProductSkeleton />;
-  }
 
   // Handle both media edges and direct images array
   const primaryImage = product.media?.edges?.find(
@@ -53,11 +51,24 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
     ? Math.round(((product.compareAtPrice! - product.price) / product.compareAtPrice!) * 100)
     : 0;
 
-  const ProductContent = () => (
-    <div
-      className={`cursor-${product.availableForSale ? 'pointer' : 'not-allowed'} flex-grow flex flex-col transition-all duration-200 ease-in-out`}
-    >
-      <div className="aspect-[3/4] w-full mb-2 sm:mb-3 relative rounded-sm overflow-hidden border border-transparent hover:border-main-maroon transition-colors">
+  const ProductContent: React.FC = () => {
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setIsMounted(true);
+      }, 100); // Small delay for smoother transition
+      
+      return () => clearTimeout(timer);
+    }, []);
+
+    return (
+      <div
+        className={`cursor-${product.availableForSale ? 'pointer' : 'not-allowed'} flex-grow flex flex-col transition-all duration-700 ease-in-out opacity-0 transform translate-y-4 ${
+          isMounted ? 'opacity-100 translate-y-0' : ''
+        }`}
+      >
+      <div className="aspect-[3/4] w-full mb-2 sm:mb-3 relative rounded-sm overflow-hidden border border-transparent hover:border-main-maroon transition-colors bg-secondary-peach">
         {/* Out of Stock Overlay and Badge */}
         {!product.availableForSale && (
           <>
@@ -92,11 +103,14 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
         <div className="absolute inset-0">
           <Image
             src={primaryImage}
-            alt={product.title}
+            alt={product.title || 'Product image'}
             fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            priority
-            className="object-cover object-center transform transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-110 will-change-transform"
+            sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+            priority={isPriority}
+            quality={85}
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVigAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVigAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkLzYvLy02LjY2OjY2Njo2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Njb/2wBDARUXFyAeIB4gHh4gIB4lICAgICUmJSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+            className="object-cover object-center transform transition-all duration-500 ease-in-out group-hover:opacity-0 group-hover:scale-110"
           />
         </div>
 
@@ -104,10 +118,14 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
         <div className="absolute inset-0">
           <Image
             src={secondaryImage}
-            alt={`${product.title} - alternate view`}
+            alt={`${product.title || 'Product'} - alternate view`}
             fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover object-center transform transition-all duration-500 ease-in-out opacity-0 scale-110 group-hover:opacity-100 group-hover:scale-100 will-change-transform"
+            sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+            quality={85}
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVigAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVigAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkLzYvLy02LjY2OjY2Njo2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Njb/2wBDARUXFyAeIB4gHh4gIB4lICAgICUmJSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+            className="object-cover object-center transform transition-all duration-500 ease-in-out opacity-0 scale-110 group-hover:opacity-100 group-hover:scale-100"
+            loading="lazy"
           />
         </div>
       </div>
@@ -125,17 +143,24 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
         </div>
       </div>
     </div>
+    );
+  };
+
+  const content = product.availableForSale ? (
+    <Link href={`/product/${product.handle}`} className="flex-grow flex flex-col group">
+      <ProductContent />
+    </Link>
+  ) : (
+    <ProductContent />
   );
+
+  if (isLoading) {
+    return <ProductSkeleton />;
+  }
 
   return (
     <div className="relative flex flex-col h-full rounded-lg">
-      {product.availableForSale ? (
-        <Link href={`/product/${product.handle}`} className="flex-grow flex flex-col group">
-          <ProductContent />
-        </Link>
-      ) : (
-        <ProductContent />
-      )}
+      {content}
     </div>
   );
 };

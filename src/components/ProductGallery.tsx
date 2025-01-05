@@ -59,7 +59,7 @@ function VideoPlayer({ sources, isActive }: VideoPlayerProps) {
   // Server-side or initial render
   if (!isClient) {
     return (
-      <div className="w-full h-full relative bg-secondary-peach/20">
+      <div className="w-full h-full relative bg-secondary-peach">
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-8 h-8 border-2 border-main-maroon border-t-transparent rounded-full animate-spin" />
         </div>
@@ -69,12 +69,12 @@ function VideoPlayer({ sources, isActive }: VideoPlayerProps) {
 
   return (
     <div 
-      className="w-full h-full relative group"
+      className="w-full h-full relative group bg-secondary-peach"
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
     >
       {!isLoaded && (
-        <div className="absolute inset-0 bg-secondary-peach/20 flex items-center justify-center">
+        <div className="absolute inset-0 bg-secondary-peach flex items-center justify-center">
           <div className="w-8 h-8 border-2 border-main-maroon border-t-transparent rounded-full animate-spin" />
         </div>
       )}
@@ -133,8 +133,8 @@ function VideoThumbnail({ sources }: { sources?: VideoSource[] }) {
   if (!sources?.length) return null;
 
   return (
-    <div className="w-full h-full relative bg-secondary-peach/20 flex items-center justify-center">
-      <div className="text-secondary-peach">
+    <div className="w-full h-full relative bg-secondary-peach flex items-center justify-center">
+      <div className="text-main-maroon">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polygon points="5 3 19 12 5 21 5 3"/>
         </svg>
@@ -147,17 +147,44 @@ interface ProductGalleryProps {
   media: ShopifyMediaEdge[];
   title: string;
   selectedMediaIndex?: number;
+  onMediaChange?: (index: number) => void;
 }
 
-export function ProductGallery({ media, title, selectedMediaIndex }: ProductGalleryProps) {
-  const [currentMedia, setCurrentMedia] = useState(0);
+export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange }: ProductGalleryProps) {
+  // Use selectedMediaIndex as the source of truth if provided, otherwise use internal state
+  const [internalIndex, setInternalIndex] = useState(0);
+  const currentIndex = selectedMediaIndex ?? internalIndex;
+  const [preloaded, setPreloaded] = useState(false);
 
-  // Update current media when selectedMediaIndex changes
-  useEffect(() => {
-    if (selectedMediaIndex !== undefined) {
-      setCurrentMedia(selectedMediaIndex);
+  const updateMedia = (index: number) => {
+    if (onMediaChange) {
+      onMediaChange(index);
+    } else {
+      setInternalIndex(index);
     }
-  }, [selectedMediaIndex]);
+    console.log('Gallery updating to index:', index);
+  };
+
+  // Preload all images on mount
+  useEffect(() => {
+    const imageUrls = media
+      .filter(item => item.node.mediaContentType === 'IMAGE' && item.node.image?.originalSrc)
+      .map(item => item.node.image!.originalSrc);
+
+    let loadedCount = 0;
+    const totalImages = imageUrls.length;
+
+    imageUrls.forEach(url => {
+      const img = new window.Image();
+      img.onload = () => {
+        loadedCount++;
+        if (loadedCount === totalImages) {
+          setPreloaded(true);
+        }
+      };
+      img.src = url;
+    });
+  }, [media]);
 
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -189,12 +216,12 @@ export function ProductGallery({ media, title, selectedMediaIndex }: ProductGall
     const diff = currentX - startX;
     const threshold = window.innerWidth * 0.2;
 
-      if (Math.abs(diff) > threshold) {
-      if (diff > 0 && currentMedia > 0) {
-        setCurrentMedia(prev => prev - 1);
-      } else if (diff < 0 && currentMedia < media.length - 1) {
-        setCurrentMedia(prev => prev + 1);
-      }
+    if (Math.abs(diff) > threshold) {
+      const newIndex = diff > 0 
+        ? currentIndex > 0 ? currentIndex - 1 : 0
+        : currentIndex < media.length - 1 ? currentIndex + 1 : media.length - 1;
+      
+      updateMedia(newIndex);
     }
 
     setIsDragging(false);
@@ -238,7 +265,16 @@ export function ProductGallery({ media, title, selectedMediaIndex }: ProductGall
   const dragOffset = isDragging ? currentX - startX : 0;
 
   return (
-    <div className="w-full h-[100dvh] md:h-screen sticky top-0 relative bg-secondary-peach max-sm:border-b max-sm:border-[0.5px] max-sm:border-main-maroon">
+    <div className="w-full h-[100dvh] md:h-screen sticky top-0 bg-secondary-peach max-sm:border-b max-sm:border-[0.5px] max-sm:border-main-maroon">
+      {/* Loading state */}
+      <div 
+        className={cn(
+          "absolute inset-0 bg-secondary-peach flex items-center justify-center transition-opacity duration-300",
+          preloaded ? "opacity-0 pointer-events-none" : "opacity-100"
+        )}
+      >
+        <div className="w-8 h-8 border-2 border-main-maroon border-t-transparent rounded-full animate-spin" />
+      </div>
       {/* Drag hint - only on mobile */}
       {showDragHint && (
         <div className="md:hidden absolute inset-0 z-20 pointer-events-none">
@@ -249,7 +285,7 @@ export function ProductGallery({ media, title, selectedMediaIndex }: ProductGall
       )}
       {/* Image slider container */}
       <div 
-        className="absolute inset-0 overflow-hidden cursor-grab active:cursor-grabbing"
+        className="absolute inset-0 overflow-hidden cursor-grab active:cursor-grabbing bg-secondary-peach"
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
@@ -260,33 +296,40 @@ export function ProductGallery({ media, title, selectedMediaIndex }: ProductGall
       >
         <div 
           className={cn(
-            "flex transition-transform duration-300 ease-out h-full",
-            isDragging && "transition-none"
+            "flex h-full",
+            isDragging ? "transition-none" : "transition-all duration-500 ease-out",
+            preloaded ? "opacity-100" : "opacity-0"
           )}
           style={{
-            transform: `translateX(calc(-${currentMedia * 100}% + ${dragOffset}px))`
+            transform: `translateX(calc(-${currentIndex * 100}% + ${dragOffset}px))`
           }}
         >
           {media.map((item, index) => (
             <div
               key={index}
-              className="flex-shrink-0 w-full h-full relative"
+              className="flex-shrink-0 w-full h-full relative bg-secondary-peach"
             >
               {item.node.mediaContentType === 'VIDEO' ? (
                 <VideoPlayer
                   sources={item.node.sources}
-                  isActive={index === currentMedia}
+                  isActive={index === currentIndex}
                   index={index}
                 />
               ) : (
-                <Image
-                  src={item.node.image?.originalSrc || ''}
-                  alt={item.node.image?.altText || title}
-                  fill
-                  className="object-cover w-full h-full"
-                  priority={index === 0}
-                  sizes="100vw"
-                />
+                <div className="relative w-full h-full bg-secondary-peach">
+                  <Image
+                    src={item.node.image?.originalSrc || ''}
+                    alt={item.node.image?.altText || title}
+                    fill
+                    quality={85}
+                    priority={index === 0}
+                    placeholder="blur"
+                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVigAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVigAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkLzYvLy02LjY2OjY2Njo2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Njb/2wBDARUXFyAeIB4gHh4gIB4lICAgICUmJSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
+                    className="object-cover w-full h-full"
+                    style={{ backgroundColor: 'transparent' }}
+                  />
+                </div>
               )}
             </div>
           ))}
@@ -298,10 +341,10 @@ export function ProductGallery({ media, title, selectedMediaIndex }: ProductGall
         {media.map((_, index) => (
           <button
             key={index}
-            onClick={() => setCurrentMedia(index)}
+            onClick={() => updateMedia(index)}
             className={cn(
               "w-2 h-2 rounded-full transition-all",
-              currentMedia === index 
+              currentIndex === index 
                 ? "bg-secondary-peach w-4" 
                 : "bg-secondary-peach/50"
             )}
@@ -316,10 +359,10 @@ export function ProductGallery({ media, title, selectedMediaIndex }: ProductGall
           {media.map((item, index) => (
             <button
               key={index}
-              onClick={() => setCurrentMedia(index)}
+              onClick={() => updateMedia(index)}
               className={cn(
-                "relative w-full aspect-square overflow-hidden transition-all duration-200 rounded-sm",
-                currentMedia === index 
+                "relative w-full aspect-square overflow-hidden transition-all duration-200 rounded-sm bg-secondary-peach",
+                currentIndex === index 
                   ? "opacity-100 border-2 border-secondary-peach" 
                   : "opacity-50 hover:opacity-80 border border-main-maroon/30"
               )}
@@ -327,13 +370,19 @@ export function ProductGallery({ media, title, selectedMediaIndex }: ProductGall
               {item.node.mediaContentType === 'VIDEO' ? (
                 <VideoThumbnail sources={item.node.sources} />
               ) : (
-                <Image
-                  src={item.node.image?.originalSrc || ''}
-                  alt={item.node.image?.altText || `View ${index + 1}`}
-                  fill
-                  className="object-cover w-full h-full"
-                  sizes="(max-width: 64px) 100vw"
-                />
+                <div className="relative w-full h-full bg-secondary-peach">
+                  <Image
+                    src={item.node.image?.originalSrc || ''}
+                    alt={item.node.image?.altText || `View ${index + 1}`}
+                    fill
+                    quality={85}
+                    placeholder="blur"
+                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVigAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVigAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkLzYvLy02LjY2OjY2Njo2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Njb/2wBDARUXFyAeIB4gHh4gIB4lICAgICUmJSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+                    sizes="48px"
+                    className="object-cover w-full h-full"
+                    style={{ backgroundColor: 'transparent' }}
+                  />
+                </div>
               )}
             </button>
           ))}

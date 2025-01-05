@@ -6,7 +6,7 @@ export default function AboutPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16">
       {/* Hero Section */}
       <div className="text-center mb-16">
-        <h1 className="text-4xl font-bold text-main-maroon mb-6">Our Story</h1>
+        <h1 className="text-xl font-medium text-main-maroon mb-6">Our Story</h1>
         <p className="text-lg text-gray-600 max-w-3xl mx-auto">
           Ada Studios was born from a passion for creating beautiful, mindful moments 
           through the art of matcha and thoughtfully designed lifestyle products.
@@ -25,7 +25,7 @@ export default function AboutPage() {
           />
         </div>
         <div className="space-y-6">
-          <h2 className="text-3xl font-semibold text-main-maroon">Our Mission</h2>
+          <h2 className="text-base sm:text-xl font-medium text-main-maroon">Our Mission</h2>
           <p className="text-gray-600">
             At Ada Studios, we believe in the power of ritual and the beauty of 
             mindful living. Our mission is to bring the centuries-old tradition of 
@@ -42,7 +42,7 @@ export default function AboutPage() {
 
       {/* Values Section */}
       <div className="bg-secondary-peach/10 rounded-lg p-12 mb-20">
-        <h2 className="text-3xl font-semibold text-main-maroon text-center mb-12">Our Values</h2>
+        <h2 className="text-base sm:text-xl font-medium text-main-maroon text-center mb-12">Our Values</h2>
         <div className="grid md:grid-cols-3 gap-8">
           <div className="text-center space-y-4">
             <h3 className="text-xl font-medium text-main-maroon">Quality</h3>
@@ -71,7 +71,7 @@ export default function AboutPage() {
       {/* Craftsmanship Section */}
       <div className="grid md:grid-cols-2 gap-12 items-center mb-20">
         <div className="space-y-6 order-2 md:order-1">
-          <h2 className="text-3xl font-semibold text-main-maroon">The Art of Craftsmanship</h2>
+          <h2 className="text-base sm:text-xl font-medium text-main-maroon">The Art of Craftsmanship</h2>
           <p className="text-gray-600">
             Each product in our collection tells a story of dedication and 
             expertise. From the careful cultivation of our matcha to the precise 
@@ -98,7 +98,7 @@ export default function AboutPage() {
 
       {/* Join Us Section */}
       <div className="text-center bg-main-maroon text-secondary-peach rounded-lg p-12">
-        <h2 className="text-3xl font-semibold mb-6">Join Our Journey</h2>
+        <h2 className="text-base sm:text-xl font-medium mb-6">Join Our Journey</h2>
         <p className="max-w-2xl mx-auto mb-8">
           We invite you to be part of our growing community of matcha enthusiasts 
           and mindful living advocates. Follow us on social media for brewing tips, 
