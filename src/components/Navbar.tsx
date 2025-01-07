@@ -29,7 +29,7 @@ export default function Navbar(): JSX.Element {
   const [isScrolled, setIsScrolled] = useState(false);
   const [saleProducts, setSaleProducts] = useState<any[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { cart, openCart } = useCart();
+  const { cart, openCart, isInitialized } = useCart();
   const { selectedCurrency, setSelectedCurrency, currencies } = useCurrency();
   const pathname = usePathname();
   const router = useRouter();
@@ -84,7 +84,8 @@ export default function Navbar(): JSX.Element {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
+  // Only calculate cart count after initialization to prevent hydration mismatch
+  const cartItemCount = isInitialized ? cart.reduce((total, item) => total + item.quantity, 0) : 0;
 
   return (
     <header className={`fixed w-full z-50 transition-all duration-300 border-b ${
@@ -178,11 +179,14 @@ export default function Navbar(): JSX.Element {
                 cursor-pointer text-xl md:text-lg
                 ${isScrolled ? 'text-main-maroon' : 'text-main-maroon'}
               `} />
-              {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-main-maroon text-secondary-peach rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium">
-                  {cartItemCount}
-                </span>
-              )}
+              <span 
+                className={`absolute -top-1 -right-1 bg-main-maroon text-secondary-peach rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium transition-opacity duration-200 ${
+                  isInitialized && cartItemCount > 0 ? 'opacity-100' : 'opacity-0'
+                }`}
+                aria-hidden={!isInitialized || cartItemCount === 0}
+              >
+                {cartItemCount}
+              </span>
             </button>
           </div>
         </div>

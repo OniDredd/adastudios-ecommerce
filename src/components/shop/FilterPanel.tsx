@@ -13,11 +13,11 @@ import { FilterState } from '../../hooks/useProductFilters';
 const mainCategories = ["Matcha", "Glasses", "Accessories"];
 
 const sortOptions = [
+  { value: 'manual', label: 'Best Selling' },
   { value: 'title-asc', label: 'Alphabetically, A-Z' },
   { value: 'title-desc', label: 'Alphabetically, Z-A' },
   { value: 'price-asc', label: 'Price, low to high' },
   { value: 'price-desc', label: 'Price, high to low' },
-  { value: 'best-selling', label: 'Best Selling' },
 ];
 
 interface FilterPanelProps {

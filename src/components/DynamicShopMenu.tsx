@@ -71,7 +71,13 @@ export function ShopAllMenu(): JSX.Element {
   useEffect(() => {
     const fetchProductsAndOrganize = async () => {
       try {
-        const products = await shopify.getProducts();
+        // Get products from the "all" collection to respect manual sorting
+        const collections = await shopify.getCollections();
+        const allCollection = collections.find(c => c.handle === 'all');
+        if (!allCollection) {
+          throw new Error('All collection not found');
+        }
+        const products = await shopify.getProductsByCollection('all');
         const categoryMap = new Map<string, Set<string>>();
         const productsByCategory = new Map<string, ShopifyProduct[]>();
 
@@ -272,7 +278,7 @@ export function SaleMenu(): JSX.Element {
   useEffect(() => {
     const fetchSaleProducts = async () => {
       try {
-        const products = await shopify.getProducts();
+        const products = await shopify.getProductsByCollection('all');
         const saleProducts = products.filter(product => isOnSale(product) && product.availableForSale);
         
         // For clearance section - get products with highest discount

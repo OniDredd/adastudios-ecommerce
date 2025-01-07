@@ -15,7 +15,7 @@ export const useProductFilters = (initialProducts: SimpleProduct[]) => {
   const [filters, setFilters] = useState<FilterState>({
     mainCategory: 'all',
     subcategory: 'all',
-    sortBy: 'title-asc',
+    sortBy: 'manual', // Default to manual sort to respect Shopify's order
   });
 
   const applyFilters = useCallback((products: SimpleProduct[], currentFilters: FilterState) => {
@@ -40,24 +40,26 @@ export const useProductFilters = (initialProducts: SimpleProduct[]) => {
       }
     }
 
-    // Sort by availability first, then by selected criteria
-    filtered.sort((a, b) => {
-      if (a.availableForSale === b.availableForSale) {
-        switch (currentFilters.sortBy) {
-          case 'title-asc':
-            return a.title.localeCompare(b.title);
-          case 'title-desc':
-            return b.title.localeCompare(a.title);
-          case 'price-asc':
-            return a.price - b.price;
-          case 'price-desc':
-            return b.price - a.price;
-          default:
-            return 0;
+    // Only apply sorting if user has explicitly chosen a sort option
+    if (currentFilters.sortBy !== 'manual') {
+      filtered.sort((a, b) => {
+        if (a.availableForSale === b.availableForSale) {
+          switch (currentFilters.sortBy) {
+            case 'title-asc':
+              return a.title.localeCompare(b.title);
+            case 'title-desc':
+              return b.title.localeCompare(a.title);
+            case 'price-asc':
+              return a.price - b.price;
+            case 'price-desc':
+              return b.price - a.price;
+            default:
+              return 0;
+          }
         }
-      }
-      return a.availableForSale ? -1 : 1;
-    });
+        return a.availableForSale ? -1 : 1;
+      });
+    }
 
     return filtered;
   }, []);

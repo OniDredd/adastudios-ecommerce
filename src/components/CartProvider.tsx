@@ -29,6 +29,7 @@ interface CartContextType {
   isItemLoading: (variantId: string) => boolean;
   error: string | null;
   maxQuantityPerItem: number;
+  isInitialized: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -41,56 +42,71 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cartId, setCartId] = useState<string | null>(null);
   const [loadingItems, setLoadingItems] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load saved cart data from localStorage on client side
+  // Handle hydration and initialization
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    const savedCartId = localStorage.getItem('shopifyCartId');
-    
-    if (savedCart) {
-      setCart(JSON.parse(savedCart));
-    }
-    if (savedCartId) {
-      setCartId(savedCartId);
-    }
-  }, []);
-
-  // Initialize cart state
-  useEffect(() => {
-    const initializeCart = async () => {
-      // Only initialize if we don't have a cart yet
-      if (!cartId) {
-        setLoadingItems(new Set(['init']));
-        setError(null);
-        try {
-          const newCart = await shopifyClient.createCart();
-          setCartId(newCart.id);
-          localStorage.setItem('shopifyCartId', newCart.id);
-          
-          // Only reset cart if it's empty
-          if (cart.length === 0) {
-            setCart([]);
-            localStorage.removeItem('cart');
+    const hydrateCart = () => {
+      try {
+        const savedCart = localStorage.getItem('cart');
+        const savedCartId = localStorage.getItem('shopifyCartId');
+        
+        let validCart: CartItem[] = [];
+        if (savedCart) {
+          try {
+            const parsedCart = JSON.parse(savedCart);
+            if (Array.isArray(parsedCart)) {
+              validCart = parsedCart.filter((item): item is CartItem => (
+                typeof item === 'object' &&
+                item !== null &&
+                typeof item.id === 'string' &&
+                typeof item.lineId === 'string' &&
+                typeof item.variantId === 'string' &&
+                typeof item.title === 'string' &&
+                typeof item.price === 'number' &&
+                typeof item.image === 'string' &&
+                typeof item.quantity === 'number'
+              ));
+            }
+          } catch (e) {
+            console.error('Error parsing cart:', e);
           }
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Failed to initialize cart';
-          setError(errorMessage);
-          console.error('Cart initialization error:', error);
-        } finally {
-          setLoadingItems(new Set());
         }
+
+        setCart(validCart);
+        if (savedCartId) {
+          setCartId(savedCartId);
+        }
+      } catch (e) {
+        console.error('Error hydrating cart:', e);
       }
     };
 
-    void initializeCart();
-  }, []); // Only run once on mount
+    hydrateCart();
+    setIsInitialized(true);
 
-  // Save cart to localStorage whenever it changes
-  useEffect(() => {
-    if (cart) {
-      localStorage.setItem('cart', JSON.stringify(cart));
+    // Initialize Shopify cart if needed
+    if (!cartId) {
+      shopifyClient.createCart().then(newCart => {
+        setCartId(newCart.id);
+        localStorage.setItem('shopifyCartId', newCart.id);
+      }).catch(error => {
+        console.error('Failed to create Shopify cart:', error);
+      });
     }
-  }, [cart]);
+  }, []);
+
+
+  // Persist cart changes to localStorage
+  useEffect(() => {
+    if (!isInitialized) return;
+    
+    try {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    } catch (e) {
+      console.error('Error saving cart:', e);
+    }
+  }, [cart, isInitialized]);
 
   const openCart = () => setIsCartOpen(true);
   const closeCart = () => setIsCartOpen(false);
@@ -524,8 +540,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
-  const cartTotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+  // Only calculate cart totals after initialization to prevent hydration mismatch
+  const cartCount = isInitialized ? cart.reduce((total, item) => total + (item?.quantity || 0), 0) : 0;
+  const cartTotal = isInitialized ? cart.reduce((total, item) => total + ((item?.price || 0) * (item?.quantity || 0)), 0) : 0;
   const isItemLoading = (variantId: string) => loadingItems.has(variantId);
 
   const value = {
@@ -542,7 +559,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     cartTotal,
     isItemLoading,
     error,
-    maxQuantityPerItem: MAX_QUANTITY_PER_ITEM
+    maxQuantityPerItem: MAX_QUANTITY_PER_ITEM,
+    isInitialized
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

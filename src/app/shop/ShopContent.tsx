@@ -52,7 +52,14 @@ export default function ShopContent() {
   const fetchProducts = useCallback(async () => {
     try {
       setError(null);
-      const fetchedProducts = await shopify.getProducts();
+      // Fetch products from the "all" collection to respect manual sorting
+      // Get products from the "all" collection to respect manual sorting
+      const collections = await shopify.getCollections();
+      const allCollection = collections.find(c => c.handle === 'all');
+      if (!allCollection) {
+        throw new Error('All collection not found');
+      }
+      const fetchedProducts = await shopify.getProductsByCollection('all');
       if (!fetchedProducts || fetchedProducts.length === 0) {
         throw new Error('No products found');
       }

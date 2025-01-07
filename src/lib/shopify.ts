@@ -55,6 +55,14 @@ export interface SimpleProduct {
   media: {
     edges: ShopifyMediaEdge[];
   };
+  collections?: {
+    edges: Array<{
+      node: {
+        id: string;
+        handle: string;
+      };
+    }>;
+  };
 }
 
 export interface ShopifyProduct {
@@ -108,6 +116,14 @@ export interface ShopifyProduct {
       };
     }>;
   };
+  collections?: {
+    edges: Array<{
+      node: {
+        id: string;
+        handle: string;
+      };
+    }>;
+  };
 }
 
 export interface ShopifyCollection {
@@ -117,7 +133,6 @@ export interface ShopifyCollection {
   description: string;
 }
 
-// New Cart Types
 interface CartCreateResponse {
   cartCreate: {
     cart: Cart;
@@ -191,12 +206,10 @@ export async function shopifyFetch<T>(query: string, variables: Record<string, u
     const data = await graphQLClient.request<T>(query, variables);
     return data;
   } catch (error: any) {
-    // Check if the response is HTML (usually an error page)
     if (error.response?.headers?.['content-type']?.includes('text/html')) {
       throw new Error('Received HTML response instead of JSON. This might be an authentication issue.');
     }
     
-    // Check for specific error types
     if (error.response?.errors) {
       throw new Error(`Shopify API Error: ${JSON.stringify(error.response.errors)}`);
     }
@@ -205,7 +218,6 @@ export async function shopifyFetch<T>(query: string, variables: Record<string, u
   }
 }
 
-// New Cart API Functions
 export async function createCart(): Promise<Cart> {
   const mutation = `
     mutation cartCreate {
@@ -260,8 +272,7 @@ export async function createCart(): Promise<Cart> {
     const response = await shopifyFetch<CartCreateResponse>(mutation);
     if (response.cartCreate.userErrors.length > 0) {
       const error = response.cartCreate.userErrors[0];
-      const errorMessage = `Cart creation failed: ${error.message}`;
-      throw new Error(errorMessage);
+      throw new Error(`Cart creation failed: ${error.message}`);
     }
     return response.cartCreate.cart;
   } catch (error: any) {
@@ -339,7 +350,6 @@ export async function addToCart(cartId: string, lines: { merchandiseId: string; 
       const error = response.cartLinesAdd.userErrors[0];
       let errorMessage = 'Failed to add items to cart';
       
-      // Handle specific error codes
       switch (error.code as CartErrorCode) {
         case 'INVALID_QUANTITY':
           errorMessage = 'Invalid quantity selected';
@@ -427,8 +437,7 @@ export async function removeFromCart(cartId: string, lineIds: string[]): Promise
     const response = await shopifyFetch<CartLinesRemoveResponse>(mutation, variables);
     if (response.cartLinesRemove.userErrors.length > 0) {
       const error = response.cartLinesRemove.userErrors[0];
-      const errorMessage = `Failed to remove items from cart: ${error.message}`;
-      throw new Error(errorMessage);
+      throw new Error(`Failed to remove items from cart: ${error.message}`);
     }
     return response.cartLinesRemove.cart;
   } catch (error: any) {
@@ -471,7 +480,7 @@ export async function getProductsByCollection(collectionHandle: string): Promise
   const query = `
     query getProductsByCollection($handle: String!, $first: Int!) {
       collection(handle: $handle) {
-        products(first: $first) {
+        products(first: $first, sortKey: COLLECTION_DEFAULT) {
           edges {
             node {
               id
@@ -551,7 +560,10 @@ export async function getProductsByCollection(collectionHandle: string): Promise
     };
   }
 
-  const response = await shopifyFetch<ProductsByCollectionResponse>(query, { handle: collectionHandle, first: 250 });
+  const response = await shopifyFetch<ProductsByCollectionResponse>(query, { 
+    handle: collectionHandle, 
+    first: 250
+  });
   return response.collection.products.edges.map(edge => edge.node);
 }
 
@@ -734,7 +746,7 @@ export async function getProductByHandle(handle: string): Promise<ShopifyProduct
   }
 }
 
-export async function getProducts({ limit = 250 }: { limit?: number } = {}): Promise<ShopifyProduct[]> {
+export async function getProducts({ limit = 250, priorityCollectionId = "" }: { limit?: number, priorityCollectionId?: string } = {}): Promise<ShopifyProduct[]> {
   const query = `
     query getProducts($first: Int!) {
       products(first: $first) {
@@ -748,6 +760,14 @@ export async function getProducts({ limit = 250 }: { limit?: number } = {}): Pro
             vendor
             tags
             availableForSale
+            collections(first: 5) {
+              edges {
+                node {
+                  id
+                  handle
+                }
+              }
+            }
             priceRange {
               minVariantPrice {
                 amount
@@ -825,13 +845,41 @@ export async function getProducts({ limit = 250 }: { limit?: number } = {}): Pro
   interface ProductsResponse {
     products: {
       edges: Array<{
-        node: ShopifyProduct;
+        node: ShopifyProduct & {
+          collections: {
+            edges: Array<{
+              node: {
+                id: string;
+                handle: string;
+              };
+            }>;
+          };
+        };
       }>;
     };
   }
 
   const response = await shopifyFetch<ProductsResponse>(query, { first: limit });
-  return response.products.edges.map(edge => edge.node);
+  const products = response.products.edges.map(edge => edge.node);
+
+  // If a priority collection ID is provided, sort products based on that collection
+  if (priorityCollectionId) {
+    const inCollection: ShopifyProduct[] = [];
+    const outOfCollection: ShopifyProduct[] = [];
+
+    products.forEach(product => {
+      if (product.collections.edges.some(edge => edge.node.id === priorityCollectionId)) {
+        inCollection.push(product);
+      } else {
+        outOfCollection.push(product);
+      }
+    });
+
+    // Return products in the priority collection first, followed by other products
+    return [...inCollection, ...outOfCollection];
+  }
+
+  return products;
 }
 
 export async function updateCartLine(cartId: string, lineId: string, quantity: number): Promise<Cart> {
