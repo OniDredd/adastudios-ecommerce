@@ -27,43 +27,55 @@ function ProductDescription({ description }: { description: string }) {
   const [isPending, startTransition] = useTransition();
   const [isExpanded, setIsExpanded] = useState(false);
   
-  // Process description text using pure string manipulation
-  const { processedContent, shouldShowButton } = useMemo(() => {
-    // Extract text content using regex
-    const plainText = description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-    
-    // If text is short enough or expanded, return full content
-    if (plainText.length <= CHAR_LIMIT || isExpanded) {
+    // Process description text
+    const { processedContent, shouldShowButton } = useMemo(() => {
+      // If expanded, return full content
+      if (isExpanded) {
+        return {
+          processedContent: description,
+          shouldShowButton: true
+        };
+      }
+
+      // Strip HTML tags to get plain text
+      const plainText = description.replace(/<[^>]*>/g, '');
+      
+      // If text is short enough, return full content
+      if (plainText.length <= CHAR_LIMIT) {
+        return {
+          processedContent: description,
+          shouldShowButton: false
+        };
+      }
+
+      // Find the last complete sentence within the limit
+      let truncatedText = '';
+      let currentLength = 0;
+      const sentences = plainText.match(/[^.!?]+[.!?]+/g) || [];
+      
+      for (const sentence of sentences) {
+        if (currentLength + sentence.length <= CHAR_LIMIT) {
+          truncatedText += sentence;
+          currentLength += sentence.length;
+        } else {
+          break;
+        }
+      }
+
+      // If no complete sentence found, truncate at last word
+      if (!truncatedText) {
+        const words = plainText.slice(0, CHAR_LIMIT).split(' ');
+        words.pop(); // Remove last (potentially partial) word
+        truncatedText = words.join(' ');
+      }
+
+      // Add ellipsis and wrap in paragraph
+      const processedContent = `<p>${truncatedText.trim()}...</p>`;
+      
       return {
-        processedContent: description,
-        shouldShowButton: plainText.length > CHAR_LIMIT
+        processedContent,
+        shouldShowButton: true
       };
-    }
-
-    // Find the last complete word within the limit
-    const truncateAt = plainText.lastIndexOf(' ', CHAR_LIMIT);
-    const truncatePoint = truncateAt > 0 ? truncateAt : CHAR_LIMIT;
-
-    // Create a regex that matches text nodes in HTML
-    const textNodeRegex = />([^<]+)</g;
-    let remainingChars = truncatePoint;
-    const truncatedHtml = description.replace(textNodeRegex, (match, text) => {
-      if (remainingChars <= 0) {
-        return '><';
-      }
-      if (text.length <= remainingChars) {
-        remainingChars -= text.length;
-        return match;
-      }
-      const truncated = text.slice(0, remainingChars) + '...';
-      remainingChars = 0;
-      return `>${truncated}<`;
-    });
-    
-    return {
-      processedContent: truncatedHtml,
-      shouldShowButton: true
-    };
   }, [description, isExpanded]);
 
   const handleToggle = useCallback(() => {
@@ -75,16 +87,33 @@ function ProductDescription({ description }: { description: string }) {
   return (
     <div className="border-t border-main-maroon/20 pt-6">
       <h2 className="text-base font-medium text-main-maroon mb-3">About This Product</h2>
-      <div className="relative">
-        <div
-          className={`
-            prose prose-xs max-w-none text-main-maroon 
-            [&>p]:mb-2 [&>ul]:list-disc [&>ul]:pl-4 [&>ul]:mb-2 
-            [&>h3]:font-medium [&>h3]:text-base [&>h3]:mb-1.5
-            ${isPending ? 'opacity-70' : ''}
-          `}
-          dangerouslySetInnerHTML={{ __html: processedContent }}
-        />
+      <div className="relative min-h-[80px]">
+        <div className="relative overflow-hidden">
+          <div
+            className={`
+              prose prose-xs max-w-none text-main-maroon 
+              [&>p]:mb-2 [&>ul]:list-disc [&>ul]:pl-4 [&>ul]:mb-2 
+              [&>h3]:font-medium [&>h3]:text-base [&>h3]:mb-1.5
+              transition-[max-height,opacity] duration-500 ease-in-out
+              ${isPending ? 'opacity-70' : ''}
+            `}
+            style={{ 
+              maxHeight: isExpanded ? '2000px' : '80px',
+              opacity: isPending ? 0.7 : 1
+            }}
+            dangerouslySetInnerHTML={{ __html: processedContent }}
+          />
+          {shouldShowButton && (
+            <div 
+              className={`
+                absolute bottom-0 left-0 right-0 
+                bg-gradient-to-t from-secondary-peach to-transparent h-8
+                transition-opacity duration-500
+                ${isExpanded ? 'opacity-0' : 'opacity-100'}
+              `}
+            />
+          )}
+        </div>
         {shouldShowButton && (
           <div className="relative z-10 mt-2">
             <button
@@ -565,24 +594,19 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
               
               {/* Stock Indicator */}
               <div className="flex items-center gap-2">
-                <div className="text-sm font-medium text-main-maroon/70">Stock:</div>
-                {selectedVariant?.quantityAvailable > 0 ? (
-                  <div className="flex items-center gap-1.5">
-                    <div className={`w-2 h-2 rounded-full ${
-                      selectedVariant.quantityAvailable <= 5 
-                        ? 'bg-main-maroon/50' 
-                        : 'bg-main-maroon'
-                    }`} />
-                    <span className="text-sm font-medium text-main-maroon">
-                      {selectedVariant.quantityAvailable} {selectedVariant.quantityAvailable === 1 ? 'unit' : 'units'} available
-                    </span>
-                  </div>
-                ) : (
+                {selectedVariant?.quantityAvailable === 0 ? (
                   <div className="flex items-center gap-1.5">
                     <div className="w-2 h-2 rounded-full bg-main-maroon/30" />
                     <span className="text-sm font-medium text-main-maroon/70">Out of Stock</span>
                   </div>
-                )}
+                ) : selectedVariant?.quantityAvailable <= 5 ? (
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full bg-main-maroon/50" />
+                    <span className="text-sm font-medium text-main-maroon">
+                      Only {selectedVariant.quantityAvailable} {selectedVariant.quantityAvailable === 1 ? 'unit' : 'units'} left
+                    </span>
+                  </div>
+                ) : null}
               </div>
             </div>
 

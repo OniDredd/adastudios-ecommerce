@@ -30,6 +30,7 @@ export const transformProduct = (product: ShopifyProduct): SimpleProduct => ({
   quantityAvailable: product.variants.edges.reduce((total, edge) => 
     total + (edge.node.quantityAvailable || 0), 0),
   tags: product.tags,
+  collections: product.collections,
   media: {
     edges: product.media.edges.length > 0 
       ? product.media.edges 

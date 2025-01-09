@@ -218,7 +218,7 @@ export default function Navbar(): JSX.Element {
                 <div className="space-y-3 border-t border-main-maroon/20 pt-6">
                   <h3 className="text-sm font-medium text-main-maroon px-4">Shop Categories</h3>
                   <Link
-                    href="/shop?category=Matcha"
+                    href="/shop?mainCategory=matcha"
                     className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -228,7 +228,7 @@ export default function Navbar(): JSX.Element {
                     </div>
                   </Link>
                   <Link
-                    href="/shop?category=Glasses"
+                    href="/shop?mainCategory=glasses"
                     className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -238,7 +238,7 @@ export default function Navbar(): JSX.Element {
                     </div>
                   </Link>
                   <Link
-                    href="/shop?category=Accessories"
+                    href="/shop?mainCategory=accessories"
                     className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -249,7 +249,7 @@ export default function Navbar(): JSX.Element {
                   </Link>
                 </div>
                 <Link
-                  href="/shop?onSale=true"
+                  href="/shop?mainCategory=Sale"
                   className="flex items-center justify-between text-main-maroon font-medium py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -259,7 +259,7 @@ export default function Navbar(): JSX.Element {
                 <div className="space-y-3 border-t border-main-maroon/20 pt-6">
                   <h3 className="text-sm font-medium text-main-maroon px-4">Sale Categories</h3>
                   <Link
-                    href="/shop?onSale=true&tag=clearance"
+                    href="/shop?mainCategory=Sale"
                     className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -269,7 +269,7 @@ export default function Navbar(): JSX.Element {
                     </div>
                   </Link>
                   <Link
-                    href="/shop?stockFilter=low"
+                    href="/shop?mainCategory=low-stock"
                     className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >

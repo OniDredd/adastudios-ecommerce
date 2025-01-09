@@ -218,10 +218,12 @@ export async function shopifyFetch<T>(query: string, variables: Record<string, u
   }
 }
 
-export async function createCart(): Promise<Cart> {
+export async function createCart(currencyCode?: string): Promise<Cart> {
+  const countryCode = currencyCode === 'AUD' ? 'AU' : 'NZ';
+  const presentmentCurrencyCode = currencyCode || 'NZD';
   const mutation = `
-    mutation cartCreate {
-      cartCreate {
+    mutation cartCreate($input: CartInput) {
+      cartCreate(input: $input) {
         cart {
           id
           checkoutUrl
@@ -269,7 +271,22 @@ export async function createCart(): Promise<Cart> {
   `;
 
   try {
-    const response = await shopifyFetch<CartCreateResponse>(mutation);
+    const variables = currencyCode ? {
+      input: {
+        buyerIdentity: {
+          countryCode
+        },
+        lines: [],
+        attributes: [
+          {
+            key: "presentmentCurrency",
+            value: presentmentCurrencyCode
+          }
+        ]
+      }
+    } : {};
+
+    const response = await shopifyFetch<CartCreateResponse>(mutation, variables);
     if (response.cartCreate.userErrors.length > 0) {
       const error = response.cartCreate.userErrors[0];
       throw new Error(`Cart creation failed: ${error.message}`);
@@ -490,6 +507,14 @@ export async function getProductsByCollection(collectionHandle: string): Promise
               vendor
               tags
               availableForSale
+              collections(first: 5) {
+                edges {
+                  node {
+                    id
+                    handle
+                  }
+                }
+              }
               priceRange {
                 minVariantPrice {
                   amount
@@ -974,6 +999,90 @@ export async function updateCartLine(cartId: string, lineId: string, quantity: n
   }
 }
 
+export async function updateCartBuyerIdentity(cartId: string, currencyCode: string): Promise<Cart> {
+  const mutation = `
+    mutation cartBuyerIdentityUpdate($cartId: ID!, $buyerIdentity: CartBuyerIdentityInput!) {
+      cartBuyerIdentityUpdate(
+        cartId: $cartId,
+        buyerIdentity: $buyerIdentity
+      ) {
+        cart {
+          id
+          checkoutUrl
+          totalQuantity
+          lines(first: 10) {
+            edges {
+              node {
+                id
+                quantity
+                merchandise {
+                  ... on ProductVariant {
+                    id
+                    title
+                    price {
+                      amount
+                      currencyCode
+                    }
+                    product {
+                      title
+                      handle
+                    }
+                  }
+                }
+              }
+            }
+          }
+          cost {
+            totalAmount {
+              amount
+              currencyCode
+            }
+            subtotalAmount {
+              amount
+              currencyCode
+            }
+          }
+        }
+        userErrors {
+          field
+          message
+          code
+        }
+      }
+    }
+  `;
+
+  const countryCode = currencyCode === 'AUD' ? 'AU' : 'NZ';
+  const variables = {
+    cartId,
+    buyerIdentity: {
+      countryCode,
+      currencyCode
+    }
+  };
+
+  try {
+    const response = await shopifyFetch<{
+      cartBuyerIdentityUpdate: {
+        cart: Cart;
+        userErrors: UserError[];
+      }
+    }>(mutation, variables);
+
+    if (response.cartBuyerIdentityUpdate.userErrors.length > 0) {
+      const error = response.cartBuyerIdentityUpdate.userErrors[0];
+      throw new Error(`Failed to update cart currency: ${error.message}`);
+    }
+
+    return response.cartBuyerIdentityUpdate.cart;
+  } catch (error: any) {
+    if (error.message.includes('HTML response')) {
+      throw new Error('Unable to connect to checkout. Please check your internet connection and try again.');
+    }
+    throw error;
+  }
+}
+
 const shopifyClient = {
   getCollections,
   getProductsByCollection,
@@ -985,6 +1094,7 @@ const shopifyClient = {
   addToCart,
   removeFromCart,
   updateCartLine,
+  updateCartBuyerIdentity,
 };
 
 export default shopifyClient;

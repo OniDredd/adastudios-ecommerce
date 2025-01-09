@@ -10,7 +10,12 @@ import {
 import { Filter, Search, X } from 'lucide-react';
 import { FilterState } from '../../hooks/useProductFilters';
 
-const mainCategories = ["Matcha", "Glasses", "Accessories"];
+// Collection handles and their display names
+const collections = [
+  { handle: "matcha", label: "Matcha" },
+  { handle: "glasses", label: "Glasses" },
+  { handle: "accessories", label: "Accessories" }
+];
 
 const sortOptions = [
   { value: 'manual', label: 'Best Selling' },
@@ -83,9 +88,9 @@ export function FilterPanel({
               <SelectContent className="border border-main-maroon">
                 <SelectItem value="all">All Categories</SelectItem>
                 <SelectItem value="Sale">On Sale</SelectItem>
-                {mainCategories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
+                {collections.map((collection) => (
+                  <SelectItem key={collection.handle} value={collection.handle}>
+                    {collection.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -140,7 +145,11 @@ export function FilterPanel({
               className="h-7 text-sm bg-main-maroon text-secondary-peach border-main-maroon hover:bg-main-maroon/90 transition-colors flex items-center gap-1 animate-in fade-in-0 slide-in-from-left-2"
               onClick={() => onFilterChange({ mainCategory: 'all', subcategory: 'all' })}
             >
-              {filters.mainCategory === 'low-stock' ? 'Low Stock' : filters.mainCategory}
+              {filters.mainCategory === 'low-stock' 
+                ? 'Low Stock' 
+                : filters.mainCategory === 'Sale'
+                  ? 'Sale'
+                  : collections.find(c => c.handle === filters.mainCategory)?.label || filters.mainCategory}
               <X size={14} />
             </Button>
           )}

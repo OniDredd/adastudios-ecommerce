@@ -3,6 +3,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import shopifyClient from '../lib/shopify';
+import { useCurrency } from './CurrencyProvider';
 
 interface CartItem {
   id: string;          // Product ID
@@ -37,6 +38,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 const MAX_QUANTITY_PER_ITEM = 10;
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { selectedCurrency } = useCurrency();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartId, setCartId] = useState<string | null>(null);
@@ -87,7 +89,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     // Initialize Shopify cart if needed
     if (!cartId) {
-      shopifyClient.createCart().then(newCart => {
+      shopifyClient.createCart(selectedCurrency.code).then(newCart => {
         setCartId(newCart.id);
         localStorage.setItem('shopifyCartId', newCart.id);
       }).catch(error => {
@@ -95,6 +97,33 @@ export function CartProvider({ children }: { children: ReactNode }) {
       });
     }
   }, []);
+
+  // Update cart when currency changes
+  useEffect(() => {
+    if (!isInitialized) return;
+    
+    // Create a new cart with the current currency
+    shopifyClient.createCart(selectedCurrency.code)
+      .then(async newCart => {
+        // If we have items in the old cart, add them to the new cart
+        if (cart.length > 0) {
+          const lines = cart.map(item => ({
+            merchandiseId: item.variantId,
+            quantity: item.quantity
+          }));
+          
+          const updatedCart = await shopifyClient.addToCart(newCart.id, lines);
+          setCartId(updatedCart.id);
+          localStorage.setItem('shopifyCartId', updatedCart.id);
+        } else {
+          setCartId(newCart.id);
+          localStorage.setItem('shopifyCartId', newCart.id);
+        }
+      })
+      .catch(error => {
+        console.error('Failed to update cart currency:', error);
+      });
+  }, [selectedCurrency.code, isInitialized, cart]);
 
 
   // Persist cart changes to localStorage
@@ -120,7 +149,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       // Get or create cart ID
       let currentCartId = cartId;
       if (!currentCartId) {
-        const newCart = await shopifyClient.createCart();
+        const newCart = await shopifyClient.createCart(selectedCurrency.code);
         currentCartId = newCart.id;
         setCartId(currentCartId);
         localStorage.setItem('shopifyCartId', currentCartId);
@@ -201,7 +230,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
 
         // For other errors, try creating a new cart
-        const newCart = await shopifyClient.createCart();
+        const newCart = await shopifyClient.createCart(selectedCurrency.code);
         setCartId(newCart.id);
         localStorage.setItem('shopifyCartId', newCart.id);
         
@@ -265,7 +294,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       // Get or create cart ID
       let currentCartId = cartId;
       if (!currentCartId) {
-        const newCart = await shopifyClient.createCart();
+        const newCart = await shopifyClient.createCart(selectedCurrency.code);
         currentCartId = newCart.id;
         setCartId(currentCartId);
         localStorage.setItem('shopifyCartId', currentCartId);

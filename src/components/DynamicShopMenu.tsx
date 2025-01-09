@@ -110,13 +110,13 @@ export function ShopAllMenu(): JSX.Element {
           return {
             name: categoryName,
             description: `Explore our ${categoryName.toLowerCase()} collection`,
-            href: `/shop?category=${categoryName}`,
+            href: `/shop?mainCategory=${categoryName.toLowerCase()}`,
             subcategories: {
               title: `${categoryName} Types`,
               items: Array.from(subcats).map(subcat => ({
                 name: subcat,
                 description: `${subcat} ${categoryName.toLowerCase()}`,
-                href: `/shop?category=${categoryName}&subcategory=${subcat}`,
+                href: `/shop?mainCategory=${categoryName.toLowerCase()}&subcategory=${subcat}`,
               })),
             },
             featured: featuredProducts.map(product => ({
@@ -151,7 +151,7 @@ export function ShopAllMenu(): JSX.Element {
           </NavigationMenuTrigger>
         </div>
         <NavigationMenuContent>
-          <div className="w-screen h-[450px] bg-secondary-peach flex items-center justify-center border border-main-maroon rounded-lg">
+          <div className="w-screen h-[400px] bg-secondary-peach flex items-center justify-center border border-main-maroon rounded-lg">
             <div className="text-main-maroon">Loading...</div>
           </div>
         </NavigationMenuContent>
@@ -167,7 +167,7 @@ export function ShopAllMenu(): JSX.Element {
         </NavigationMenuTrigger>
       </div>
       <NavigationMenuContent>
-        <div className="w-screen h-[450px] bg-secondary-peach p-6 border border-main-maroon rounded-lg">
+        <div className="w-screen h-[400px] bg-secondary-peach p-6 border border-main-maroon rounded-lg">
           <div className="container mx-auto grid grid-cols-3 gap-6">
             <div className="space-y-4">
               <h3 className="text-base font-medium text-main-maroon">Categories</h3>
@@ -310,13 +310,13 @@ export function SaleMenu(): JSX.Element {
           {
             name: 'Clearance',
             description: 'Up to 70% off',
-            href: '/shop?onSale=true&tag=clearance',
+            href: '/shop?mainCategory=Sale',
             featured: clearanceProducts
           },
           {
             name: 'Last Chance',
             description: 'Limited availability',
-            href: '/shop?stockFilter=low',
+            href: '/shop?mainCategory=low-stock',
             featured: lastChanceProducts
           }
         ];
@@ -336,13 +336,13 @@ export function SaleMenu(): JSX.Element {
   if (loading) {
     return (
       <NavigationMenuItem>
-        <div onClick={(e) => handleNavigation('/shop?sale=true', e)} className="inline-flex cursor-pointer">
+        <div onClick={(e) => handleNavigation('/shop?mainCategory=Sale', e)} className="inline-flex cursor-pointer">
           <NavigationMenuTrigger className="data-[state=open]:bg-main-maroon bg-transparent border border-transparent hover:border-main-maroon hover:text-main-maroon data-[state=open]:text-secondary-peach">
             SALE
           </NavigationMenuTrigger>
         </div>
         <NavigationMenuContent>
-          <div className="w-screen h-[450px] bg-secondary-peach flex items-center justify-center border border-main-maroon rounded-lg">
+          <div className="w-screen h-[400px] bg-secondary-peach flex items-center justify-center border border-main-maroon rounded-lg">
             <div className="text-main-maroon">Loading...</div>
           </div>
         </NavigationMenuContent>
@@ -358,7 +358,7 @@ export function SaleMenu(): JSX.Element {
         </NavigationMenuTrigger>
       </div>
       <NavigationMenuContent>
-        <div className="w-screen h-[450px] bg-secondary-peach p-6 border border-main-maroon rounded-lg">
+        <div className="w-screen h-[400px] bg-secondary-peach p-6 border border-main-maroon rounded-lg">
           <div className="container mx-auto grid grid-cols-3 gap-6">
             <div className="space-y-4">
               <h3 className="text-base font-medium text-main-maroon">Sale Categories</h3>

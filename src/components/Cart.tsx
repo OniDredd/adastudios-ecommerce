@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Cart() {
   const { isCartOpen, closeCart, cart, removeFromCart, updateQuantity, isItemLoading, error } = useCart();
-  const { convertPrice } = useCurrency();
+  const { convertPrice, selectedCurrency } = useCurrency();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
@@ -30,6 +30,7 @@ export default function Cart() {
             variantId: item.variantId,
             quantity: item.quantity,
           })),
+          currencyCode: selectedCurrency.code,
         }),
         cache: 'no-store',
       });

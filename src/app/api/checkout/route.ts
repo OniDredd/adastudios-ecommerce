@@ -11,10 +11,11 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    let items;
+    let items, currencyCode;
     try {
       const body = await request.json();
       items = body.items;
+      currencyCode = body.currencyCode;
     } catch (error) {
       // Try to get items from URL if JSON parsing fails
       const url = new URL(request.url);
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create a new cart in Shopify
-    const cart = await shopifyClient.createCart();
+    const cart = await shopifyClient.createCart(currencyCode);
     
     // Add items to the cart
     const updatedCart = await shopifyClient.addToCart(

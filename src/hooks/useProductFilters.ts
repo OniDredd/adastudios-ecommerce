@@ -19,26 +19,44 @@ export const useProductFilters = (initialProducts: SimpleProduct[]) => {
   });
 
   const applyFilters = useCallback((products: SimpleProduct[], currentFilters: FilterState) => {
-    let filtered = [...products];
-
-    if (currentFilters.mainCategory !== 'all') {
+    // Split products into in-stock and out-of-stock
+    const inStock = products.filter(p => p.availableForSale && p.quantityAvailable > 0);
+    const outOfStock = products.filter(p => !p.availableForSale || p.quantityAvailable === 0);
+    
+    // Apply category filters to both groups
+    const filterByCategory = (items: SimpleProduct[]) => {
+      if (currentFilters.mainCategory === 'all') {
+        return items;
+      }
+      
       if (currentFilters.mainCategory === 'Sale') {
-        filtered = filtered.filter(product => 
+        return items.filter(product => 
           product.compareAtPrice && 
           product.compareAtPrice > product.price
         );
-      } else if (currentFilters.mainCategory === 'low-stock') {
-        filtered = filtered.filter(product => 
+      } 
+      
+      if (currentFilters.mainCategory === 'low-stock') {
+        return items.filter(product => 
           product.availableForSale && 
           product.quantityAvailable > 0 && 
           product.quantityAvailable <= 5
         );
-      } else {
-        filtered = filtered.filter(product => 
-          product.tags.some(tag => tag.toLowerCase() === currentFilters.mainCategory.toLowerCase())
-        );
       }
-    }
+      
+      return items.filter(product => 
+        product.collections?.edges.some(edge => 
+          edge.node.handle.toLowerCase() === currentFilters.mainCategory.toLowerCase()
+        )
+      );
+    };
+
+    // Apply filters to both groups
+    const filteredInStock = filterByCategory(inStock);
+    const filteredOutOfStock = filterByCategory(outOfStock);
+
+    // Combine the results with in-stock first
+    let filtered = [...filteredInStock, ...filteredOutOfStock];
 
     // Only apply sorting if user has explicitly chosen a sort option
     if (currentFilters.sortBy !== 'manual') {
@@ -68,15 +86,24 @@ export const useProductFilters = (initialProducts: SimpleProduct[]) => {
   useEffect(() => {
     if (initialProducts.length > 0) {
       startTransition(() => {
-        let filtered = [...initialProducts];
+        // If no filters are active and no search term, return initial products directly
+        if (filters.mainCategory === 'all' && filters.sortBy === 'manual' && !searchTerm) {
+          setFilteredProducts(initialProducts);
+          return;
+        }
+
+        // Only create a new array if we need to filter
+        let filtered = searchTerm 
+          ? initialProducts.filter(product =>
+              product.title.toLowerCase().includes(searchTerm.toLowerCase().trim())
+            )
+          : initialProducts;
         
-        if (searchTerm) {
-          filtered = filtered.filter(product =>
-            product.title.toLowerCase().includes(searchTerm.toLowerCase().trim())
-          );
+        // Only apply category/sort filters if they're not at default values
+        if (filters.mainCategory !== 'all' || filters.sortBy !== 'manual') {
+          filtered = applyFilters(filtered, filters);
         }
         
-        filtered = applyFilters(filtered, filters);
         setFilteredProducts(filtered);
       });
     }
@@ -88,15 +115,26 @@ export const useProductFilters = (initialProducts: SimpleProduct[]) => {
     
     startTransition(() => {
       const searchValue = value.toLowerCase().trim();
-      let filtered = [...initialProducts];
-
-      if (searchValue) {
-        filtered = filtered.filter(product => 
-          product.title.toLowerCase().includes(searchValue)
-        );
+      
+      // If search is cleared and no filters active, return to initial state
+      if (!searchValue && filters.mainCategory === 'all' && filters.sortBy === 'manual') {
+        setFilteredProducts(initialProducts);
+        setSearchLoading(false);
+        return;
       }
 
-      filtered = applyFilters(filtered, filters);
+      // Only filter if we have a search term
+      let filtered = searchValue
+        ? initialProducts.filter(product => 
+            product.title.toLowerCase().includes(searchValue)
+          )
+        : initialProducts;
+
+      // Only apply category/sort filters if they're not at default values
+      if (filters.mainCategory !== 'all' || filters.sortBy !== 'manual') {
+        filtered = applyFilters(filtered, filters);
+      }
+
       setFilteredProducts(filtered);
       setSearchLoading(false);
     });

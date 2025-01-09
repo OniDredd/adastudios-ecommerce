@@ -52,14 +52,25 @@ export default function ShopContent() {
   const fetchProducts = useCallback(async () => {
     try {
       setError(null);
-      // Fetch products from the "all" collection to respect manual sorting
-      // Get products from the "all" collection to respect manual sorting
-      const collections = await shopify.getCollections();
-      const allCollection = collections.find(c => c.handle === 'all');
-      if (!allCollection) {
-        throw new Error('All collection not found');
+      const category = searchParams.get("category");
+      const onSale = searchParams.get("onSale");
+      const stockFilter = searchParams.get("stockFilter");
+      
+      let fetchedProducts;
+      
+      // Determine which API to use based on filters
+      if (onSale === "true") {
+        // For sale items, fetch all products to filter by price comparison
+        fetchedProducts = await shopify.getProducts();
+      } else if (stockFilter === "low") {
+        // For low stock items, fetch all products to filter by quantity
+        fetchedProducts = await shopify.getProducts();
+      } else {
+        // For normal browsing (all products or specific category), use collection-based fetching
+        const collectionHandle = category || "all";
+        fetchedProducts = await shopify.getProductsByCollection(collectionHandle);
       }
-      const fetchedProducts = await shopify.getProductsByCollection('all');
+
       if (!fetchedProducts || fetchedProducts.length === 0) {
         throw new Error('No products found');
       }
@@ -70,7 +81,7 @@ export default function ShopContent() {
       setError('Failed to load products. Please try again later.');
       setProducts([]);
     }
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     fetchProducts();
