@@ -102,7 +102,7 @@ export default function AboutPage() {
         <p className="max-w-2xl mx-auto mb-8">
           We invite you to be part of our growing community of matcha enthusiasts 
           and mindful living advocates. Follow us on social media for brewing tips, 
-          lifestyle inspiration, and updates on new collections.
+          lifestyle inspiration, and updates on new collections..
         </p>
         <div className="flex justify-center space-x-6">
           <a 
