@@ -1,8 +1,10 @@
 import React from 'react';
+import { FadeIn } from '../../components/ui/fade-in';
 
 export default function FAQPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
+    <FadeIn>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
       <h1 className="text-xl text-[hsl(var(--main-maroon))] mb-6 sm:mb-8 uppercase font-medium text-center sm:text-left">
         Frequently Asked Questions
       </h1>
@@ -22,7 +24,7 @@ export default function FAQPage() {
                 clarity, and resistance to thermal shock. Each piece is carefully designed and 
                 manufactured to our exacting standards.
               </p>
-            </div>
+              </div>
 
             <div>
               <h3 className="font-semibold">Are your products dishwasher safe?</h3>
@@ -165,5 +167,6 @@ export default function FAQPage() {
         </section>
       </div>
     </div>
+    </FadeIn>
   );
 }

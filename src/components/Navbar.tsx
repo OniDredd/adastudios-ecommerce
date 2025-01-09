@@ -78,6 +78,12 @@ export default function Navbar(): JSX.Element {
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       setIsScrolled(scrollPosition > 0);
+      
+      // Update announcement bar visibility
+      const announcementBar = document.querySelector('[data-announcement-bar]');
+      if (announcementBar) {
+        announcementBar.setAttribute('data-scrolled', (scrollPosition > 0).toString());
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -89,9 +95,9 @@ export default function Navbar(): JSX.Element {
 
   return (
     <header className={`fixed w-full z-50 transition-all duration-300 border-b ${
-      isScrolled || isMobileMenuOpen
-        ? "bg-secondary-peach border-main-maroon" 
-        : "bg-transparent border-transparent"
+      isScrolled || isMobileMenuOpen || pathname !== '/'
+        ? "bg-secondary-peach border-main-maroon top-0" 
+        : "bg-transparent border-transparent top-[32px]"
     }`}>
       <div className="mx-auto">
         <div className="relative flex items-center justify-between h-[70px]">

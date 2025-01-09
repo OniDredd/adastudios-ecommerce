@@ -4,8 +4,9 @@ import InstagramFeed from "@/components/Homepage/InstagramFeed";
 import NewArrivals from "@/components/Homepage/NewArrivals";
 import ProductSlider from "@/components/Homepage/ExclusiveMatcha";
 import HomeSlider from "@/components/Homepage/HomeSlider";
-import shopify from '@/lib/shopify';
-import { ShopifyProduct } from '@/types/shopify';
+import shopify from "@/lib/shopify";
+import { ShopifyProduct } from "@/types/shopify";
+import { FadeIn } from "@/components/ui/fade-in";
 
 interface NewArrivalProduct {
   id: string;
@@ -180,13 +181,17 @@ export default async function Home() {
   ]);
   
   return (
-    <main className="flex flex-col items-center justify-between bg-secondary-peach overflow-hidden">
-      <SaleBanner />
-      <NewArrivals products={newArrivals} />
-      <ProductSlider products={matchaProducts} />
-      <InstagramFeed config={INSTAGRAM_FEED_CONFIG} />
-      <BrandDescription />
-      <HomeSlider />
+    <main className="flex flex-col items-center justify-between w-full bg-secondary-peach overflow-hidden">
+      <FadeIn>
+        <div className="w-full">
+          <SaleBanner />
+          <NewArrivals products={newArrivals} />
+          <ProductSlider products={matchaProducts} />
+          <InstagramFeed config={INSTAGRAM_FEED_CONFIG} />
+          <BrandDescription />
+          <HomeSlider />
+        </div>
+      </FadeIn>
     </main>
   );
 }

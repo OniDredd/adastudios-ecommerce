@@ -4,6 +4,7 @@ import "./globals.css";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import Cart from "../components/Cart";
+import AnnouncementBar from "../components/AnnouncementBar";
 import { CartProvider } from "../components/CartProvider";
 import { CurrencyProvider } from "../components/CurrencyProvider";
 
@@ -30,6 +31,7 @@ export default function RootLayout({
       <body className={montserrat.className}>
         <CurrencyProvider>
           <CartProvider>
+            <AnnouncementBar />
             <Navbar />
             <Cart />
             <main>{children}</main>

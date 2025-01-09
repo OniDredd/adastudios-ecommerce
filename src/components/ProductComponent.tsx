@@ -16,11 +16,27 @@ interface ProductComponentProps {
 const LOW_STOCK_THRESHOLD = 5;
 
 const ProductSkeleton: React.FC = () => (
-  <div className="flex flex-col h-full rounded-lg animate-pulse">
-    <div className="aspect-[3/4] w-full bg-secondary-peach rounded-sm mb-2 sm:mb-3"></div>
+  <div className="relative flex flex-col h-full rounded-lg">
+    <div className="aspect-[3/4] w-full bg-gradient-to-r from-secondary-peach/30 via-secondary-peach/50 to-secondary-peach/30 rounded-sm mb-2 sm:mb-3 border border-secondary-peach/20 relative animate-shimmer bg-[length:200%_100%]">
+      {/* Maintain badge placeholders for consistent layout */}
+      <div className="absolute top-2 right-2">
+        <div className="w-16 h-5 bg-secondary-peach/40 rounded-full" />
+      </div>
+      <div className="absolute top-2 left-2">
+        <div className="w-14 h-5 bg-secondary-peach/40 rounded-full" />
+      </div>
+    </div>
     <div className="mt-auto px-2 sm:px-3">
-      <div className="h-3 sm:h-4 bg-secondary-peach rounded w-3/4 mb-1 sm:mb-2"></div>
-      <div className="h-4 sm:h-5 bg-secondary-peach rounded w-1/4 mb-2 sm:mb-3"></div>
+      {/* Title placeholder */}
+      <div className="space-y-1 mb-1 sm:mb-2">
+        <div className="h-3 sm:h-4 bg-gradient-to-r from-secondary-peach/30 via-secondary-peach/50 to-secondary-peach/30 rounded-full w-full animate-shimmer bg-[length:200%_100%]"></div>
+        <div className="h-3 sm:h-4 bg-gradient-to-r from-secondary-peach/30 via-secondary-peach/50 to-secondary-peach/30 rounded-full w-2/3 animate-shimmer bg-[length:200%_100%]"></div>
+      </div>
+      {/* Price placeholder */}
+      <div className="flex items-center gap-2 mb-2 sm:mb-3">
+        <div className="h-4 sm:h-5 bg-gradient-to-r from-secondary-peach/30 via-secondary-peach/50 to-secondary-peach/30 rounded-full w-16 animate-shimmer bg-[length:200%_100%]"></div>
+        <div className="h-3 sm:h-4 bg-gradient-to-r from-secondary-peach/30 via-secondary-peach/50 to-secondary-peach/30 rounded-full w-12 animate-shimmer bg-[length:200%_100%]"></div>
+      </div>
     </div>
   </div>
 );

@@ -503,21 +503,87 @@ export function CartProvider({ children }: { children: ReactNode }) {
         // Always update local state even if Shopify operations fail
         setCart(currentCart => currentCart.filter(cartItem => cartItem.variantId !== variantId));
       } else {
-        // Update quantity using the new updateCartLine function
-        const cartData = await shopifyClient.updateCartLine(currentCartId, item.lineId, quantity);
-        
-        // Find the updated line in the response
-        const updatedLine = cartData.lines.edges.find(edge => 
-          edge.node.merchandise.id === variantId
-        )?.node;
+        try {
+          // First verify if the line still exists in Shopify's cart
+          const cartData = await shopifyClient.shopifyFetch<{
+            cart: {
+              lines: {
+                edges: Array<{
+                  node: {
+                    id: string;
+                    merchandise: {
+                      id: string;
+                    };
+                  };
+                }>;
+              };
+            };
+          }>(`
+            query getCart($cartId: ID!) {
+              cart(id: $cartId) {
+                lines(first: 100) {
+                  edges {
+                    node {
+                      id
+                      merchandise {
+                        ... on ProductVariant {
+                          id
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          `, { cartId: currentCartId });
 
-        if (!updatedLine?.id) {
-          throw new Error('No line ID returned from Shopify');
+          const lineExists = cartData.cart.lines.edges.some(
+            (edge: { node: { id: string } }) => edge.node.id === item.lineId
+          );
+
+          if (!lineExists) {
+            // If line doesn't exist, create a new cart and add the item
+            const newCart = await shopifyClient.createCart(selectedCurrency.code);
+            currentCartId = newCart.id;
+            setCartId(currentCartId);
+            localStorage.setItem('shopifyCartId', currentCartId);
+
+            // Add the item with the new quantity
+            const updatedCart = await shopifyClient.addToCart(currentCartId, [{
+              merchandiseId: item.variantId,
+              quantity: quantity
+            }]);
+
+            const newLine = updatedCart.lines.edges[0]?.node;
+            if (!newLine?.id) {
+              throw new Error('No line ID returned from Shopify');
+            }
+
+            setCart(currentCart => currentCart.map(cartItem =>
+              cartItem.variantId === variantId
+                ? { ...cartItem, lineId: newLine.id, quantity }
+                : cartItem
+            ));
+          } else {
+            // Line exists, proceed with update
+            const updatedCart = await shopifyClient.updateCartLine(currentCartId, item.lineId, quantity);
+            
+            const updatedLine = updatedCart.lines.edges.find(edge => 
+              edge.node.merchandise.id === variantId
+            )?.node;
+
+            if (!updatedLine?.id) {
+              throw new Error('No line ID returned from Shopify');
+            }
+
+            setCart(currentCart => currentCart.map(cartItem =>
+              cartItem.variantId === variantId ? { ...cartItem, lineId: updatedLine.id, quantity } : cartItem
+            ));
+          }
+        } catch (error) {
+          console.error('Failed to update quantity:', error);
+          throw error;
         }
-
-        setCart(currentCart => currentCart.map(item =>
-          item.variantId === variantId ? { ...item, lineId: updatedLine.id, quantity } : item
-        ));
       }
     } catch (error: any) {
       // If we get an inventory error, don't update cart and don't log error

@@ -1,8 +1,10 @@
 import React from 'react';
+import { FadeIn } from '../../components/ui/fade-in';
 
 export default function CareInstructionsPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
+    <FadeIn>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
       <h1 className="text-xl text-[hsl(var(--main-maroon))] mb-6 sm:mb-8 uppercase font-medium text-center sm:text-left">
         Care Instructions
       </h1>
@@ -25,7 +27,7 @@ export default function CareInstructionsPage() {
               <li>Clean immediately after use</li>
               <li>Use appropriate cleaning products</li>
             </ul>
-          </div>
+            </div>
         </section>
 
         {/* Cleaning Instructions */}
@@ -177,5 +179,6 @@ export default function CareInstructionsPage() {
         </section>
       </div>
     </div>
+    </FadeIn>
   );
 }

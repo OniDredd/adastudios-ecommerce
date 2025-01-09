@@ -1,8 +1,10 @@
 import React from 'react';
+import { FadeIn } from '../../components/ui/fade-in';
 
 export default function TermsConditions() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
+    <FadeIn>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
       <h1 className="text-xl text-[hsl(var(--main-maroon))] mb-6 sm:mb-8 uppercase font-medium text-center sm:text-left">
         Terms & Conditions
       </h1>
@@ -16,7 +18,7 @@ export default function TermsConditions() {
             <p>
               By accessing and using this website, you agree to be bound by these Terms and Conditions and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.
             </p>
-          </div>
+            </div>
         </section>
 
         <section>
@@ -127,5 +129,6 @@ export default function TermsConditions() {
         </section>
       </div>
     </div>
+    </FadeIn>
   );
 }

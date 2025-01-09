@@ -1,8 +1,10 @@
 import React from 'react';
+import { FadeIn } from '../../components/ui/fade-in';
 
 export default function ContactPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
+    <FadeIn>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
       <h1 className="text-xl text-[hsl(var(--main-maroon))] mb-6 sm:mb-8 uppercase font-medium text-center sm:text-left">
         Contact Us
       </h1>
@@ -26,7 +28,7 @@ export default function ContactPage() {
             <div>
               <p className="font-medium">Customer Service Hours:</p>
               <p>Monday - Friday: 9:00 AM - 5:00 PM PST</p>
-            </div>
+              </div>
             <div>
               <p className="font-medium">Email:</p>
               <p>support@adastudios.com</p>
@@ -59,7 +61,7 @@ export default function ContactPage() {
               target="_blank" 
               rel="noopener noreferrer"
               className="text-[hsl(var(--main-maroon))] hover:opacity-80 transition-opacity"
-            >
+              >
               Facebook
             </a>
             <a 
@@ -67,12 +69,13 @@ export default function ContactPage() {
               target="_blank" 
               rel="noopener noreferrer"
               className="text-[hsl(var(--main-maroon))] hover:opacity-80 transition-opacity"
-            >
+              >
               TikTok
             </a>
           </div>
         </section>
       </div>
     </div>
+    </FadeIn>
   );
 }

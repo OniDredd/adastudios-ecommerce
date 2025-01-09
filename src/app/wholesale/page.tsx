@@ -1,9 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
+import { FadeIn } from '../../components/ui/fade-in';
 
 export default function Wholesale() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
+    <FadeIn>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
       <h1 className="text-xl text-[hsl(var(--main-maroon))] mb-6 sm:mb-8 uppercase font-medium text-center sm:text-left">
         Wholesale Partnership
       </h1>
@@ -31,7 +33,7 @@ export default function Wholesale() {
               <li>Flexible minimum order quantities</li>
               <li>Quick turnaround times</li>
             </ul>
-          </div>
+            </div>
         </section>
 
         <section>
@@ -81,7 +83,7 @@ export default function Wholesale() {
               <Link 
                 href="/contact" 
                 className="inline-block bg-[hsl(var(--main-maroon))] text-[hsl(var(--secondary-peach))] px-6 py-2 rounded hover:opacity-90 transition-opacity duration-200"
-              >
+                >
                 Contact Us
               </Link>
             </div>
@@ -100,5 +102,6 @@ export default function Wholesale() {
         </section>
       </div>
     </div>
+    </FadeIn>
   );
 }

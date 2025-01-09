@@ -1,8 +1,10 @@
 import React from 'react';
+import { FadeIn } from '../../components/ui/fade-in';
 
 export default function Sustainability() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
+    <FadeIn>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
       <h1 className="text-xl text-[hsl(var(--main-maroon))] mb-6 sm:mb-8 uppercase font-medium text-center sm:text-left">
         Our Commitment to Sustainability
       </h1>
@@ -16,7 +18,7 @@ export default function Sustainability() {
             <p>
               At Ada Studios, we carefully select our materials to ensure they meet our high standards for both quality and sustainability. Our glassware is crafted from recycled glass whenever possible, and we continuously work to increase the percentage of recycled materials in our products.
             </p>
-          </div>
+            </div>
         </section>
 
         <section>
@@ -87,5 +89,6 @@ export default function Sustainability() {
         </section>
       </div>
     </div>
+    </FadeIn>
   );
 }

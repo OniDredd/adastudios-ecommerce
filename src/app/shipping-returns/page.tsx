@@ -1,8 +1,10 @@
 import React from 'react';
+import { FadeIn } from '../../components/ui/fade-in';
 
 export default function ShippingReturnsPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
+    <FadeIn>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
       <h1 className="text-xl text-[hsl(var(--main-maroon))] mb-6 sm:mb-8 uppercase font-medium text-center sm:text-left">
         Shipping & Returns
       </h1>
@@ -25,7 +27,7 @@ export default function ShippingReturnsPage() {
                 <div>
                   <p className="font-medium">Standard Shipping (5-7 business days)</p>
                   <p>Free over $75, $7.95 under $75</p>
-                </div>
+                  </div>
 
                 <div>
                   <p className="font-medium">Express Shipping (2-3 business days)</p>
@@ -102,6 +104,7 @@ export default function ShippingReturnsPage() {
           </div>
         </section>
       </div>
-    </div>
+      </div>
+    </FadeIn>
   );
 }

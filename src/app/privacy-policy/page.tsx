@@ -1,8 +1,10 @@
 import React from 'react';
+import { FadeIn } from '../../components/ui/fade-in';
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
+    <FadeIn>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
       <h1 className="text-xl text-[hsl(var(--main-maroon))] mb-6 sm:mb-8 uppercase font-medium text-center sm:text-left">
         Privacy Policy
       </h1>
@@ -19,7 +21,7 @@ export default function PrivacyPolicyPage() {
             <p>
               The personal information we collect includes names, addresses, email addresses, phone numbers, payment information, and any other information you choose to provide. We use this information to fulfill orders, communicate with you, and improve our services.
             </p>
-          </div>
+            </div>
         </section>
 
         <section>
@@ -114,5 +116,6 @@ export default function PrivacyPolicyPage() {
         </section>
       </div>
     </div>
+    </FadeIn>
   );
 }

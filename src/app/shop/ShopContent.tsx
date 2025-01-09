@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { FadeIn } from "../../components/ui/fade-in";
 import { useSearchParams } from "next/navigation";
 import { Button } from "../../components/ui/button";
 import shopify, { SimpleProduct } from "../../lib/shopify";
@@ -19,6 +20,7 @@ export default function ShopContent() {
   const [products, setProducts] = useState<SimpleProduct[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [isChangingCategory, setIsChangingCategory] = useState(false);
 
   const {
     filters,
@@ -37,12 +39,13 @@ export default function ShopContent() {
     goToPage,
   } = usePagination(filteredProducts, PRODUCTS_PER_PAGE);
 
-  // Update filters when URL changes
+  // Update filters and trigger loading state when URL changes
   useEffect(() => {
     const category = searchParams.get("category");
     const onSale = searchParams.get("onSale");
     const stockFilter = searchParams.get("stockFilter");
 
+    setIsChangingCategory(true);
     updateFilters({
       mainCategory: category || (onSale ? "Sale" : stockFilter === "low" ? "low-stock" : "all"),
       subcategory: "all",
@@ -50,6 +53,7 @@ export default function ShopContent() {
   }, [searchParams, updateFilters]);
 
   const fetchProducts = useCallback(async () => {
+    setIsChangingCategory(true);
     try {
       setError(null);
       const category = searchParams.get("category");
@@ -76,10 +80,12 @@ export default function ShopContent() {
       }
       const transformedProducts = fetchedProducts.map(transformProduct);
       setProducts(transformedProducts);
+      setIsChangingCategory(false);
     } catch (error) {
       console.error("Error fetching products:", error);
       setError('Failed to load products. Please try again later.');
       setProducts([]);
+      setIsChangingCategory(false);
     }
   }, [searchParams]);
 
@@ -88,10 +94,11 @@ export default function ShopContent() {
   }, [fetchProducts]);
 
   return (
-    <div className="mx-auto pt-32 pb-8">
+    <FadeIn>
+      <div className="mx-auto pt-32 pb-32">
       {/* Header */}
       <div className="mb-8 px-3 sm:px-4 md:px-6 lg:px-8">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center">
           <h1 className="text-xl font-medium text-main-maroon">Shop All</h1>
           <Button
             variant="outline"
@@ -121,11 +128,7 @@ export default function ShopContent() {
       </div>
 
       {/* Products Grid */}
-      <div
-        className={`transform transition-all duration-300 ease-in-out ${
-          showFilters ? "translate-y-0" : "-translate-y-4"
-        }`}
-      >
+      <div className="relative">
         {error ? (
           <div className="text-center py-12">
             <p className="text-main-maroon text-lg">{error}</p>
@@ -139,7 +142,7 @@ export default function ShopContent() {
         ) : (
           <ProductGrid
             products={currentProducts}
-            isLoading={products.length === 0 || isPending}
+            isLoading={products.length === 0 || isPending || isChangingCategory}
             loadingCount={8}
           />
         )}
@@ -153,5 +156,6 @@ export default function ShopContent() {
         />
       </div>
     </div>
+    </FadeIn>
   );
 }

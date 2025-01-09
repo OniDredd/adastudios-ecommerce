@@ -110,13 +110,13 @@ export function ShopAllMenu(): JSX.Element {
           return {
             name: categoryName,
             description: `Explore our ${categoryName.toLowerCase()} collection`,
-            href: `/shop?mainCategory=${categoryName.toLowerCase()}`,
+            href: `/shop?category=${categoryName.toLowerCase()}`,
             subcategories: {
               title: `${categoryName} Types`,
               items: Array.from(subcats).map(subcat => ({
                 name: subcat,
                 description: `${subcat} ${categoryName.toLowerCase()}`,
-                href: `/shop?mainCategory=${categoryName.toLowerCase()}&subcategory=${subcat}`,
+                href: `/shop?category=${categoryName.toLowerCase()}&subcategory=${subcat}`,
               })),
             },
             featured: featuredProducts.map(product => ({
@@ -150,7 +150,7 @@ export function ShopAllMenu(): JSX.Element {
             SHOP ALL
           </NavigationMenuTrigger>
         </div>
-        <NavigationMenuContent>
+        <NavigationMenuContent className="data-[motion=from-start]:animate-slide-in-from-left data-[motion=from-end]:animate-slide-in-from-right data-[motion=to-start]:animate-slide-out-to-left data-[motion=to-end]:animate-slide-out-to-right">
           <div className="w-screen h-[400px] bg-secondary-peach flex items-center justify-center border border-main-maroon rounded-lg">
             <div className="text-main-maroon">Loading...</div>
           </div>
@@ -166,7 +166,7 @@ export function ShopAllMenu(): JSX.Element {
           SHOP ALL
         </NavigationMenuTrigger>
       </div>
-      <NavigationMenuContent>
+      <NavigationMenuContent className="data-[motion=from-start]:animate-slide-in-from-left data-[motion=from-end]:animate-slide-in-from-right data-[motion=to-start]:animate-slide-out-to-left data-[motion=to-end]:animate-slide-out-to-right">
         <div className="w-screen h-[400px] bg-secondary-peach p-6 border border-main-maroon rounded-lg">
           <div className="container mx-auto grid grid-cols-3 gap-6">
             <div className="space-y-4">
@@ -310,13 +310,13 @@ export function SaleMenu(): JSX.Element {
           {
             name: 'Clearance',
             description: 'Up to 70% off',
-            href: '/shop?mainCategory=Sale',
+            href: '/shop?onSale=true',
             featured: clearanceProducts
           },
           {
             name: 'Last Chance',
             description: 'Limited availability',
-            href: '/shop?mainCategory=low-stock',
+            href: '/shop?stockFilter=low',
             featured: lastChanceProducts
           }
         ];
@@ -336,12 +336,12 @@ export function SaleMenu(): JSX.Element {
   if (loading) {
     return (
       <NavigationMenuItem>
-        <div onClick={(e) => handleNavigation('/shop?mainCategory=Sale', e)} className="inline-flex cursor-pointer">
+        <div onClick={(e) => handleNavigation('/shop?onSale=true', e)} className="inline-flex cursor-pointer">
           <NavigationMenuTrigger className="data-[state=open]:bg-main-maroon bg-transparent border border-transparent hover:border-main-maroon hover:text-main-maroon data-[state=open]:text-secondary-peach">
             SALE
           </NavigationMenuTrigger>
         </div>
-        <NavigationMenuContent>
+        <NavigationMenuContent className="data-[motion=from-start]:animate-slide-in-from-left data-[motion=from-end]:animate-slide-in-from-right data-[motion=to-start]:animate-slide-out-to-left data-[motion=to-end]:animate-slide-out-to-right">
           <div className="w-screen h-[400px] bg-secondary-peach flex items-center justify-center border border-main-maroon rounded-lg">
             <div className="text-main-maroon">Loading...</div>
           </div>
@@ -352,12 +352,12 @@ export function SaleMenu(): JSX.Element {
 
   return (
     <NavigationMenuItem>
-      <div onClick={(e) => handleNavigation('/shop?sale=true', e)} className="inline-flex cursor-pointer">
+      <div onClick={(e) => handleNavigation('/shop?onSale=true', e)} className="inline-flex cursor-pointer">
         <NavigationMenuTrigger className="data-[state=open]:bg-main-maroon bg-transparent border border-transparent hover:border-main-maroon hover:text-main-maroon data-[state=open]:text-secondary-peach">
           SALE
         </NavigationMenuTrigger>
       </div>
-      <NavigationMenuContent>
+      <NavigationMenuContent className="data-[motion=from-start]:animate-slide-in-from-left data-[motion=from-end]:animate-slide-in-from-right data-[motion=to-start]:animate-slide-out-to-left data-[motion=to-end]:animate-slide-out-to-right">
         <div className="w-screen h-[400px] bg-secondary-peach p-6 border border-main-maroon rounded-lg">
           <div className="container mx-auto grid grid-cols-3 gap-6">
             <div className="space-y-4">
