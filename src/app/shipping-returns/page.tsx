@@ -1,5 +1,29 @@
 import React from 'react';
 import { FadeIn } from '../../components/ui/fade-in';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Shipping & Returns | Ada Studio',
+  description: 'Learn about Ada Studio\'s shipping methods, delivery times, and return policy. Free shipping on orders over $75, easy 30-day returns, and international shipping available.',
+  openGraph: {
+    title: 'Shipping & Returns Policy | Ada Studio',
+    description: 'Free shipping on orders over $100 for NZ and $150 for AUS, express delivery options, and hassle-free 30-day returns on all Ada Studio products.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Ada Studio Shipping & Returns',
+      },
+    ],
+    type: 'website',
+    siteName: 'Ada Studio',
+  },
+  keywords: ['shipping policy', 'return policy', 'free shipping', 'delivery times', 'international shipping', '30-day returns', 'shipping rates'],
+  alternates: {
+    canonical: 'https://adastudio.co.nz/shipping-returns'
+  }
+};
 
 export default function ShippingReturnsPage() {
   return (

@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://adastudio.com/sitemap.xml
+
+# Common crawl optimizations
+Disallow: /api/
+Disallow: /*?
+Disallow: /cart
+Disallow: /checkout
+Disallow: /account
+Disallow: /search
+
+# Allow product and collection pages
+Allow: /product/
+Allow: /shop

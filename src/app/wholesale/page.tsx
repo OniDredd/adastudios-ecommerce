@@ -1,6 +1,30 @@
 import React from 'react';
 import Link from 'next/link';
 import { FadeIn } from '../../components/ui/fade-in';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Wholesale Partnership | Ada Studio',
+  description: 'Partner with Ada Studio for wholesale premium glassware and matcha products. Competitive pricing, dedicated support, and flexible minimum orders for qualified retailers.',
+  openGraph: {
+    title: 'Wholesale Program | Ada Studio',
+    description: 'Join Ada Studio\'s wholesale program. Premium glassware and matcha products for retailers, with competitive pricing and dedicated support.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Ada Studio Wholesale Program',
+      },
+    ],
+    type: 'website',
+    siteName: 'Ada Studio',
+  },
+  keywords: ['wholesale program', 'retail partnership', 'bulk orders', 'wholesale pricing', 'business partnership', 'wholesale glassware', 'wholesale matcha'],
+  alternates: {
+    canonical: 'https://adastudio.co.nz/wholesale'
+  }
+};
 
 export default function Wholesale() {
   return (

@@ -1,5 +1,29 @@
 import React from 'react';
 import { FadeIn } from '../../components/ui/fade-in';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy | Ada Studio',
+  description: 'Learn how Ada Studio protects and handles your personal information. Read about our data collection practices, cookie policy, and your privacy rights.',
+  openGraph: {
+    title: 'Privacy Policy | Ada Studio',
+    description: 'Understand how we collect, use, and protect your personal information. Read our comprehensive privacy policy and data protection practices.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Ada Studio Privacy Policy',
+      },
+    ],
+    type: 'website',
+    siteName: 'Ada Studio',
+  },
+  keywords: ['privacy policy', 'data protection', 'cookie policy', 'personal information', 'data collection', 'privacy rights', 'GDPR', 'data security'],
+  alternates: {
+    canonical: 'https://adastudio.co.nz/privacy-policy'
+  }
+};
 
 export default function PrivacyPolicyPage() {
   return (

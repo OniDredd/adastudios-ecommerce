@@ -1,12 +1,30 @@
-import SaleBanner from "@/components/Homepage/Banner";
-import BrandDescription from "@/components/Homepage/BrandDescription";
-import InstagramFeed from "@/components/Homepage/InstagramFeed";
-import NewArrivals from "@/components/Homepage/NewArrivals";
-import ProductSlider from "@/components/Homepage/ExclusiveMatcha";
-import HomeSlider from "@/components/Homepage/HomeSlider";
-import shopify from "@/lib/shopify";
-import { ShopifyProduct } from "@/types/shopify";
-import { FadeIn } from "@/components/ui/fade-in";
+import { Metadata } from "next";
+import SaleBanner from "../components/Homepage/Banner";
+import BrandDescription from "../components/Homepage/BrandDescription";
+import InstagramFeed from "../components/Homepage/InstagramFeed";
+import NewArrivals from "../components/Homepage/NewArrivals";
+import ProductSlider from "../components/Homepage/ExclusiveMatcha";
+import HomeSlider from "../components/Homepage/HomeSlider";
+import shopify from "../lib/shopify";
+import { ShopifyProduct } from "../types/shopify";
+import { FadeIn } from "../components/ui/fade-in";
+
+export const metadata: Metadata = {
+  title: "Ada Studio | Premium Matcha, Glassware & Accessories",
+  description: "Discover our curated collection of premium matcha, elegant glassware, and carefully selected accessories. Experience quality and style with Ada Studio.",
+  openGraph: {
+    title: "Ada Studio | Premium Matcha & Glassware",
+    description: "Discover our curated collection of premium matcha, elegant glassware, and carefully selected accessories.",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Ada Studio Collection",
+      },
+    ],
+  },
+};
 
 interface NewArrivalProduct {
   id: string;
@@ -174,24 +192,62 @@ const INSTAGRAM_FEED_CONFIG = {
   }
 } as const;
 
+// Generate JSON-LD structured data
+function generateStructuredData(newArrivals: NewArrivalProduct[], matchaProducts: MatchaProduct[]) {
+  const organizationStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Ada Studio",
+    url: "https://adastudio.com",
+    logo: "https://adastudio.com/adastudioslogo-maroon.svg",
+    description: "Premium matcha, glassware, and accessories retailer",
+    sameAs: [
+      "https://www.instagram.com/adastudio",
+      // Add other social media URLs here
+    ],
+  };
+
+  const websiteStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Ada Studio",
+    url: "https://adastudio.com",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: "https://adastudio.com/search?q={search_term_string}",
+      "query-input": "required name=search_term_string",
+    },
+  };
+
+  return [organizationStructuredData, websiteStructuredData];
+}
+
 export default async function Home() {
   const [newArrivals, matchaProducts] = await Promise.all([
     getNewArrivals(),
     getMatchaProducts()
   ]);
+
+  const structuredData = generateStructuredData(newArrivals, matchaProducts);
   
   return (
-    <main className="flex flex-col items-center justify-between w-full bg-secondary-peach overflow-hidden">
-      <FadeIn>
-        <div className="w-full">
-          <SaleBanner />
-          <NewArrivals products={newArrivals} />
-          <ProductSlider products={matchaProducts} />
-          <InstagramFeed config={INSTAGRAM_FEED_CONFIG} />
-          <BrandDescription />
-          <HomeSlider />
-        </div>
-      </FadeIn>
-    </main>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <main className="flex flex-col items-center justify-between w-full bg-secondary-peach overflow-hidden">
+        <FadeIn>
+          <div className="w-full">
+            <SaleBanner />
+            <NewArrivals products={newArrivals} />
+            <ProductSlider products={matchaProducts} />
+            <InstagramFeed config={INSTAGRAM_FEED_CONFIG} />
+            <BrandDescription />
+            <HomeSlider />
+          </div>
+        </FadeIn>
+      </main>
+    </>
   );
 }

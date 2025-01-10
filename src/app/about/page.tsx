@@ -1,10 +1,62 @@
 import React from 'react';
 import Image from 'next/image';
 import { FadeIn } from '../../components/ui/fade-in';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "About Us | Ada Studio",
+  description: "Discover the story behind Ada Studio, our mission to bring premium matcha and thoughtfully designed lifestyle products to modern living, and our commitment to quality and sustainability.",
+  openGraph: {
+    title: "About Ada Studio | Our Story & Mission",
+    description: "Discover the story behind Ada Studio, our commitment to quality matcha, and our vision for mindful living through beautifully crafted products.",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Ada Studio Story",
+      },
+    ],
+    type: "website",
+    siteName: "Ada Studio",
+  },
+  keywords: ["matcha", "sustainability", "quality", "craftsmanship", "mindful living"],
+  alternates: {
+    canonical: "https://adastudio.co.nz/about"
+  }
+};
+
+// Generate JSON-LD structured data for the About page
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  mainEntity: {
+    "@type": "Organization",
+    name: "Ada Studio",
+    description: "Ada Studios was born from a passion for creating beautiful, mindful moments through the art of matcha and thoughtfully designed lifestyle products.",
+    foundingDate: "2024",
+    url: "https://adastudio.com",
+    sameAs: [
+      "https://instagram.com",
+      "https://facebook.com",
+      "https://tiktok.com"
+    ],
+    brand: {
+      "@type": "Brand",
+      name: "Ada Studio",
+      slogan: "Creating beautiful, mindful moments",
+      description: "Premium matcha and thoughtfully designed lifestyle products"
+    }
+  }
+};
 
 export default function AboutPage() {
   return (
     <FadeIn>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <div >
         {/* Hero Section */}
         <div className="text-center px-16 pt-32 pb-16 border-[1px] border-main-maroon flex flex-col items-center justify-center">

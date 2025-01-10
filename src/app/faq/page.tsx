@@ -1,5 +1,29 @@
 import React from 'react';
 import { FadeIn } from '../../components/ui/fade-in';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'FAQ | Ada Studio',
+  description: 'Find answers to common questions about Ada Studio products, shipping, returns, and more. Learn about our glassware materials, care instructions, and customer service.',
+  openGraph: {
+    title: 'Frequently Asked Questions | Ada Studio',
+    description: 'Find answers to common questions about Ada Studio products, shipping, returns, and more.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Ada Studio FAQ',
+      },
+    ],
+    type: 'website',
+    siteName: 'Ada Studio',
+  },
+  keywords: ['faq', 'help', 'shipping', 'returns', 'product care', 'glassware', 'matcha', 'customer service'],
+  alternates: {
+    canonical: 'https://adastudio.co.nz/faq'
+  }
+};
 
 export default function FAQPage() {
   return (

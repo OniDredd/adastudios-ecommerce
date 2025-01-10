@@ -1,5 +1,29 @@
 import React from 'react';
 import { FadeIn } from '../../components/ui/fade-in';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Sustainability | Ada Studio',
+  description: 'Learn about Ada Studio\'s commitment to sustainability, including our eco-friendly packaging, responsible manufacturing, and carbon footprint reduction initiatives. Discover how we\'re working towards a more sustainable future.',
+  openGraph: {
+    title: 'Our Commitment to Sustainability | Ada Studio',
+    description: 'Discover Ada Studio\'s sustainable practices, from eco-friendly packaging to responsible manufacturing. See how we\'re working to reduce our environmental impact.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Ada Studio Sustainability',
+      },
+    ],
+    type: 'website',
+    siteName: 'Ada Studio',
+  },
+  keywords: ['sustainability', 'eco-friendly', 'sustainable packaging', 'carbon footprint', 'recycled materials', 'environmental responsibility', 'green practices'],
+  alternates: {
+    canonical: 'https://adastudio.co.nz/sustainability'
+  }
+};
 
 export default function Sustainability() {
   return (

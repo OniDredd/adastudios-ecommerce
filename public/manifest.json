@@ -1,0 +1,61 @@
+{
+  "name": "Ada Studio",
+  "short_name": "Ada Studio",
+  "description": "Premium matcha, glassware, and accessories retailer",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5E6E0",
+  "theme_color": "#8B0000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["shopping", "lifestyle"],
+  "screenshots": [
+    {
+      "src": "/screenshots/home.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "platform": "wide",
+      "label": "Home page of Ada Studio"
+    },
+    {
+      "src": "/screenshots/shop.jpg",
+      "sizes": "1280x720",
+      "type": "image/jpeg",
+      "platform": "wide",
+      "label": "Shop page showing our products"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Shop All",
+      "url": "/shop",
+      "description": "Browse all products"
+    },
+    {
+      "name": "New Arrivals",
+      "url": "/shop?category=new",
+      "description": "See our latest products"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "lang": "en-US",
+  "dir": "ltr"
+}

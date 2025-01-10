@@ -1,5 +1,29 @@
 import React from 'react';
 import { FadeIn } from '../../components/ui/fade-in';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Care Instructions | Ada Studio',
+  description: 'Learn how to care for your Ada Studio glassware and matcha products. Detailed cleaning instructions, storage tips, and maintenance guidelines to keep your items in pristine condition.',
+  openGraph: {
+    title: 'Product Care Guide | Ada Studio',
+    description: 'Expert care instructions for Ada Studio glassware and matcha products. Learn proper cleaning, storage, and maintenance techniques.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Ada Studio Product Care',
+      },
+    ],
+    type: 'website',
+    siteName: 'Ada Studio',
+  },
+  keywords: ['product care', 'cleaning instructions', 'glassware care', 'matcha storage', 'maintenance guide', 'cleaning tips', 'storage recommendations'],
+  alternates: {
+    canonical: 'https://adastudio.co.nz/care-instructions'
+  }
+};
 
 export default function CareInstructionsPage() {
   return (

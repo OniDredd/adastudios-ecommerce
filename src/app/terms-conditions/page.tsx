@@ -1,5 +1,29 @@
 import React from 'react';
 import { FadeIn } from '../../components/ui/fade-in';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Terms & Conditions | Ada Studio',
+  description: 'Read Ada Studio\'s terms and conditions. Important information about our online store policies, shipping, payments, user accounts, and intellectual property rights.',
+  openGraph: {
+    title: 'Terms & Conditions | Ada Studio',
+    description: 'Important legal information about using Ada Studio\'s website and services. Read our terms of service, user agreements, and policies.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Ada Studio Terms & Conditions',
+      },
+    ],
+    type: 'website',
+    siteName: 'Ada Studio',
+  },
+  keywords: ['terms and conditions', 'legal terms', 'user agreement', 'store policies', 'payment terms', 'shipping policy', 'privacy policy', 'terms of service'],
+  alternates: {
+    canonical: 'https://adastudio.co.nz/terms-conditions'
+  }
+};
 
 export default function TermsConditions() {
   return (
