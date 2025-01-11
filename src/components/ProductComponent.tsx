@@ -80,7 +80,7 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
 
     return (
       <div
-        className={`cursor-${product.availableForSale ? 'pointer' : 'not-allowed'} flex-grow flex flex-col transition-all duration-700 ease-in-out opacity-0 transform translate-y-4 ${
+        className={`cursor-pointer flex-grow flex flex-col transition-all duration-700 ease-in-out opacity-0 transform translate-y-4 ${
           isMounted ? 'opacity-100 translate-y-0' : ''
         }`}
       >
@@ -162,12 +162,10 @@ const ProductComponent: React.FC<ProductComponentProps> = ({
     );
   };
 
-  const content = product.availableForSale ? (
+  const content = (
     <Link href={`/product/${product.handle}`} className="flex-grow flex flex-col group">
       <ProductContent />
     </Link>
-  ) : (
-    <ProductContent />
   );
 
   if (isLoading) {

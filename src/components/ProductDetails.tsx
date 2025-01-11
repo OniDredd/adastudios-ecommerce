@@ -302,13 +302,6 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
           selectedMediaIndex={selectedMediaIndexRef.current}
           onMediaChange={handleMediaChange}
         />
-        {!isAvailable && (
-          <div className="absolute inset-0 bg-gradient-to-t from-main-maroon to-transparent z-10 flex items-center justify-center">
-            <span className="text-secondary-peach px-4 py-2 text-lg font-medium">
-              Out of Stock
-            </span>
-          </div>
-        )}
       </div>
 
       {/* Product Details */}
@@ -369,19 +362,14 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
               </div>
               
               {/* Stock Status */}
-              {selectedVariant?.quantityAvailable === 0 ? (
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-main-maroon/30" />
-                  <span className="text-sm font-medium text-main-maroon/70">Out of Stock</span>
-                </div>
-              ) : selectedVariant?.quantityAvailable <= 5 ? (
+              {selectedVariant?.quantityAvailable > 0 && selectedVariant?.quantityAvailable <= 5 && (
                 <div className="flex items-center gap-1.5">
                   <div className="w-2 h-2 rounded-full bg-main-maroon/50" />
                   <span className="text-sm font-medium text-main-maroon">
                     Only {selectedVariant.quantityAvailable} {selectedVariant.quantityAvailable === 1 ? 'unit' : 'units'} left
                   </span>
                 </div>
-              ) : null}
+              )}
             </div>
 
             {/* Variants */}
@@ -400,24 +388,23 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
             )}
 
             {/* Add to Cart */}
-            {isAvailable && (
-              <div className="bg-secondary-peach">
-                {cartError && (
-                  <div className="flex items-center gap-2 text-red-600 text-sm mb-2">
-                    <AlertCircle className="w-4 h-4" />
-                    <span>{cartError}</span>
-                  </div>
-                )}
-                <AddToCartButton
-                  product={{
-                    id: product.id,
-                    variantId: selectedVariant.id,
-                    title: selectedVariant.title === "Default Title" ? product.title : `${product.title} - ${selectedVariant.title}`,
-                    price: parseFloat(selectedVariant.priceV2.amount),
-                    image: selectedVariant.image?.originalSrc || cartThumbnail,
-                  }}
-                  disabled={!selectedVariant.availableForSale}
-                />
+            <div className="bg-secondary-peach">
+              {cartError && (
+                <div className="flex items-center gap-2 text-red-600 text-sm mb-2">
+                  <AlertCircle className="w-4 h-4" />
+                  <span>{cartError}</span>
+                </div>
+              )}
+              <AddToCartButton
+                product={{
+                  id: product.id,
+                  variantId: selectedVariant.id,
+                  title: selectedVariant.title === "Default Title" ? product.title : `${product.title} - ${selectedVariant.title}`,
+                  price: parseFloat(selectedVariant.priceV2.amount),
+                  image: selectedVariant.image?.originalSrc || cartThumbnail,
+                }}
+                disabled={!selectedVariant.availableForSale}
+              />
                 
                 {price >= 1 && price <= 2000 && (
                   <div className="text-xs text-main-maroon/80 text-center mt-2">
@@ -425,7 +412,6 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
                   </div>
                 )}
               </div>
-            )}
 
             {/* Description */}
             <ProductDescription description={product.descriptionHtml} />

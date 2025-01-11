@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function BrandDescription() {
   return (
     <section className="px-6 py-20 md:p-32 text-center border-t-[1px] border-main-maroon">
-      <p className="mb-6 md:mb-10 text-lg md:text-xl text-main-maroon">
+      <p className="mb-6 md:mb-10 text-base md:text-xl text-main-maroon">
         Ada Studio brings timeless design to your home, offering premium
         glassware and authentic Japanese matcha. Our mission is to inspire a
         better home café experience and create a lifestyle of elegance, comfort,
