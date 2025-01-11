@@ -113,7 +113,7 @@ export default function ShopContent() {
 
         {/* Filter Panel */}
         <div
-          className={`transform transition-all duration-300 ease-in-out ${
+          className={`transform transition-all duration-300 ease-in-out mt-4 ${
             showFilters ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0 h-0 overflow-hidden"
           }`}
         >

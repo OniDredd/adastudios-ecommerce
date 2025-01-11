@@ -5,7 +5,8 @@ import { MotionFade } from "./ui/motion-fade";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { FaShoppingCart, FaChevronDown } from "react-icons/fa";
+import { FaShoppingCart } from "react-icons/fa";
+import { ChevronDownIcon } from "@radix-ui/react-icons";
 import LogoDark from "../../public/adastudioslogo-maroon.svg";
 import { useCart } from './CartProvider';
 import { useCurrency } from './CurrencyProvider';
@@ -103,7 +104,7 @@ export default function Navbar(): JSX.Element {
   const cartItemCount = isInitialized ? cart.reduce((total, item) => total + item.quantity, 0) : 0;
 
   return (
-    <header className={`fixed w-full z-[60] transition-all duration-300 border-b ${
+    <header className={`fixed w-full z-[90] transition-all duration-300 border-b ${
       isScrolled || isMobileMenuOpen || pathname !== '/'
         ? "bg-secondary-peach border-main-maroon top-0" 
         : "bg-transparent border-transparent top-[32px]"
@@ -113,7 +114,7 @@ export default function Navbar(): JSX.Element {
           {/* Mobile Menu Button */}
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-4 border border-transparent hover:border-main-maroon transition-colors relative w-[44px] h-[44px] flex flex-col items-center justify-center"
+            className="md:hidden p-4 border border-transparent hover:border-main-maroon hover:rounded-lg transition-colors relative w-[44px] h-[44px] flex flex-col items-center justify-center"
             aria-label="Toggle menu"
           >
             <div className={`
@@ -130,7 +131,7 @@ export default function Navbar(): JSX.Element {
             `}></div>
           </button>
           {/* Left side - Navigation Menu (Desktop) */}
-          <nav className="hidden md:flex flex-1 relative z-[70]">
+          <nav className="hidden md:flex flex-1 relative z-[80]">
             <NavigationMenu>
               <NavigationMenuList className="text-main-maroon">
                 <ShopAllMenu />
@@ -141,7 +142,7 @@ export default function Navbar(): JSX.Element {
           </nav>
 
           {/* Center - Logo */}
-          <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center z-[70]">
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center z-[80]">
             <Link href="/" className="relative block">
               <Image
                 src={LogoDark}
@@ -155,21 +156,21 @@ export default function Navbar(): JSX.Element {
           </div>
 
           {/* Right side - Currency and Cart */}
-          <div className="w-8 md:w-auto flex justify-end items-center space-x-3 md:space-x-6 md:mr-10 relative z-[70]">
+          <div className="w-8 md:w-auto flex justify-end items-center gap-1 md:gap-2 md:mr-10 relative z-[999]">
             <DropdownMenu onOpenChange={setIsCurrencyOpen}>
-              <div className="inline-flex cursor-pointer">
-                <DropdownMenuTrigger className="data-[state=open]:bg-transparent bg-transparent border-none hover:border-main-maroon rounded-lg transition-all duration-300">
-                  <div className="flex items-center gap-2 px-4 py-2">
+              <div className="inline-flex cursor-pointer group">
+                <DropdownMenuTrigger className="data-[state=open]:bg-transparent bg-transparent border border-transparent hover:border-main-maroon rounded-lg transition-all duration-300">
+                  <div className="flex items-center gap-1 px-2 md:px-3 py-2">
                     <span className="text-sm font-medium text-main-maroon">{selectedCurrency.code}</span>
-                    <FaChevronDown className={`transition-transform duration-200 text-main-maroon ${isCurrencyOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDownIcon className="relative top-[1px] ml-1 h-3 w-3 transition duration-300 text-main-maroon group-data-[state=open]:rotate-180" aria-hidden="true" />
                   </div>
                 </DropdownMenuTrigger>
               </div>
               <MotionFade>
                 <DropdownMenuContent 
-                  className="w-[200px] bg-secondary-peach border border-main-maroon rounded-lg"
+                  className="w-[200px] bg-secondary-peach border border-main-maroon rounded-lg shadow-lg z-[999]"
                   align="end"
-                  alignOffset={-5}
+                  sideOffset={8}
                 >
                 {currencies.map((currency) => (
                   <DropdownMenuItem
@@ -224,91 +225,77 @@ export default function Navbar(): JSX.Element {
           <div className="h-full overflow-y-auto">
             <div className="px-6 py-6 space-y-6">
               <nav className="space-y-6">
-                <button
-                  onClick={(e) => {
-                    handleNavigation('/shop');
-                    setIsMobileMenuOpen(false);
-                  }}
+                <Link
+                  href="/shop"
+                  onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center justify-between text-main-maroon font-medium py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors w-full"
                 >
                   SHOP ALL
-                </button>
+                </Link>
 
                 <div className="space-y-3 border-t border-main-maroon/20 pt-6">
                   <h3 className="text-sm font-medium text-main-maroon px-4">Shop Categories</h3>
-                  <button
-                    onClick={(e) => {
-                      handleNavigation('/shop?mainCategory=matcha');
-                      setIsMobileMenuOpen(false);
-                    }}
+                  <Link
+                    href="/shop?category=matcha"
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors w-full"
                   >
                     <div>
                       <div className="font-medium">Matcha</div>
                       <p className="text-sm text-main-maroon/70">Explore our matcha collection</p>
                     </div>
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      handleNavigation('/shop?mainCategory=glasses');
-                      setIsMobileMenuOpen(false);
-                    }}
+                  </Link>
+                  <Link
+                    href="/shop?category=glasses"
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors w-full"
                   >
                     <div>
                       <div className="font-medium">Glasses</div>
                       <p className="text-sm text-main-maroon/70">Explore our glasses collection</p>
                     </div>
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      handleNavigation('/shop?mainCategory=accessories');
-                      setIsMobileMenuOpen(false);
-                    }}
+                  </Link>
+                  <Link
+                    href="/shop?category=accessories"
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors w-full"
                   >
                     <div>
                       <div className="font-medium">Accessories</div>
                       <p className="text-sm text-main-maroon/70">Explore our accessories collection</p>
                     </div>
-                  </button>
+                  </Link>
                 </div>
-                <button
-                  onClick={(e) => {
-                    handleNavigation('/shop?mainCategory=Sale');
-                    setIsMobileMenuOpen(false);
-                  }}
+                <Link
+                  href="/shop?onSale=true"
+                  onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center justify-between text-main-maroon font-medium py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors w-full"
                 >
                   SALE
-                </button>
+                </Link>
                 
                 <div className="space-y-3 border-t border-main-maroon/20 pt-6">
                   <h3 className="text-sm font-medium text-main-maroon px-4">Sale Categories</h3>
-                  <button
-                    onClick={(e) => {
-                      handleNavigation('/shop?mainCategory=Sale');
-                      setIsMobileMenuOpen(false);
-                    }}
+                  <Link
+                    href="/shop?onSale=true"
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors w-full"
                   >
                     <div>
                       <div className="font-medium">Clearance</div>
                       <p className="text-sm text-main-maroon/70">Up to 70% off</p>
                     </div>
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      handleNavigation('/shop?mainCategory=low-stock');
-                      setIsMobileMenuOpen(false);
-                    }}
+                  </Link>
+                  <Link
+                    href="/shop?stockFilter=low"
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors w-full"
                   >
                     <div>
                       <div className="font-medium">Last Chance</div>
                       <p className="text-sm text-main-maroon/70">Limited availability</p>
                     </div>
-                  </button>
+                  </Link>
                 </div>
               </nav>
             </div>

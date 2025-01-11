@@ -51,7 +51,7 @@ export function FilterPanel({
         </div>
       </div>
       
-      <div className="p-6 space-y-6">
+      <div className="p-6 mt-4 space-y-6">
         {/* Search Bar */}
         <div className="relative">
           <Input

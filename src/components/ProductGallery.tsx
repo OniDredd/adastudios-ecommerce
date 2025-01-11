@@ -93,7 +93,6 @@ export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [currentX, setCurrentX] = useState(0);
-  const [showDragHint, setShowDragHint] = useState(true);
 
   const updateMedia = (index: number) => {
     if (onMediaChange) {
@@ -124,14 +123,6 @@ export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange
       img.src = url;
     });
   }, [media]);
-
-  // Hide drag hint after 3 seconds
-  useEffect(() => {
-    if (showDragHint) {
-      const timer = setTimeout(() => setShowDragHint(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [showDragHint]);
 
   // Desktop drag handling
   const handleDragStart = (clientX: number) => {
@@ -224,15 +215,6 @@ export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange
       >
         <div className="w-8 h-8 border-2 border-main-maroon border-t-transparent rounded-full animate-spin" />
       </div>
-
-      {/* Drag hint - only on mobile */}
-      {showDragHint && (
-        <div className="md:hidden absolute inset-0 z-20 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-main-maroon text-secondary-peach px-4 py-2 rounded-full text-sm animate-pulse">
-            Swipe to view more
-          </div>
-        </div>
-      )}
 
       {/* Image slider container */}
       <div 
