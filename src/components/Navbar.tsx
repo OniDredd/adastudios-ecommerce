@@ -103,7 +103,7 @@ export default function Navbar(): JSX.Element {
   const cartItemCount = isInitialized ? cart.reduce((total, item) => total + item.quantity, 0) : 0;
 
   return (
-    <header className={`fixed w-full z-50 transition-all duration-300 border-b ${
+    <header className={`fixed w-full z-[60] transition-all duration-300 border-b ${
       isScrolled || isMobileMenuOpen || pathname !== '/'
         ? "bg-secondary-peach border-main-maroon top-0" 
         : "bg-transparent border-transparent top-[32px]"
@@ -130,7 +130,7 @@ export default function Navbar(): JSX.Element {
             `}></div>
           </button>
           {/* Left side - Navigation Menu (Desktop) */}
-          <nav className="hidden md:flex flex-1">
+          <nav className="hidden md:flex flex-1 relative z-[70]">
             <NavigationMenu>
               <NavigationMenuList className="text-main-maroon">
                 <ShopAllMenu />
@@ -141,7 +141,7 @@ export default function Navbar(): JSX.Element {
           </nav>
 
           {/* Center - Logo */}
-          <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center">
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center z-[70]">
             <Link href="/" className="relative block">
               <Image
                 src={LogoDark}
@@ -155,7 +155,7 @@ export default function Navbar(): JSX.Element {
           </div>
 
           {/* Right side - Currency and Cart */}
-          <div className="w-8 md:w-auto flex justify-end items-center space-x-3 md:space-x-6 md:mr-10">
+          <div className="w-8 md:w-auto flex justify-end items-center space-x-3 md:space-x-6 md:mr-10 relative z-[70]">
             <DropdownMenu onOpenChange={setIsCurrencyOpen}>
               <div className="inline-flex cursor-pointer">
                 <DropdownMenuTrigger className="data-[state=open]:bg-transparent bg-transparent border-none hover:border-main-maroon rounded-lg transition-all duration-300">
@@ -224,77 +224,91 @@ export default function Navbar(): JSX.Element {
           <div className="h-full overflow-y-auto">
             <div className="px-6 py-6 space-y-6">
               <nav className="space-y-6">
-                <Link
-                  href="/shop"
-                  className="flex items-center justify-between text-main-maroon font-medium py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                <button
+                  onClick={(e) => {
+                    handleNavigation('/shop');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="flex items-center justify-between text-main-maroon font-medium py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors w-full"
                 >
                   SHOP ALL
-                </Link>
+                </button>
 
                 <div className="space-y-3 border-t border-main-maroon/20 pt-6">
                   <h3 className="text-sm font-medium text-main-maroon px-4">Shop Categories</h3>
-                  <Link
-                    href="/shop?mainCategory=matcha"
-                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                  <button
+                    onClick={(e) => {
+                      handleNavigation('/shop?mainCategory=matcha');
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors w-full"
                   >
                     <div>
                       <div className="font-medium">Matcha</div>
                       <p className="text-sm text-main-maroon/70">Explore our matcha collection</p>
                     </div>
-                  </Link>
-                  <Link
-                    href="/shop?mainCategory=glasses"
-                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      handleNavigation('/shop?mainCategory=glasses');
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors w-full"
                   >
                     <div>
                       <div className="font-medium">Glasses</div>
                       <p className="text-sm text-main-maroon/70">Explore our glasses collection</p>
                     </div>
-                  </Link>
-                  <Link
-                    href="/shop?mainCategory=accessories"
-                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      handleNavigation('/shop?mainCategory=accessories');
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors w-full"
                   >
                     <div>
                       <div className="font-medium">Accessories</div>
                       <p className="text-sm text-main-maroon/70">Explore our accessories collection</p>
                     </div>
-                  </Link>
+                  </button>
                 </div>
-                <Link
-                  href="/shop?mainCategory=Sale"
-                  className="flex items-center justify-between text-main-maroon font-medium py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                <button
+                  onClick={(e) => {
+                    handleNavigation('/shop?mainCategory=Sale');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="flex items-center justify-between text-main-maroon font-medium py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors w-full"
                 >
                   SALE
-                </Link>
+                </button>
                 
                 <div className="space-y-3 border-t border-main-maroon/20 pt-6">
                   <h3 className="text-sm font-medium text-main-maroon px-4">Sale Categories</h3>
-                  <Link
-                    href="/shop?mainCategory=Sale"
-                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                  <button
+                    onClick={(e) => {
+                      handleNavigation('/shop?mainCategory=Sale');
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors w-full"
                   >
                     <div>
                       <div className="font-medium">Clearance</div>
                       <p className="text-sm text-main-maroon/70">Up to 70% off</p>
                     </div>
-                  </Link>
-                  <Link
-                    href="/shop?mainCategory=low-stock"
-                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      handleNavigation('/shop?mainCategory=low-stock');
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex items-center text-main-maroon py-3 px-4 rounded-lg border border-transparent hover:border-main-maroon transition-colors w-full"
                   >
                     <div>
                       <div className="font-medium">Last Chance</div>
                       <p className="text-sm text-main-maroon/70">Limited availability</p>
                     </div>
-                  </Link>
+                  </button>
                 </div>
               </nav>
             </div>

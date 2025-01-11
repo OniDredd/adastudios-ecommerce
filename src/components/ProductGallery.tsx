@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '../lib/utils';
 import { ShopifyMediaEdge } from '../lib/shopify';
@@ -20,43 +21,23 @@ function VideoPlayer({ sources, isActive }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isClient, setIsClient] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [showControls, setShowControls] = useState(false);
-
-  // Handle client-side mounting
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Handle video playback
   useEffect(() => {
     if (!isClient || !videoRef.current) return;
 
     const video = videoRef.current;
     if (isActive) {
-      if (isPlaying) {
-        const playPromise = video.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(() => {
-            // Silently handle autoplay error
-          });
-        }
-      } else {
-        video.pause();
-      }
+      video.play();
     } else {
       video.pause();
-      setIsPlaying(false);
     }
-  }, [isActive, isClient, isPlaying]);
-
-  const togglePlayPause = () => {
-    setIsPlaying(!isPlaying);
-  };
+  }, [isActive, isClient]);
 
   if (!sources?.length) return null;
 
-  // Server-side or initial render
   if (!isClient) {
     return (
       <div className="w-full h-full relative bg-secondary-peach">
@@ -68,11 +49,7 @@ function VideoPlayer({ sources, isActive }: VideoPlayerProps) {
   }
 
   return (
-    <div 
-      className="w-full h-full relative group bg-secondary-peach"
-      onMouseEnter={() => setShowControls(true)}
-      onMouseLeave={() => setShowControls(false)}
-    >
+    <div className="w-full h-full relative bg-secondary-peach">
       {!isLoaded && (
         <div className="absolute inset-0 bg-secondary-peach flex items-center justify-center">
           <div className="w-8 h-8 border-2 border-main-maroon border-t-transparent rounded-full animate-spin" />
@@ -98,47 +75,6 @@ function VideoPlayer({ sources, isActive }: VideoPlayerProps) {
           />
         ))}
       </video>
-      
-      {/* Custom play/pause button */}
-      <div 
-        className={cn(
-          "absolute inset-0 flex items-center justify-center bg-secondary-peach/10 transition-all duration-300",
-          (showControls || !isPlaying) ? "opacity-100" : "opacity-0",
-          isPlaying && !showControls ? "pointer-events-none" : "",
-          "hover:bg-secondary-peach/20"
-        )}
-      >
-        <button
-          onClick={togglePlayPause}
-          className="w-14 h-14 rounded-full bg-main-maroon/70 hover:bg-main-maroon/90 transition-all duration-200 flex items-center justify-center text-secondary-peach backdrop-blur-sm"
-          aria-label={isPlaying ? "Pause video" : "Play video"}
-        >
-          {isPlaying ? (
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <rect x="7" y="5" width="3" height="14"/>
-              <rect x="14" y="5" width="3" height="14"/>
-            </svg>
-          ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M6 4l14 8-14 8V4z"/>
-            </svg>
-          )}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function VideoThumbnail({ sources }: { sources?: VideoSource[] }) {
-  if (!sources?.length) return null;
-
-  return (
-    <div className="w-full h-full relative bg-secondary-peach flex items-center justify-center">
-      <div className="text-main-maroon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polygon points="5 3 19 12 5 21 5 3"/>
-        </svg>
-      </div>
     </div>
   );
 }
@@ -151,10 +87,13 @@ interface ProductGalleryProps {
 }
 
 export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange }: ProductGalleryProps) {
-  // Use selectedMediaIndex as the source of truth if provided, otherwise use internal state
   const [internalIndex, setInternalIndex] = useState(0);
   const currentIndex = selectedMediaIndex ?? internalIndex;
   const [preloaded, setPreloaded] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [currentX, setCurrentX] = useState(0);
+  const [showDragHint, setShowDragHint] = useState(true);
 
   const updateMedia = (index: number) => {
     if (onMediaChange) {
@@ -165,7 +104,7 @@ export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange
     console.log('Gallery updating to index:', index);
   };
 
-  // Preload all images on mount
+  // Preload images
   useEffect(() => {
     const imageUrls = media
       .filter(item => item.node.mediaContentType === 'IMAGE' && item.node.image?.originalSrc)
@@ -186,11 +125,6 @@ export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange
     });
   }, [media]);
 
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [currentX, setCurrentX] = useState(0);
-  const [showDragHint, setShowDragHint] = useState(true);
-
   // Hide drag hint after 3 seconds
   useEffect(() => {
     if (showDragHint) {
@@ -199,6 +133,7 @@ export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange
     }
   }, [showDragHint]);
 
+  // Desktop drag handling
   const handleDragStart = (clientX: number) => {
     setIsDragging(true);
     setStartX(clientX);
@@ -248,33 +183,48 @@ export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange
     }
   };
 
-  // Touch event handlers
-  const onTouchStart = (e: React.TouchEvent) => {
-    handleDragStart(e.touches[0].clientX);
+  // Mobile touch handling
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientY);
   };
 
-  const onTouchMove = (e: React.TouchEvent) => {
-    handleDragMove(e.touches[0].clientX);
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientY);
   };
 
-  const onTouchEnd = () => {
-    handleDragEnd();
-  };
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
 
-  // Calculate drag offset
-  const dragOffset = isDragging ? currentX - startX : 0;
+    const distance = touchStart - touchEnd;
+    const isSwipe = Math.abs(distance) > 50;
+
+    if (isSwipe) {
+      if (distance > 0 && currentIndex < media.length - 1) {
+        updateMedia(currentIndex + 1);
+      } else if (distance < 0 && currentIndex > 0) {
+        updateMedia(currentIndex - 1);
+      }
+    }
+
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
 
   return (
     <div className="w-full h-[100dvh] md:h-screen sticky top-0 bg-secondary-peach max-sm:border-b max-sm:border-[0.5px] max-sm:border-main-maroon">
       {/* Loading state */}
       <div 
         className={cn(
-          "absolute inset-0 bg-secondary-peach flex items-center justify-center transition-opacity duration-300",
+          "absolute inset-0 bg-secondary-peach flex items-center justify-center transition-opacity duration-300 z-50",
           preloaded ? "opacity-0 pointer-events-none" : "opacity-100"
         )}
       >
         <div className="w-8 h-8 border-2 border-main-maroon border-t-transparent rounded-full animate-spin" />
       </div>
+
       {/* Drag hint - only on mobile */}
       {showDragHint && (
         <div className="md:hidden absolute inset-0 z-20 pointer-events-none">
@@ -283,6 +233,7 @@ export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange
           </div>
         </div>
       )}
+
       {/* Image slider container */}
       <div 
         className="absolute inset-0 overflow-hidden cursor-grab active:cursor-grabbing bg-secondary-peach"
@@ -290,9 +241,6 @@ export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseLeave}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
       >
         <div 
           className={cn(
@@ -301,7 +249,7 @@ export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange
             preloaded ? "opacity-100" : "opacity-0"
           )}
           style={{
-            transform: `translateX(calc(-${currentIndex * 100}% + ${dragOffset}px))`
+            transform: `translateX(calc(-${currentIndex * 100}% + ${isDragging ? currentX - startX : 0}px))`
           }}
         >
           {media.map((item, index) => (
@@ -316,18 +264,26 @@ export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange
                   index={index}
                 />
               ) : (
-                <div className="relative w-full h-full bg-secondary-peach">
+                <div 
+                  className={cn(
+                    "relative w-full h-full bg-secondary-peach",
+                    "md:cursor-grab md:active:cursor-grabbing"
+                  )}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                >
                   <Image
                     src={item.node.image?.originalSrc || ''}
                     alt={item.node.image?.altText || title}
                     fill
                     quality={85}
                     priority={index === 0}
-                    placeholder="blur"
-                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVigAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVigAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkLzYvLy02LjY2OjY2Njo2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Njb/2wBDARUXFyAeIB4gHh4gIB4lICAgICUmJSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
-                    className="object-cover w-full h-full"
-                    style={{ backgroundColor: 'transparent' }}
+                    sizes="(max-width: 640px) 100vw, 50vw"
+                    className={cn(
+                      "max-sm:object-cover md:object-cover",
+                      "transition-transform duration-300"
+                    )}
                   />
                 </div>
               )}
@@ -336,30 +292,15 @@ export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange
         </div>
       </div>
 
-      {/* Image dots - only on mobile */}
-      <div className="md:hidden absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-        {media.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => updateMedia(index)}
-            className={cn(
-              "w-2 h-2 rounded-full transition-all",
-              currentIndex === index 
-                ? "bg-secondary-peach w-4" 
-                : "bg-secondary-peach/50"
-            )}
-            aria-label={`Go to media ${index + 1}`}
-          />
-        ))}
-      </div>
-
-      {/* Left-aligned, vertically centered thumbnails - only on desktop */}
+      {/* Left-aligned thumbnails - desktop only */}
       <div className="hidden md:block absolute left-6 top-1/2 -translate-y-1/2 w-12 z-10">
         <div className="flex flex-col gap-2">
           {media.map((item, index) => (
             <button
               key={index}
-              onClick={() => updateMedia(index)}
+              onClick={() => {
+                updateMedia(index);
+              }}
               className={cn(
                 "relative w-full aspect-square overflow-hidden transition-all duration-200 rounded-sm bg-secondary-peach",
                 currentIndex === index 
@@ -368,24 +309,68 @@ export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange
               )}
             >
               {item.node.mediaContentType === 'VIDEO' ? (
-                <VideoThumbnail sources={item.node.sources} />
-              ) : (
-                <div className="relative w-full h-full bg-secondary-peach">
-                  <Image
-                    src={item.node.image?.originalSrc || ''}
-                    alt={item.node.image?.altText || `View ${index + 1}`}
-                    fill
-                    quality={85}
-                    placeholder="blur"
-                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVigAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVigAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkLzYvLy02LjY2OjY2Njo2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Njb/2wBDARUXFyAeIB4gHh4gIB4lICAgICUmJSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
-                    sizes="48px"
-                    className="object-cover w-full h-full"
-                    style={{ backgroundColor: 'transparent' }}
-                  />
+                <div className="w-full h-full flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 4l14 8-14 8V4z"/>
+                  </svg>
                 </div>
+              ) : (
+                <Image
+                  src={item.node.image?.originalSrc || ''}
+                  alt={item.node.image?.altText || `View ${index + 1}`}
+                  fill
+                  sizes="48px"
+                  className="object-cover"
+                />
               )}
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* Mobile navigation */}
+      <div className="md:hidden">
+        {/* Navigation Buttons */}
+        <button 
+          onClick={() => currentIndex > 0 && updateMedia(currentIndex - 1)}
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-9 aspect-square bg-secondary-peach text-main-maroon rounded-full hover:bg-[#FFB6A3] transition-colors z-10 flex items-center justify-center shadow-sm"
+          disabled={currentIndex === 0}
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+
+        <button 
+          onClick={() => currentIndex < media.length - 1 && updateMedia(currentIndex + 1)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-9 aspect-square bg-secondary-peach text-main-maroon rounded-full hover:bg-[#FFB6A3] transition-colors z-10 flex items-center justify-center shadow-sm"
+          disabled={currentIndex === media.length - 1}
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+
+        {/* Bottom dots */}
+        <div className="absolute bottom-6 left-0 right-0 px-4 z-10">
+          <div className="flex items-center justify-center gap-2">
+            {media.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => updateMedia(index)}
+                className={cn(
+                  "w-2 h-2 rounded-full transition-all duration-300",
+                  currentIndex === index 
+                    ? "w-6 bg-main-maroon" 
+                    : "bg-main-maroon/30"
+                )}
+                aria-label={`Go to media ${index + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Image counter */}
+        <div className="absolute top-4 right-4">
+          <div className="bg-main-maroon/80 backdrop-blur-sm text-secondary-peach text-xs px-2.5 py-1 rounded-full">
+            {currentIndex + 1} / {media.length}
+          </div>
         </div>
       </div>
     </div>

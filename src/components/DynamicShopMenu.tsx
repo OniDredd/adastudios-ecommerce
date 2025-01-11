@@ -220,8 +220,8 @@ export function ShopAllMenu(): JSX.Element {
                         />
                       </div>
                       <div className="mt-2">
-                      <h4 className="text-sm font-medium text-main-maroon mb-1 tracking-wide">
-                        {item.name}
+                        <h4 className="text-sm font-medium text-main-maroon mb-1 tracking-wide">
+                          {item.name}
                         </h4>
                         <div 
                           className="text-xs text-main-maroon/80 line-clamp-2 leading-snug"
