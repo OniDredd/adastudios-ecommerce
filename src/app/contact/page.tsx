@@ -1,6 +1,7 @@
 import React from 'react';
 import { FadeIn } from '../../components/ui/fade-in';
 import { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Contact Us | Ada Studio',
@@ -35,7 +36,7 @@ const structuredData = {
     "@type": "LocalBusiness",
     name: "Ada Studio",
     description: "Premium matcha, glassware, and accessories retailer",
-    email: "support@adastudios.com",
+    email: "adastudionz@gmail.com",
     url: "https://adastudio.co.nz",
     sameAs: [
       "https://instagram.com",
@@ -45,7 +46,7 @@ const structuredData = {
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "customer service",
-      email: "support@adastudios.com",
+      email: "adastudionz@gmail.com",
       availableLanguage: "English",
       hoursAvailable: {
         "@type": "OpeningHoursSpecification",
@@ -93,11 +94,7 @@ export default function ContactPage() {
               </div>
             <div>
               <p className="font-medium">Email:</p>
-              <p>support@adastudios.com</p>
-            </div>
-            <div>
-              <p className="font-medium">Phone:</p>
-              <p>(555) 123-4567</p>
+              <p>adastudionz@gmail.com</p>
             </div>
           </div>
         </section>
@@ -110,30 +107,30 @@ export default function ContactPage() {
             Stay connected with us on social media for the latest updates, styling tips, and more:
           </p>
           <div className="flex space-x-4">
-            <a 
-              href="https://instagram.com" 
+            <Link
+              href="https://www.instagram.com/adastudionz/"
               target="_blank" 
               rel="noopener noreferrer"
               className="text-[hsl(var(--main-maroon))] hover:opacity-80 transition-opacity"
             >
               Instagram
-            </a>
-            <a 
-              href="https://facebook.com" 
+            </Link>
+            <Link 
+              href="https://www.facebook.com/adastudionz/" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-[hsl(var(--main-maroon))] hover:opacity-80 transition-opacity"
               >
               Facebook
-            </a>
-            <a 
-              href="https://tiktok.com" 
+            </Link>
+            <Link 
+              href="https://www.tiktok.com/@adastudionz"
               target="_blank" 
               rel="noopener noreferrer"
               className="text-[hsl(var(--main-maroon))] hover:opacity-80 transition-opacity"
               >
               TikTok
-            </a>
+            </Link>
           </div>
         </section>
       </div>

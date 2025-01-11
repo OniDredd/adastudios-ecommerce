@@ -27,22 +27,19 @@ export default function Footer() {
     <footer className="bg-main-maroon text-secondary-peach">
       {/* Main Footer Content */}
       <div className="container mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 sm:gap-12 py-12 md:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12 py-12 md:py-16">
           {/* Logo and About Column */}
-          <div className="md:col-span-2 space-y-6">
+          <div className="flex flex-col items-start">
             <Image 
               src="/adastudioslogo-peach.svg" 
               alt="Ada Studios Logo" 
-              width={140} 
-              height={140} 
-              className="sm:w-[180px] sm:h-[180px]"
+              width={225} 
+              height={225} 
+              className="mb-10"
             />
-            <p className="text-secondary-peach/80 mb-6 max-w-sm">
-              Elevating your lifestyle with luxury glassware designed for the modern woman who knows what she wants.
-            </p>
             <div className="flex space-x-6">
               <Link 
-                href="https://instagram.com" 
+                href="https://www.instagram.com/adastudionz/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="opacity-100 hover:opacity-60 transition-opacity duration-200"
@@ -50,7 +47,7 @@ export default function Footer() {
                 <FaInstagram className="w-6 h-6" />
               </Link>
               <Link 
-                href="https://facebook.com" 
+                href="https://www.facebook.com/adastudionz/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="opacity-100 hover:opacity-60 transition-opacity duration-200"
@@ -58,7 +55,7 @@ export default function Footer() {
                 <FaFacebookF className="w-5 h-5" />
               </Link>
               <Link 
-                href="https://tiktok.com" 
+                href="https://www.tiktok.com/@adastudionz" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="opacity-100 hover:opacity-60 transition-opacity duration-200"
@@ -149,7 +146,7 @@ export default function Footer() {
                 <SiAfterpay className="w-10 h-7 sm:w-12 sm:h-8 opacity-80" />
               </div>
               <span className="text-xs sm:text-sm text-secondary-peach/60">
-                Site by <a href="https://nanogram.io" target="_blank" rel="noopener noreferrer" className="opacity-100 hover:opacity-60 transition-opacity duration-200">Nanogram</a>
+                Site by <a href="https://nonogram.io" target="_blank" rel="noopener noreferrer" className="opacity-100 hover:opacity-60 transition-opacity duration-200">Nonogram</a>
               </span>
             </div>
           </div>

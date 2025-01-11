@@ -40,7 +40,7 @@ export default function Wholesale() {
             Partner With Us
           </h2>
           <p>
-            Join Ada Studios&apos; wholesale program and bring our luxury glassware collection to your customers. We partner with select retailers who share our vision for quality and customer experience.
+            Join Ada Studios&apos; wholesale program and bring our beautiful glassware collection to your customers. We partner with select retailers who share our vision for quality and customer experience.
           </p>
         </section>
 
@@ -101,26 +101,7 @@ export default function Wholesale() {
           </h2>
           <div className="space-y-4">
             <p>
-              Contact our wholesale team to begin the application process or learn more about our program.
-            </p>
-            <div className="mt-6">
-              <Link 
-                href="/contact" 
-                className="inline-block bg-[hsl(var(--main-maroon))] text-[hsl(var(--secondary-peach))] px-6 py-2 rounded hover:opacity-90 transition-opacity duration-200"
-                >
-                Contact Us
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        <section>
-          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
-            Additional Information
-          </h2>
-          <div className="space-y-4">
-            <p>
-              For detailed information about our wholesale terms, shipping policies, and minimum order requirements, please contact our wholesale team. We look forward to potentially partnering with you.
+              Contact adastudionz@gmail.com if you would like to partner with us!
             </p>
           </div>
         </section>

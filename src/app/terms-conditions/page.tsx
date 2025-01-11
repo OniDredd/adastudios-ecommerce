@@ -135,22 +135,6 @@ export default function TermsConditions() {
             </p>
           </div>
         </section>
-
-        <section>
-          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
-            10. Contact Information
-          </h2>
-          <div className="space-y-4">
-            <p>
-              Questions about the Terms & Conditions should be sent to us through our contact page.
-            </p>
-            <div className="space-y-2">
-              <p>Email: support@adastudios.com</p>
-              <p>Phone: (555) 123-4567</p>
-              <p>Hours: Monday - Friday, 9:00 AM - 5:00 PM PST</p>
-            </div>
-          </div>
-        </section>
       </div>
     </div>
     </FadeIn>

@@ -1,133 +1,66 @@
 import React from 'react';
 import { FadeIn } from '../../components/ui/fade-in';
-import { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Shipping & Returns | Ada Studio',
-  description: 'Learn about Ada Studio\'s shipping methods, delivery times, and return policy. Free shipping on orders over $75, easy 30-day returns, and international shipping available.',
-  openGraph: {
-    title: 'Shipping & Returns Policy | Ada Studio',
-    description: 'Free shipping on orders over $100 for NZ and $150 for AUS, express delivery options, and hassle-free 30-day returns on all Ada Studio products.',
-    images: [
-      {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Ada Studio Shipping & Returns',
-      },
-    ],
-    type: 'website',
-    siteName: 'Ada Studio',
-  },
-  keywords: ['shipping policy', 'return policy', 'free shipping', 'delivery times', 'international shipping', '30-day returns', 'shipping rates'],
-  alternates: {
-    canonical: 'https://adastudio.co.nz/shipping-returns'
-  }
-};
 
 export default function ShippingReturnsPage() {
   return (
     <FadeIn>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-32 bg-[hsl(var(--secondary-peach))]">
-      <h1 className="text-xl text-[hsl(var(--main-maroon))] mb-6 sm:mb-8 uppercase font-medium text-center sm:text-left">
-        Shipping & Returns
-      </h1>
-      
-      <div className="space-y-8 sm:space-y-12 text-[hsl(var(--main-maroon))]">
-        {/* Shipping Section */}
-        <section>
-          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
-            Shipping Information
-          </h2>
-          
-          <div className="space-y-4">
-            <p>
-              All orders are processed within 1-2 business days. Orders placed on weekends or holidays will be processed the next business day.
+        <h1 className="text-xl text-[hsl(var(--main-maroon))] mb-6 sm:mb-8 uppercase font-medium text-center sm:text-left">
+          SHIPPING & RETURNS
+        </h1>
+        
+        <div className="space-y-8 sm:space-y-12 text-[hsl(var(--main-maroon))]">
+          <section>
+            <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+              Shipping Information
+            </h2>
+            <p className="mb-4">
+              All orders are processed within 2-3 business days. Orders placed on weekends or holidays will be processed the next business day.
             </p>
 
+            <h3 className="font-semibold mb-3">Shipping Methods</h3>
             <div className="space-y-4">
-              <h3 className="font-semibold">Shipping Methods</h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="font-medium">Standard Shipping (5-7 business days)</p>
-                  <p>Free over $75, $7.95 under $75</p>
-                  </div>
-
-                <div>
-                  <p className="font-medium">Express Shipping (2-3 business days)</p>
-                  <p>$14.95 flat rate</p>
-                </div>
-
-                <div>
-                  <p className="font-medium">International Shipping (7-14 business days)</p>
-                  <p>Calculated at checkout</p>
-                </div>
+              <div>
+                <p className="font-medium">Domestic Shipping (5-7 business days)</p>
+                <p>Free over $100, $7.00 under $100</p>
+              </div>
+              <div>
+                <p className="font-medium">International Shipping (7-14 business days)</p>
+                <p>Calculated at checkout</p>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* Returns Section */}
-        <section>
-          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
-            Returns Policy
-          </h2>
-          
-          <div className="space-y-4">
-            <p>
-              We accept returns within 30 days of delivery. Items must be unused, in their original packaging, and in resalable condition.
+          <section>
+            <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+              Returns Policy
+            </h2>
+            <p className="mb-4">
+              We do not accept returns for change of mind. Please ensure you carefully review your order before completing your purchase.
             </p>
+            <p>
+              If your glassware arrives damaged, we&apos;re here to help. Please reach out to us at{' '}
+              <a href="mailto:adastudionz@gmail.com" className="text-[hsl(var(--main-maroon))] hover:underline">
+                adastudionz@gmail.com
+              </a>{' '}
+              with details of the damage, including photos if possible, so we can resolve the issue promptly.
+            </p>
+          </section>
 
-            <div className="space-y-4">
-              <h3 className="font-semibold">Return Process</h3>
-              <ol className="list-decimal pl-6 space-y-2">
-                <li>Contact our customer service team to initiate your return</li>
-                <li>Receive a return authorization number and shipping instructions</li>
-                <li>Package your items securely with all original packaging</li>
-                <li>Include your return authorization number with the package</li>
-                <li>Ship the package to the provided return address</li>
-              </ol>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="font-semibold">Refund Information</h3>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>Refunds will be processed within 5-7 business days of receiving your return</li>
-                <li>Original shipping charges are non-refundable</li>
-                <li>Return shipping costs are the responsibility of the customer</li>
-                <li>Refunds will be issued to the original payment method</li>
-              </ul>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="font-semibold">Non-Returnable Items</h3>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>Sale items marked as final sale</li>
-                <li>Used or damaged items</li>
-                <li>Items without original packaging</li>
-                <li>Gift cards</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        {/* Contact Section */}
-        <section>
-          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
-            Need Help?
-          </h2>
-          <div className="space-y-4">
+          <section>
+            <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
+              Need Help?
+            </h2>
             <p>
               If you have any questions about shipping or returns, please contact our customer service team:
+              <br />
+              Email:{' '}
+              <a href="mailto:adastudionz@gmail.com" className="text-[hsl(var(--main-maroon))] hover:underline">
+                adastudionz@gmail.com
+              </a>
             </p>
-            <div className="space-y-2">
-              <p>Email: support@adastudios.com</p>
-              <p>Phone: (555) 123-4567</p>
-              <p>Hours: Monday - Friday, 9:00 AM - 5:00 PM PST</p>
-            </div>
-          </div>
-        </section>
-      </div>
+          </section>
+        </div>
       </div>
     </FadeIn>
   );

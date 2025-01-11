@@ -194,11 +194,7 @@ export default function CareInstructionsPage() {
               If you have specific questions about caring for your Ada Studios glassware, 
               our customer service team is here to help:
             </p>
-            <div className="space-y-2">
-              <p>Email: support@adastudios.com</p>
-              <p>Phone: (555) 123-4567</p>
-              <p>Hours: Monday - Friday, 9:00 AM - 5:00 PM PST</p>
-            </div>
+            <p>Email: adastudionz@gmail.com</p>
           </div>
         </section>
       </div>
