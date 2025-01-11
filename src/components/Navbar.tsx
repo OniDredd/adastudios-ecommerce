@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, type JSX } from "react";
+import { MotionFade } from "./ui/motion-fade";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
@@ -156,11 +157,12 @@ export default function Navbar(): JSX.Element {
                   </div>
                 </DropdownMenuTrigger>
               </div>
-              <DropdownMenuContent 
-                className="w-[200px] bg-secondary-peach border border-main-maroon rounded-lg"
-                align="end"
-                alignOffset={-5}
-              >
+              <MotionFade>
+                <DropdownMenuContent 
+                  className="w-[200px] bg-secondary-peach border border-main-maroon rounded-lg"
+                  align="end"
+                  alignOffset={-5}
+                >
                 {currencies.map((currency) => (
                   <DropdownMenuItem
                     key={currency.code}
@@ -173,7 +175,8 @@ export default function Navbar(): JSX.Element {
                     </p>
                   </DropdownMenuItem>
                 ))}
-              </DropdownMenuContent>
+                </DropdownMenuContent>
+              </MotionFade>
             </DropdownMenu>
             
             <button 

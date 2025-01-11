@@ -124,24 +124,24 @@ export default function ExclusiveMatcha({ products: allProducts }: ExclusiveMatc
       )}
 
       {/* Product Slider (full width on mobile, half on desktop) */}
-      <div className="w-full md:w-1/2 bg-main-maroon flex items-center justify-center min-h-[500px] md:min-h-full py-8 md:py-12">
+      <div className="w-full md:w-1/2 bg-main-maroon flex items-center justify-center min-h-[400px] md:min-h-full py-6 md:py-12">
         <div className="relative w-full flex items-center">
           {/* Left Navigation Button */}
           <button 
             onClick={prevSlide}
-            className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-10 md:w-11 aspect-square bg-secondary-peach text-secondary-peach rounded-full hover:bg-[#FFB6A3] transition-colors z-10 flex items-center justify-center"
+            className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-9 md:w-11 aspect-square bg-secondary-peach text-secondary-peach rounded-full hover:bg-[#FFB6A3] transition-colors z-10 flex items-center justify-center shadow-sm"
             disabled={isLoading}
           >
             <ChevronLeft className="w-5 h-5 text-main-maroon" />
           </button>
 
-          <div className="w-full max-w-[480px] px-8 md:px-12 mx-auto">
+          <div className="w-full max-w-[480px] px-6 md:px-12 mx-auto">
             <div className="flex flex-col items-center">
-              <div className="text-base md:text-xl font-medium mb-1 md:mb-2 text-center text-secondary-peach">EXCLUSIVE MATCHA</div>
-              <div className="mb-8"></div>
+              <div className="text-sm md:text-xl font-medium mb-1 md:mb-2 text-center text-secondary-peach tracking-wider">EXCLUSIVE MATCHA</div>
+              <div className="mb-6 md:mb-8"></div>
 
               {/* Product Display */}
-              <div className="w-full max-w-[260px] md:max-w-[280px]">
+              <div className="w-full max-w-[220px] md:max-w-[280px]">
                 <Link href={`/product/${products[currentSlide].handle}`}>
                   <div className="bg-secondary-peach p-3 md:p-4 rounded-lg relative aspect-[3/4] overflow-hidden group cursor-pointer border border-transparent hover:border-secondary-peach transition-colors">
                     {/* Hidden preload container - optimized */}
@@ -227,7 +227,7 @@ export default function ExclusiveMatcha({ products: allProducts }: ExclusiveMatc
           {/* Right Navigation Button */}
           <button 
             onClick={nextSlide}
-            className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-10 md:w-11 aspect-square bg-secondary-peach text-main-maroon rounded-full hover:bg-[#FFB6A3] transition-colors z-10 flex items-center justify-center"
+            className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-9 md:w-11 aspect-square bg-secondary-peach text-main-maroon rounded-full hover:bg-[#FFB6A3] transition-colors z-10 flex items-center justify-center shadow-sm"
             disabled={isLoading}
           >
             <ChevronRight className="w-5 h-5 text-[#800020]" />

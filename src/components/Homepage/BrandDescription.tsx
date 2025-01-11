@@ -3,8 +3,8 @@ import Link from "next/link";
 // components/BrandDescription.js
 export default function BrandDescription() {
   return (
-    <section className="p-32 text-center border-t-[1px] border-main-maroon">
-      <p className="mb-10 text-xl text-main-maroon">
+    <section className="px-6 py-20 md:p-32 text-center border-t-[1px] border-main-maroon">
+      <p className="mb-6 md:mb-10 text-lg md:text-xl text-main-maroon">
         ADA STUDIOS is a chic glassware brand made for the modern &quot;that
         girl.&quot; We create gorgeous drinking glasses that turn your everyday
         sips into fabulous moments. Our pieces are designed for everybody who

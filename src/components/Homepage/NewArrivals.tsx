@@ -20,10 +20,10 @@ export default function NewArrivals({ products }: NewArrivalsProps) {
   ].slice(0, 4);
 
   return (
-    <section className="w-full py-20 bg-secondary-peach">
-      <div className="mx-auto">
-        <div className="flex justify-between items-center mb-4 px-5">
-          <h2 className="text-xl font-medium text-main-maroon">
+    <section className="w-full py-12 md:py-20 bg-secondary-peach">
+      <div className="mx-auto px-4 md:px-6">
+        <div className="flex justify-between items-center mb-6 md:mb-4">
+          <h2 className="text-lg md:text-xl font-medium text-main-maroon">
             NEW ARRIVALS
           </h2>
           <Link
@@ -33,7 +33,7 @@ export default function NewArrivals({ products }: NewArrivalsProps) {
             VIEW ALL
           </Link>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <Suspense fallback={<LoadingGrid />}>
             {limitedProducts.map((product) => (
               <ProductComponent

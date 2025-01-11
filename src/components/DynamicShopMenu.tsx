@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, type JSX } from "react";
+import { MotionFade } from "./ui/motion-fade";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -150,10 +151,12 @@ export function ShopAllMenu(): JSX.Element {
             SHOP ALL
           </NavigationMenuTrigger>
         </div>
-        <NavigationMenuContent className="data-[motion=from-start]:animate-slide-in-from-left data-[motion=from-end]:animate-slide-in-from-right data-[motion=to-start]:animate-slide-out-to-left data-[motion=to-end]:animate-slide-out-to-right">
-          <div className="w-screen h-[400px] bg-secondary-peach flex items-center justify-center border border-main-maroon rounded-lg">
-            <div className="text-main-maroon">Loading...</div>
-          </div>
+        <NavigationMenuContent>
+          <MotionFade>
+            <div className="w-screen h-[400px] bg-secondary-peach flex items-center justify-center border border-main-maroon rounded-lg">
+              <div className="text-main-maroon">Loading...</div>
+            </div>
+          </MotionFade>
         </NavigationMenuContent>
       </NavigationMenuItem>
     );
@@ -166,70 +169,72 @@ export function ShopAllMenu(): JSX.Element {
           SHOP ALL
         </NavigationMenuTrigger>
       </div>
-      <NavigationMenuContent className="data-[motion=from-start]:animate-slide-in-from-left data-[motion=from-end]:animate-slide-in-from-right data-[motion=to-start]:animate-slide-out-to-left data-[motion=to-end]:animate-slide-out-to-right">
-        <div className="w-screen h-[400px] bg-secondary-peach p-6 border border-main-maroon rounded-lg">
-          <div className="container mx-auto grid grid-cols-3 gap-6">
-            <div className="space-y-4">
-              <h3 className="text-base font-medium text-main-maroon">Categories</h3>
-              <ul className="space-y-2 pr-4">
-                {categories.map((category) => (
-                  <li 
-                    key={category.name}
-                    className="group"
-                    onMouseEnter={() => handleCategoryChange(category)}
-                  >
-                    <a
-                      href={category.href}
-                      onClick={(e) => handleNavigation(category.href, e)}
-                      className={`block p-2 rounded-md transition-colors border text-main-maroon ${
-                        activeCategory.name === category.name 
-                          ? 'border-main-maroon' 
-                          : 'border-transparent hover:border-main-maroon'
-                      }`}
+      <NavigationMenuContent>
+        <MotionFade>
+          <div className="w-screen h-[400px] bg-secondary-peach p-6 border border-main-maroon rounded-lg">
+            <div className="container mx-auto grid grid-cols-3 gap-6">
+              <div className="space-y-4">
+                <h3 className="text-base font-medium text-main-maroon">Categories</h3>
+                <ul className="space-y-2 pr-4">
+                  {categories.map((category) => (
+                    <li 
+                      key={category.name}
+                      className="group"
+                      onMouseEnter={() => handleCategoryChange(category)}
                     >
-                      <div className="text-sm font-medium">{category.name}</div>
-                      <p className="text-sm opacity-80">{category.description}</p>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                      <a
+                        href={category.href}
+                        onClick={(e) => handleNavigation(category.href, e)}
+                        className={`block p-2 rounded-md transition-colors border text-main-maroon ${
+                          activeCategory.name === category.name 
+                            ? 'border-main-maroon' 
+                            : 'border-transparent hover:border-main-maroon'
+                        }`}
+                      >
+                        <div className="text-sm font-medium">{category.name}</div>
+                        <p className="text-sm opacity-80">{category.description}</p>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-            <div className="col-span-2">
-              <div 
-                className={`grid grid-cols-3 gap-4 transition-opacity duration-300 ease-in-out ${
-                  isTransitioning ? 'opacity-0' : 'opacity-100'
-                }`}
-              >
-                {activeCategory.featured.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className="group relative"
-                  >
-                    <div className="aspect-square relative rounded-lg overflow-hidden border border-transparent hover:border-main-maroon transition-colors">
-                      <Image
-                        src={item.imageSrc}
-                        alt={item.name}
-                        className="object-cover"
-                        fill
-                      />
-                    </div>
-                    <div className="mt-2">
-                    <h4 className="text-sm font-medium text-main-maroon mb-1 tracking-wide">
-                      {item.name}
-                      </h4>
-                      <div 
-                        className="text-xs text-main-maroon/80 line-clamp-2 leading-snug"
-                        dangerouslySetInnerHTML={{ __html: item.description }}
-                      />
-                    </div>
-                  </Link>
-                ))}
+              <div className="col-span-2">
+                <div 
+                  className={`grid grid-cols-3 gap-4 transition-opacity duration-300 ease-in-out ${
+                    isTransitioning ? 'opacity-0' : 'opacity-100'
+                  }`}
+                >
+                  {activeCategory.featured.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className="group relative"
+                    >
+                      <div className="aspect-square relative rounded-lg overflow-hidden border border-transparent hover:border-main-maroon transition-colors">
+                        <Image
+                          src={item.imageSrc}
+                          alt={item.name}
+                          className="object-cover"
+                          fill
+                        />
+                      </div>
+                      <div className="mt-2">
+                      <h4 className="text-sm font-medium text-main-maroon mb-1 tracking-wide">
+                        {item.name}
+                        </h4>
+                        <div 
+                          className="text-xs text-main-maroon/80 line-clamp-2 leading-snug"
+                          dangerouslySetInnerHTML={{ __html: item.description }}
+                        />
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </MotionFade>
       </NavigationMenuContent>
     </NavigationMenuItem>
   );
@@ -341,10 +346,12 @@ export function SaleMenu(): JSX.Element {
             SALE
           </NavigationMenuTrigger>
         </div>
-        <NavigationMenuContent className="data-[motion=from-start]:animate-slide-in-from-left data-[motion=from-end]:animate-slide-in-from-right data-[motion=to-start]:animate-slide-out-to-left data-[motion=to-end]:animate-slide-out-to-right">
-          <div className="w-screen h-[400px] bg-secondary-peach flex items-center justify-center border border-main-maroon rounded-lg">
-            <div className="text-main-maroon">Loading...</div>
-          </div>
+        <NavigationMenuContent>
+          <MotionFade>
+            <div className="w-screen h-[400px] bg-secondary-peach flex items-center justify-center border border-main-maroon rounded-lg">
+              <div className="text-main-maroon">Loading...</div>
+            </div>
+          </MotionFade>
         </NavigationMenuContent>
       </NavigationMenuItem>
     );
@@ -357,69 +364,71 @@ export function SaleMenu(): JSX.Element {
           SALE
         </NavigationMenuTrigger>
       </div>
-      <NavigationMenuContent className="data-[motion=from-start]:animate-slide-in-from-left data-[motion=from-end]:animate-slide-in-from-right data-[motion=to-start]:animate-slide-out-to-left data-[motion=to-end]:animate-slide-out-to-right">
-        <div className="w-screen h-[400px] bg-secondary-peach p-6 border border-main-maroon rounded-lg">
-          <div className="container mx-auto grid grid-cols-3 gap-6">
-            <div className="space-y-4">
-              <h3 className="text-base font-medium text-main-maroon">Sale Categories</h3>
-              <ul className="space-y-2 pr-4">
-                {categories.map((category) => (
-                  <li key={category.name} className="group">
-                    <a
-                      href={category.href}
-                      onClick={(e) => handleNavigation(category.href, e)}
-                      onMouseEnter={() => handleCategoryChange(category)}
-                      className={`block p-2 rounded-md transition-colors border text-main-maroon ${
-                        activeCategory?.name === category.name 
-                          ? 'border-main-maroon' 
-                          : 'border-transparent hover:border-main-maroon'
-                      }`}
+      <NavigationMenuContent>
+        <MotionFade>
+          <div className="w-screen h-[400px] bg-secondary-peach p-6 border border-main-maroon rounded-lg">
+            <div className="container mx-auto grid grid-cols-3 gap-6">
+              <div className="space-y-4">
+                <h3 className="text-base font-medium text-main-maroon">Sale Categories</h3>
+                <ul className="space-y-2 pr-4">
+                  {categories.map((category) => (
+                    <li key={category.name} className="group">
+                      <a
+                        href={category.href}
+                        onClick={(e) => handleNavigation(category.href, e)}
+                        onMouseEnter={() => handleCategoryChange(category)}
+                        className={`block p-2 rounded-md transition-colors border text-main-maroon ${
+                          activeCategory?.name === category.name 
+                            ? 'border-main-maroon' 
+                            : 'border-transparent hover:border-main-maroon'
+                        }`}
+                      >
+                        <div className="text-sm font-medium">{category.name}</div>
+                        <p className="text-sm opacity-80">{category.description}</p>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="col-span-2">
+                <div 
+                  className={`grid grid-cols-3 gap-4 transition-opacity duration-300 ease-in-out ${
+                    isTransitioning ? 'opacity-0' : 'opacity-100'
+                  }`}
+                >
+                  {activeCategory?.featured.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className="group relative"
                     >
-                      <div className="text-sm font-medium">{category.name}</div>
-                      <p className="text-sm opacity-80">{category.description}</p>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="col-span-2">
-              <div 
-                className={`grid grid-cols-3 gap-4 transition-opacity duration-300 ease-in-out ${
-                  isTransitioning ? 'opacity-0' : 'opacity-100'
-                }`}
-              >
-                {activeCategory?.featured.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className="group relative"
-                  >
-                    <div className="aspect-square relative rounded-lg overflow-hidden border border-transparent hover:border-main-maroon transition-colors">
-                      <div className="absolute top-2 right-2 bg-main-maroon text-secondary-peach px-2 py-0.5 text-xs font-medium rounded-md z-10">
-                        {item.type === 'clearance' ? `${item.name.split(' - ')[1]}` : `${item.name.split(' - ')[1]}`}
+                      <div className="aspect-square relative rounded-lg overflow-hidden border border-transparent hover:border-main-maroon transition-colors">
+                        <div className="absolute top-2 right-2 bg-main-maroon text-secondary-peach px-2 py-0.5 text-xs font-medium rounded-md z-10">
+                          {item.type === 'clearance' ? `${item.name.split(' - ')[1]}` : `${item.name.split(' - ')[1]}`}
+                        </div>
+                        <Image
+                          src={item.imageSrc}
+                          alt={item.name}
+                          className="object-cover"
+                          fill
+                        />
                       </div>
-                      <Image
-                        src={item.imageSrc}
-                        alt={item.name}
-                        className="object-cover"
-                        fill
-                      />
-                    </div>
-                    <div className="mt-2">
-                      <h4 className="text-sm font-medium text-main-maroon mb-1 tracking-wide">
-                        {item.name.split(' - ')[0]}
-                      </h4>
-                      <div 
-                        className="text-xs text-main-maroon/80 line-clamp-2 leading-snug"
-                        dangerouslySetInnerHTML={{ __html: item.description }}
-                      />
-                    </div>
-                  </Link>
-                ))}
+                      <div className="mt-2">
+                        <h4 className="text-sm font-medium text-main-maroon mb-1 tracking-wide">
+                          {item.name.split(' - ')[0]}
+                        </h4>
+                        <div 
+                          className="text-xs text-main-maroon/80 line-clamp-2 leading-snug"
+                          dangerouslySetInnerHTML={{ __html: item.description }}
+                        />
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </MotionFade>
       </NavigationMenuContent>
     </NavigationMenuItem>
   );
