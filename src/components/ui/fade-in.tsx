@@ -30,13 +30,15 @@ export function FadeIn({ children, className, delay = 0 }: FadeInProps) {
       }
     );
 
-    if (elementRef.current) {
-      observer.observe(elementRef.current);
+    const element = elementRef.current;
+    
+    if (element) {
+      observer.observe(element);
     }
 
     return () => {
-      if (elementRef.current) {
-        observer.unobserve(elementRef.current);
+      if (element) {
+        observer.unobserve(element);
       }
     };
   }, [delay]);

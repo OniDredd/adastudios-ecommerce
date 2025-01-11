@@ -96,7 +96,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         console.error('Failed to create Shopify cart:', error);
       });
     }
-  }, []);
+  }, [selectedCurrency.code]);
 
   // Update cart when currency changes
   useEffect(() => {
@@ -123,7 +123,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       .catch(error => {
         console.error('Failed to update cart currency:', error);
       });
-  }, [selectedCurrency.code, isInitialized, cart]);
+  }, [selectedCurrency.code, isInitialized, cart, cartId]);
 
 
   // Persist cart changes to localStorage

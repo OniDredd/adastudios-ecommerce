@@ -67,7 +67,7 @@ export default function FAQPage() {
             <div>
               <h3 className="font-semibold">How do I track my order?</h3>
               <p>
-                Once your order ships, you'll receive a confirmation email with tracking information.
+                Once your order ships, you&apos;ll receive a confirmation email with tracking information.
               </p>
             </div>
 
@@ -90,7 +90,7 @@ export default function FAQPage() {
             <div>
               <h3 className="font-semibold">How long will it take to receive my order?</h3>
               <p>
-                Standard shipping takes 5-7 business days within Express shipping (2-3 business days) is available at checkout. International shipping typically takes 7-14 business days.
+                Standard shipping takes 5-7 business days. Express shipping (2-3 business days) is available at checkout. International shipping typically takes 7-14 business days.
               </p>
             </div>
 

@@ -1,11 +1,15 @@
+import Image from 'next/image';
+
 export default function Loading() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary-peach">
       <div className="relative w-32 h-32">
-        <img 
+        <Image 
           src="/adastudioslogo-peach.svg"
           alt="Ada Studios Logo"
-          className="w-full h-full object-contain animate-fade"
+          width={128}
+          height={128}
+          className="object-contain animate-fade"
         />
       </div>
     </div>
