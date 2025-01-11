@@ -91,6 +91,14 @@ export default function Navbar(): JSX.Element {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Update announcement bar visibility when mobile menu changes
+  useEffect(() => {
+    const announcementBar = document.querySelector('[data-announcement-bar]');
+    if (announcementBar) {
+      announcementBar.setAttribute('data-menu-open', isMobileMenuOpen.toString());
+    }
+  }, [isMobileMenuOpen]);
+
   // Only calculate cart count after initialization to prevent hydration mismatch
   const cartItemCount = isInitialized ? cart.reduce((total, item) => total + item.quantity, 0) : 0;
 

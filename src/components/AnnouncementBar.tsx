@@ -39,7 +39,9 @@ export default function AnnouncementBar() {
       className={`
         fixed top-0 w-full z-[51] bg-main-maroon text-secondary-peach h-8 overflow-hidden
         transition-all duration-300 ease-in-out
-        data-[scrolled=true]:-translate-y-full data-[scrolled=false]:translate-y-0
+        data-[scrolled=true]:-translate-y-full 
+        data-[scrolled=false]:translate-y-0
+        data-[menu-open=true]:-translate-y-full
       `}
     >
       <div className="relative flex items-center h-full overflow-hidden">
