@@ -90,10 +90,6 @@ export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange
   const [internalIndex, setInternalIndex] = useState(0);
   const currentIndex = selectedMediaIndex ?? internalIndex;
   const [preloaded, setPreloaded] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [currentX, setCurrentX] = useState(0);
-
   const updateMedia = (index: number) => {
     if (onMediaChange) {
       onMediaChange(index);
@@ -124,88 +120,8 @@ export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange
     });
   }, [media]);
 
-  // Desktop drag handling
-  const handleDragStart = (clientX: number) => {
-    setIsDragging(true);
-    setStartX(clientX);
-    setCurrentX(clientX);
-  };
-
-  const handleDragMove = (clientX: number) => {
-    if (!isDragging) return;
-    setCurrentX(clientX);
-  };
-
-  const handleDragEnd = () => {
-    if (!isDragging) return;
-
-    const diff = currentX - startX;
-    const threshold = window.innerWidth * 0.2;
-
-    if (Math.abs(diff) > threshold) {
-      const newIndex = diff > 0 
-        ? currentIndex > 0 ? currentIndex - 1 : 0
-        : currentIndex < media.length - 1 ? currentIndex + 1 : media.length - 1;
-      
-      updateMedia(newIndex);
-    }
-
-    setIsDragging(false);
-  };
-
-  // Mouse event handlers
-  const onMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    handleDragStart(e.clientX);
-  };
-
-  const onMouseMove = (e: React.MouseEvent) => {
-    e.preventDefault();
-    handleDragMove(e.clientX);
-  };
-
-  const onMouseUp = () => {
-    handleDragEnd();
-  };
-
-  const onMouseLeave = () => {
-    if (isDragging) {
-      handleDragEnd();
-    }
-  };
-
-  // Mobile touch handling
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientY);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientY);
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-
-    const distance = touchStart - touchEnd;
-    const isSwipe = Math.abs(distance) > 50;
-
-    if (isSwipe) {
-      if (distance > 0 && currentIndex < media.length - 1) {
-        updateMedia(currentIndex + 1);
-      } else if (distance < 0 && currentIndex > 0) {
-        updateMedia(currentIndex - 1);
-      }
-    }
-
-    setTouchStart(0);
-    setTouchEnd(0);
-  };
-
   return (
-    <div className="w-full h-[100dvh] md:h-screen sticky top-0 bg-secondary-peach max-sm:border-b max-sm:border-[0.5px] max-sm:border-main-maroon">
+    <div className="w-full h-[700px] md:h-screen sticky top-0 bg-secondary-peach max-sm:border-b max-sm:border-[0.5px] max-sm:border-main-maroon">
       {/* Loading state */}
       <div 
         className={cn(
@@ -217,21 +133,15 @@ export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange
       </div>
 
       {/* Image slider container */}
-      <div 
-        className="absolute inset-0 overflow-hidden cursor-grab active:cursor-grabbing bg-secondary-peach"
-        onMouseDown={onMouseDown}
-        onMouseMove={onMouseMove}
-        onMouseUp={onMouseUp}
-        onMouseLeave={onMouseLeave}
-      >
+      <div className="absolute inset-0 overflow-hidden bg-secondary-peach">
         <div 
           className={cn(
             "flex h-full",
-            isDragging ? "transition-none" : "transition-all duration-500 ease-out",
+            "transition-all duration-500 ease-out",
             preloaded ? "opacity-100" : "opacity-0"
           )}
           style={{
-            transform: `translateX(calc(-${currentIndex * 100}% + ${isDragging ? currentX - startX : 0}px))`
+            transform: `translateX(calc(-${currentIndex * 100}%))`
           }}
         >
           {media.map((item, index) => (
@@ -247,13 +157,7 @@ export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange
                 />
               ) : (
                 <div 
-                  className={cn(
-                    "relative w-full h-full bg-secondary-peach",
-                    "md:cursor-grab md:active:cursor-grabbing"
-                  )}
-                  onTouchStart={handleTouchStart}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
+                  className="relative w-full h-full bg-secondary-peach"
                 >
                   <Image
                     src={item.node.image?.originalSrc || ''}
@@ -333,16 +237,14 @@ export function ProductGallery({ media, title, selectedMediaIndex, onMediaChange
         <div className="absolute bottom-6 left-0 right-0 px-4 z-10">
           <div className="flex items-center justify-center gap-2">
             {media.map((_, index) => (
-              <button
+              <div
                 key={index}
-                onClick={() => updateMedia(index)}
                 className={cn(
                   "w-2 h-2 rounded-full transition-all duration-300",
                   currentIndex === index 
                     ? "w-6 bg-main-maroon" 
                     : "bg-main-maroon/30"
                 )}
-                aria-label={`Go to media ${index + 1}`}
               />
             ))}
           </div>
