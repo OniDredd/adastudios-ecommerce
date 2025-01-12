@@ -122,22 +122,6 @@ export default function PrivacyPolicyPage() {
             </p>
           </div>
         </section>
-
-        <section>
-          <h2 className="text-base sm:text-xl font-medium mb-4 text-[hsl(var(--main-maroon))] border-b-2 border-[hsl(var(--main-maroon))] pb-2">
-            Contact Us
-          </h2>
-          <div className="space-y-4">
-            <p>
-              If you have any questions about our Privacy Policy, please contact us:
-            </p>
-            <div className="space-y-2">
-              <p>Email: privacy@adastudios.com</p>
-              <p>Phone: (555) 123-4567</p>
-              <p>Address: 123 Main Street, Suite 100, San Francisco, CA 94105</p>
-            </div>
-          </div>
-        </section>
       </div>
     </div>
     </FadeIn>
