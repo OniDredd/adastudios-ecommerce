@@ -309,8 +309,8 @@ export default function ProductDetails({ product, collection }: ProductDetailsPr
         ref={detailsRef}
         className="w-full md:w-1/2 min-h-screen md:max-h-screen bg-secondary-peach text-main-maroon scrollbar-thin scrollbar-thumb-main-maroon scrollbar-track-secondary-peach flex items-center"
       >
-        <div className="w-full h-full flex justify-center items-centers py-10 px-4 sm:px-6 md:px-16 overflow-y-auto">
-          <div className="max-w-xl mx-auto space-y-3 md:space-y-4 min-h-screen flex flex-col pt-24 md:pt-32 pb-4">
+        <div className="w-full h-full flex justify-center items-centers sm:py-6 md:py-10 px-10 md:px-16 overflow-y-auto">
+          <div className="max-w-xl mx-auto space-y-3 md:space-y-4 md:min-h-screen flex flex-col sm:pt-16 md:pt-32 pb-4">
             {/* Header */}
             <div className="flex justify-between items-start">
               <div>
