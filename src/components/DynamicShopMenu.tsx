@@ -153,7 +153,7 @@ export function ShopAllMenu(): JSX.Element {
         </div>
         <NavigationMenuContent>
           <MotionFade>
-            <div className="w-screen h-[400px] bg-secondary-peach flex items-center justify-center border border-main-maroon rounded-lg">
+            <div className="w-screen h-[400px] bg-secondary-peach flex items-center justify-center rounded-lg">
               <div className="text-main-maroon">Loading...</div>
             </div>
           </MotionFade>
@@ -171,7 +171,7 @@ export function ShopAllMenu(): JSX.Element {
       </div>
       <NavigationMenuContent>
         <MotionFade>
-          <div className="w-screen h-[400px] bg-secondary-peach p-6 border border-main-maroon rounded-lg">
+          <div className="w-screen h-[400px] bg-secondary-peach p-6 rounded-lg">
             <div className="container mx-auto grid grid-cols-3 gap-6">
               <div className="space-y-4">
                 <h3 className="text-base font-medium text-main-maroon">Categories</h3>
@@ -348,7 +348,7 @@ export function SaleMenu(): JSX.Element {
         </div>
         <NavigationMenuContent>
           <MotionFade>
-            <div className="w-screen h-[400px] bg-secondary-peach flex items-center justify-center border border-main-maroon rounded-lg">
+            <div className="w-screen h-[400px] bg-secondary-peach flex items-center justify-center rounded-lg">
               <div className="text-main-maroon">Loading...</div>
             </div>
           </MotionFade>
@@ -364,9 +364,9 @@ export function SaleMenu(): JSX.Element {
           SALE
         </NavigationMenuTrigger>
       </div>
-      <NavigationMenuContent>
+      <NavigationMenuContent className=" outline-main-maroon">
         <MotionFade>
-          <div className="w-screen h-[400px] bg-secondary-peach p-6 border border-main-maroon rounded-lg">
+          <div className="w-screen h-[400px] bg-secondary-peach p-6 rounded-lg">
             <div className="container mx-auto grid grid-cols-3 gap-6">
               <div className="space-y-4">
                 <h3 className="text-base font-medium text-main-maroon">Sale Categories</h3>

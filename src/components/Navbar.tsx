@@ -12,10 +12,7 @@ import { useCart } from './CartProvider';
 import { useCurrency } from './CurrencyProvider';
 import {
   NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
   NavigationMenuList,
-  NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import {
   DropdownMenu,
