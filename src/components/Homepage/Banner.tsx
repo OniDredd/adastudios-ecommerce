@@ -9,11 +9,11 @@ const inter = Inter({
 export default function SaleBanner() {
     return (
       <section className="w-full h-screen flex flex-col justify-end items-center bg-[url('/HeroBackground.png')] bg-cover bg-center md:bg-top text-center pb-16 border-main-maroon border-b-[1px]">
-        <FadeIn className="space-y-3">
+        {/* <FadeIn className="space-y-3">
           <h1 className={`${inter.className} text-md lg:text-2xl font-regular text-main-maroon`}>
             New Year, New Look, Same glassware you love.
           </h1>
-        </FadeIn>
+        </FadeIn> */}
       </section>
     );
   }
