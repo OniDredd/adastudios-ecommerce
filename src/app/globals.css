@@ -5,12 +5,12 @@
 @layer base {
   :root {
     /* Base colors using HSL values */
-    --background: 20 100% 91%;    /* #FFDFCF */
-    --foreground: 336 100% 18%;   /* #5E002B */
+    --background: 21 87% 82%;    /* #f9c6aa */
+    --foreground: 335 64% 27%;   /* #70193d */
     
     /* Main theme colors */
-    --main-maroon: 336 100% 18%;  /* #5E002B */
-    --secondary-peach: 20 100% 91%; /* #FFDFCF */
+    --main-maroon: 335 64% 27%;  /* #70193d */
+    --secondary-peach: 21 87% 82%; /* #f9c6aa */
 
     /* Component-specific colors */
     --card: var(--secondary-peach);

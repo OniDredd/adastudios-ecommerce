@@ -29,7 +29,7 @@ const ImagePlaceholder = () => (
 );
 
 const LoadingSpinner = () => (
-  <div className="w-full h-64 flex items-center justify-center bg-secondary-peach">
+  <div className="w-full h-64 flex items-center justify-center bg-secondary-peach ">
     <div className="w-12 h-12 border-2 border-main-maroon border-t-transparent rounded-full animate-spin" />
   </div>
 );
@@ -51,7 +51,7 @@ const InstagramPost = ({ post }: { post: InstagramPost }) => {
 
   return (
     <div className="instagram-post">
-      <div className="relative w-full h-full">
+      <div className="relative w-full h-full rounded-xl">
         <Image
           src={imageUrl}
           alt={caption || 'Instagram post'}
@@ -153,7 +153,7 @@ const InstagramFeedContent = ({ config }: { config: GridConfig }) => {
                 href={post.permalink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="cursor-pointer transition-opacity hover:opacity-90"
+                className="cursor-pointer transition-opacity hover:opacity-90 rounded-xl"
               >
                 <InstagramPost post={post} />
               </a>

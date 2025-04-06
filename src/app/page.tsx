@@ -179,15 +179,15 @@ async function getMatchaProducts(): Promise<MatchaProduct[]> {
 
 const INSTAGRAM_FEED_CONFIG = {
   positions: {
-    1: "https://www.instagram.com/p/DBm_4feyWKt/",
+    1: "https://www.instagram.com/p/DGtU4QMzHRV/",
     2: "https://www.instagram.com/p/C9TXTizyvrv/",
     3: "https://www.instagram.com/p/C7yOMEAPGSX/",
     4: "https://www.instagram.com/p/C6-ivdyLhjO/",
-    5: "https://www.instagram.com/p/CvYA2EspiFD/",
+    5: "https://www.instagram.com/p/DHktArDJrwW/",
     6: "https://www.instagram.com/p/C5IL9kSsDxN/",
     7: "https://www.instagram.com/p/DAVHVgmyJ1b/",
-    8: "https://www.instagram.com/p/CwtdH_YpcO8/",
-    9: "https://www.instagram.com/p/DFVxGFcTSAP/",
+    8: "https://www.instagram.com/p/DHHCWtGS3ND/",
+    9: "https://www.instagram.com/p/C_EtjAQyOpw/",
     10: "https://www.instagram.com/p/DA0FymySmRH/"
   }
 } as const;
