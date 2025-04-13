@@ -6,10 +6,10 @@
   :root {
     /* Base colors using HSL values */
     --background: 24 96% 90%;     /* #fee0cc */
-    --foreground: 339 75.5% 20.8%;   /* #70193d */
+    --foreground: 339 75.5% 20.8%;   /* #5d0d29 */
     
     /* Main theme colors */
-    --main-maroon: 339 75.5% 20.8%;  /* #70193d */
+    --main-maroon: 339 75.5% 20.8%;  /* #5d0d29 */
     --secondary-peach: 24 96% 90%; /* #fee0cc */
 
     /* Component-specific colors */

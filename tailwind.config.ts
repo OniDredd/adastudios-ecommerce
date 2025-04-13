@@ -12,8 +12,8 @@ const config: Config = {
       colors: {
         // Remove main-peach as we're only using secondary-peach now
         'secondary-peach': '#fee0cc',
-        'main-maroon': '#70193d',
-        'nav-border': '#70193d',
+        'main-maroon': '#5d0d29',
+        'nav-border': '#5d0d29',
         
         // Base colors
         background: 'hsl(var(--background))',
