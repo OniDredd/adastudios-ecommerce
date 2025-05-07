@@ -8,6 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { FaShoppingCart } from "react-icons/fa";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import LogoDark from "../../public/adastudioslogo-maroon.svg";
+import LogoPeach from "../../public/adastudioslogo-peach.svg";
 import { useCart } from './CartProvider';
 import { useCurrency } from './CurrencyProvider';
 import {
@@ -103,8 +104,8 @@ export default function Navbar(): JSX.Element {
   return (
     <header className={`fixed w-full z-[90] transition-all duration-300 border-b ${
       isScrolled || isMobileMenuOpen || pathname !== '/'
-        ? "bg-secondary-peach border-main-maroon top-0" 
-        : "bg-transparent border-transparent top-[32px]"
+        ? "bg-secondary-peach border-main-maroon top-0 text-main-maroon" 
+        : "bg-transparent border-transparent top-[32px] text-secondary-peach"
     }`}>
       <div className="mx-auto">
         <div className="relative flex items-center justify-between h-[70px]">
@@ -115,22 +116,22 @@ export default function Navbar(): JSX.Element {
             aria-label="Toggle menu"
           >
             <div className={`
-              w-6 h-0.5 bg-main-maroon absolute transition-all duration-300 ease-in-out
+              w-6 h-0.5 ${!isScrolled && pathname === '/' ? 'bg-secondary-peach' : 'bg-main-maroon'} absolute transition-all duration-300 ease-in-out
               ${isMobileMenuOpen ? 'rotate-45' : '-translate-y-2'}
             `}></div>
             <div className={`
-              w-6 h-0.5 bg-main-maroon absolute transition-all duration-300 ease-in-out
+              w-6 h-0.5 ${!isScrolled && pathname === '/' ? 'bg-secondary-peach' : 'bg-main-maroon'} absolute transition-all duration-300 ease-in-out
               ${isMobileMenuOpen ? 'opacity-0' : 'opacity-100'}
             `}></div>
             <div className={`
-              w-6 h-0.5 bg-main-maroon absolute transition-all duration-300 ease-in-out
+              w-6 h-0.5 ${!isScrolled && pathname === '/' ? 'bg-secondary-peach' : 'bg-main-maroon'} absolute transition-all duration-300 ease-in-out
               ${isMobileMenuOpen ? '-rotate-45' : 'translate-y-2'}
             `}></div>
           </button>
           {/* Left side - Navigation Menu (Desktop) */}
           <nav className="hidden md:flex flex-1 relative z-[80]">
             <NavigationMenu>
-              <NavigationMenuList className="text-main-maroon">
+              <NavigationMenuList>
                 <ShopAllMenu />
 
                 <SaleMenu />
@@ -142,7 +143,7 @@ export default function Navbar(): JSX.Element {
           <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center z-[80]">
             <Link href="/" className="relative block">
               <Image
-                src={LogoDark}
+                src={!isScrolled && pathname === '/' ? LogoPeach : LogoDark}
                 alt="Ada Studios Logo"
                 width={80}
                 height={80}
@@ -158,8 +159,10 @@ export default function Navbar(): JSX.Element {
               <div className="inline-flex cursor-pointer group">
                 <DropdownMenuTrigger className="data-[state=open]:bg-transparent bg-transparent border border-transparent hover:border-main-maroon rounded-lg transition-all duration-300">
                   <div className="flex items-center gap-1 px-2 md:px-3 py-2">
-                    <span className="text-sm font-medium text-main-maroon">{selectedCurrency.code}</span>
-                    <ChevronDownIcon className="relative top-[1px] ml-1 h-3 w-3 transition duration-300 text-main-maroon group-data-[state=open]:rotate-180" aria-hidden="true" />
+                    <span className={`text-sm font-medium ${!isScrolled && pathname === '/' ? 'text-secondary-peach' : 'text-main-maroon'}`}>{selectedCurrency.code}</span>
+                    <ChevronDownIcon className={`relative top-[1px] ml-1 h-3 w-3 transition duration-300 group-data-[state=open]:rotate-180 ${
+                      !isScrolled && pathname === '/' ? 'text-secondary-peach' : 'text-main-maroon'
+                    }`} aria-hidden="true" />
                   </div>
                 </DropdownMenuTrigger>
               </div>
@@ -192,7 +195,7 @@ export default function Navbar(): JSX.Element {
             >
               <FaShoppingCart className={`
                 cursor-pointer text-xl md:text-lg
-                ${isScrolled ? 'text-main-maroon' : 'text-main-maroon'}
+                ${!isScrolled && pathname === '/' ? 'text-secondary-peach' : 'text-main-maroon'}
               `} />
               <span 
                 className={`absolute -top-1 -right-1 bg-main-maroon text-secondary-peach rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium transition-opacity duration-200 ${

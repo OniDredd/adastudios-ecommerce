@@ -184,7 +184,7 @@ const INSTAGRAM_FEED_CONFIG = {
     3: "https://www.instagram.com/p/C7yOMEAPGSX/",
     4: "https://www.instagram.com/p/C6-ivdyLhjO/",
     5: "https://www.instagram.com/p/DHktArDJrwW/",
-    6: "https://www.instagram.com/p/DIUgi-hzr_U/",
+    6: "https://www.instagram.com/p/DI9rbJvTXCt/",
     7: "https://www.instagram.com/p/DAVHVgmyJ1b/",
     8: "https://www.instagram.com/p/DHHCWtGS3ND/",
     9: "https://www.instagram.com/p/C_EtjAQyOpw/",

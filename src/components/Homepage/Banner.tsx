@@ -8,10 +8,10 @@ const inter = Inter({
 
 export default function SaleBanner() {
     return (
-      <section className="w-full h-screen flex flex-col justify-end items-center bg-[url('/HeroBackground.png')] bg-cover bg-center md:bg-top text-center pb-16 border-main-maroon border-b-[1px]">
-        {/* <FadeIn className="space-y-3">
-          <h1 className={`${inter.className} text-md lg:text-2xl font-regular text-main-maroon`}>
-            New Year, New Look, Same glassware you love.
+      <section className="w-full h-screen flex flex-col justify-center lg:justify-start items-center lg:items-start bg-[url('/HeroBackground3.jpg')] bg-cover bg-[60%_center] lg:bg-top text-left px-32 pt-60 border-main-maroon border-b-[1px]">
+        {/* <FadeIn className="hidden lg:block space-y-3 max-w-full">
+          <h1 className={`${inter.className} text-md lg:text-3xl font-black text-secondary-peach max-w-lg`}>
+            Transforming takeaway into a lifestyle statement.
           </h1>
         </FadeIn> */}
       </section>
