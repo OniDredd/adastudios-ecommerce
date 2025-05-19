@@ -1,59 +1,55 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Image from 'next/image';
-import InstagramErrorBoundary from './InstagramErrorBoundary';
 import './InstagramFeed.css';
 
-type InstagramPost = {
+type GridConfig = {
+  positions: {
+    [key: number]: string;
+  };
+};
+
+type LocalInstagramPost = {
   id: string;
-  media_url: string;
+  imageUrl: string;
   permalink: string;
   caption?: string;
-  media_type: string;
-  thumbnail_url?: string;
+  isCarousel?: boolean;
 };
 
-type GridConfig = {
-  positions: Record<number, string>;
-};
-
+// Helper component for posts that fail to load
 const ImagePlaceholder = () => (
-  <div className="instagram-post bg-secondary-peach">
-    <div className="w-full h-full flex items-center justify-center text-main-maroon">
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    </div>
+  <div className="instagram-post bg-secondary-peach flex items-center justify-center">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+    </svg>
   </div>
 );
 
+// Loading spinner component
 const LoadingSpinner = () => (
-  <div className="w-full h-64 flex items-center justify-center bg-secondary-peach ">
-    <div className="w-12 h-12 border-2 border-main-maroon border-t-transparent rounded-full animate-spin" />
+  <div className="w-full py-8 flex justify-center">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-main-maroon"></div>
   </div>
 );
 
+// Error message component
 const ErrorMessage = ({ message }: { message: string }) => (
-  <div className="w-full h-64 flex flex-col items-center justify-center text-main-maroon bg-secondary-peach">
-    <p className="mb-2">Error loading Instagram posts</p>
-    <p className="text-sm text-main-maroon/70">{message}</p>
+  <div className="w-full py-8 text-center">
+    <p className="text-gray-500 mb-2">Unable to load Instagram feed</p>
+    <p className="text-sm text-gray-400">{message}</p>
   </div>
 );
 
-const InstagramPost = ({ post }: { post: InstagramPost }) => {
-  const imageUrl = post.media_type === 'CAROUSEL_ALBUM' && post.thumbnail_url 
-    ? post.thumbnail_url 
-    : post.media_url;
+const InstagramPost = ({ post }: { post: LocalInstagramPost }) => {
   const caption = post.caption?.replace(/#[a-zA-Z0-9]+/g, '').trim() || '';
-
-  if (!imageUrl) return <ImagePlaceholder />;
 
   return (
     <div className="instagram-post">
       <div className="relative w-full h-full rounded-xl">
         <Image
-          src={imageUrl}
+          src={post.imageUrl}
           alt={caption || 'Instagram post'}
           className="post-media"
           width={600}
@@ -63,13 +59,6 @@ const InstagramPost = ({ post }: { post: InstagramPost }) => {
           blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVigAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVigAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRoaHSQtJSEkLzYvLy02LjY2OjY2Njo2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Njb/2wBDARUXFyAeIB4gHh4gIB4lICAgICUmJSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICD/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
           sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 20vw"
         />
-        {post.media_type === 'CAROUSEL_ALBUM' && (
-          <div className="media-indicator">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-              <path d="M4 6h2v2H4V6zm0 5h2v2H4v-2zm0 5h2v2H4v-2zm16-8V6h-2v2h2zm0 5h-2v2h2v-2zm0 5h-2v2h2v-2zM8 6h8v2H8V6zm0 5h8v2H8v-2zm0 5h8v2H8v-2z"/>
-            </svg>
-          </div>
-        )}
       </div>
       {caption && (
         <div className="post-overlay">
@@ -82,97 +71,54 @@ const InstagramPost = ({ post }: { post: InstagramPost }) => {
   );
 };
 
-const InstagramFeedContent = ({ config }: { config: GridConfig }) => {
-  const [posts, setPosts] = useState<InstagramPost[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const postIds = Object.values(config.positions)
-          .map(url => {
-            const match = url.match(/instagram\.com\/p\/([^\/]+)/);
-            return match?.[1] || '';
-          })
-          .filter(Boolean);
-
-        if (!postIds.length) {
-          throw new Error('No valid Instagram post IDs found');
-        }
-
-        const response = await fetch('/api/instagram-feed', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ postIds }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch Instagram posts');
-        }
-
-        const data = await response.json();
-        if (!data.posts?.length) {
-          throw new Error('No posts available');
-        }
-
-        setPosts(data.posts);
-      } catch (err) {
-        console.error('Error fetching Instagram posts:', err);
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
+const InstagramFeed = ({ config }: { config: GridConfig }) => {
+  // Main Instagram profile URL
+  const instagramProfileUrl = "https://www.instagram.com/adastudionz/";
+  
+  // Map position numbers directly to local images
+  const localPosts: LocalInstagramPost[] = Object.entries(config.positions).map(([position, url]) => {
+    // Extract Instagram post ID from URL for debugging/reference purposes only
+    const postId = url.match(/instagram\.com\/p\/([^\/]+)/)?.[1] || '';
+    
+    // Map each position to the corresponding numbered image file
+    const imageIndex = parseInt(position);
+    
+    // Use deterministic values instead of Math.random() to avoid hydration mismatch
+    const isCarousel = imageIndex % 3 === 0; // Every 3rd post will be a carousel
+    
+    return {
+      id: postId,
+      imageUrl: `/instagram/instagramphoto${imageIndex}.jpeg`,
+      permalink: instagramProfileUrl, // Use main profile URL instead of individual post URLs
+      caption: `Follow us on Instagram @adastudionz`,
+      isCarousel
     };
-
-    fetchPosts();
-  }, [config]);
-
-  if (loading) return <LoadingSpinner />;
-  if (error) return <ErrorMessage message="Some posts may be temporarily unavailable" />;
-  if (!posts.length) return <ErrorMessage message="Please check back later" />;
-
-  const gridPosts = Array(10).fill(null).map((_, index) => {
-    const position = index + 1;
-    const postUrl = config.positions[position];
-    const postId = postUrl?.match(/instagram\.com\/p\/([^\/]+)/)?.[1];
-    return posts.find(post => post.permalink.includes(postId || ''));
   });
 
   return (
-    <div className="w-full overflow-hidden">
-      <div className="instagram-grid-container">
-        <h2 className="text-xl font-medium text-main-maroon mb-4">
-          FOLLOW US ON INSTAGRAM
-        </h2>
-        <div className="instagram-grid">
-          {gridPosts.map((post, index) => (
-            post ? (
+    <section className="w-full py-8 md:py-12">
+      <div className="w-full overflow-hidden">
+        <div className="instagram-grid-container">
+          <h2 className="text-xl font-medium text-main-maroon mb-4">
+            FOLLOW US ON INSTAGRAM
+          </h2>
+          <div className="instagram-grid">
+            {localPosts.map((post, index) => (
               <a
                 key={`${post.id}-${index}`}
-                href={post.permalink}
+                href={instagramProfileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="cursor-pointer transition-opacity hover:opacity-90 rounded-xl"
               >
                 <InstagramPost post={post} />
               </a>
-            ) : (
-              <ImagePlaceholder key={`placeholder-${index}`} />
-            )
-          ))}
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
-
-const InstagramFeed = ({ config }: { config: GridConfig }) => (
-  <section className="w-full py-8 md:py-12">
-    <InstagramErrorBoundary>
-      <InstagramFeedContent config={config} />
-    </InstagramErrorBoundary>
-  </section>
-);
 
 export default InstagramFeed;
